@@ -108,6 +108,34 @@ describe("middleware", () => {
     expect(new URL(res.headers.get("location")!).pathname).toBe("/");
   });
 
+  it("bypasses locale rewriter at / when SLATE_MARKETING_HOME=1", async () => {
+    const original = process.env.SLATE_MARKETING_HOME;
+    process.env.SLATE_MARKETING_HOME = "1";
+    try {
+      const res = await middleware(req("/"));
+      // Pass-through: no redirect Location and no locale rewrite header.
+      expect(res.headers.get("location")).toBeNull();
+      expect(res.headers.get("x-middleware-rewrite")).toBeNull();
+    } finally {
+      if (original === undefined) delete process.env.SLATE_MARKETING_HOME;
+      else process.env.SLATE_MARKETING_HOME = original;
+    }
+  });
+
+  it("rewrites / to /<defaultLocale> when SLATE_MARKETING_HOME is unset", async () => {
+    const original = process.env.SLATE_MARKETING_HOME;
+    delete process.env.SLATE_MARKETING_HOME;
+    try {
+      const res = await middleware(req("/"));
+      // Existing behavior: rewrite "/" -> "/en" via x-middleware-rewrite header.
+      const rewrite = res.headers.get("x-middleware-rewrite");
+      expect(rewrite).toBeTruthy();
+      expect(new URL(rewrite!).pathname).toBe("/en");
+    } finally {
+      if (original !== undefined) process.env.SLATE_MARKETING_HOME = original;
+    }
+  });
+
   it("leaves non-default-locale paths alone", async () => {
     getI18nSettings.mockResolvedValueOnce({
       defaultLocale: "en",
