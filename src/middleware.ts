@@ -1,6 +1,9 @@
 import { NextResponse, type NextRequest } from "next/server";
 
-const ALLOW_DURING_SETUP = ["/setup", "/api/healthz", "/api/readyz", "/_next", "/favicon.ico"];
+// /api/* routes handle their own auth + are exempt from the setup-incomplete
+// redirect. Critically, the middleware below fetches /api/setup-status; if that
+// path were gated by the setup check, the fetch would loop on itself and 500.
+const ALLOW_DURING_SETUP = ["/setup", "/api", "/_next", "/favicon.ico"];
 const SESSION_COOKIE_NAME = "wpk_session";
 
 export async function middleware(req: NextRequest): Promise<NextResponse> {
