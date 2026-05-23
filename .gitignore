@@ -42,5 +42,6 @@ src/db/migrations/meta
 # OS
 Thumbs.db
 
-# Claude local config
-.claude/settings.local.json
+# Claude Code local config (user-specific, never commit)
+.claude/
+.claude-code
