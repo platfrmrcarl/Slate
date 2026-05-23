@@ -36,8 +36,10 @@ coverage
 # TypeScript incremental build info
 *.tsbuildinfo
 
-# Drizzle
-src/db/migrations/meta
+# NOTE: src/db/migrations/meta/ used to be ignored, which left the snapshot
+# chain incoherent and broke `pnpm db:generate` after migration 0009. The
+# chain is now tracked; commit any new *_snapshot.json files alongside the
+# SQL migration they correspond to.
 
 # OS
 Thumbs.db
