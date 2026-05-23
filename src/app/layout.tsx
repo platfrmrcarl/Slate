@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { ensureDefaultThemeSeeded } from "@/themes/seed";
 import { resolveThemeContext } from "@/themes/context";
+import { ensurePluginsSeeded } from "@/plugins/seed";
 
 export const metadata: Metadata = {
   title: "WordPressKiller",
@@ -10,6 +11,7 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   await ensureDefaultThemeSeeded();
+  await ensurePluginsSeeded();
   const theme = await resolveThemeContext();
   return (
     <html lang="en">
