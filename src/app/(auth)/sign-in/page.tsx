@@ -34,6 +34,11 @@ export default function SignInPage() {
         <Link href={"/magic-link" as Route}>Sign in via magic link</Link> ·{" "}
         <Link href={"/sign-up" as Route}>Create account</Link>
       </p>
+      <p className="mt-3 text-sm">
+        <Link className="underline" href={"/forgot-password" as Route}>
+          Forgot your password?
+        </Link>
+      </p>
       <div className="mt-6 grid gap-2">
         {process.env.NEXT_PUBLIC_OAUTH_GOOGLE_ENABLED === "1" && (
           // eslint-disable-next-line @next/next/no-html-link-for-pages
