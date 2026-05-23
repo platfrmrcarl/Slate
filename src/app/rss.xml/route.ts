@@ -17,13 +17,14 @@ export async function GET(): Promise<Response> {
   const { items } = await listPosts({ status: "published", limit: 50 });
   for (const p of items) {
     if (!p.publishedAt) continue;
-    feed.addItem({
+    const item: Parameters<typeof feed.addItem>[0] = {
       title: p.title,
       id: `${appUrl}/blog/${p.slug}`,
       link: `${appUrl}/blog/${p.slug}`,
-      description: p.excerpt ?? undefined,
       date: p.publishedAt,
-    });
+    };
+    if (p.excerpt) item.description = p.excerpt;
+    feed.addItem(item);
   }
   return new Response(feed.rss2(), {
     status: 200,
