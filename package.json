@@ -48,6 +48,7 @@
     "remark-parse": "11",
     "remark-rehype": "11",
     "resend": "4",
+    "sharp": "0.34",
     "unified": "11",
     "zod": "3"
   },
