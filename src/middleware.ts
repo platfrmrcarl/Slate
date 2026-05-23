@@ -52,6 +52,20 @@ function ipOf(req: NextRequest): string {
 export async function middleware(req: NextRequest): Promise<NextResponse> {
   const { pathname } = req.nextUrl;
 
+  // CORS deny on machine-to-machine surfaces. Cloud Tasks (job push) and
+  // the wpkiller CLI never send an `Origin` header. A request that does
+  // carry one is by definition a cross-origin browser probe, and we don't
+  // want either surface reachable that way regardless of auth state.
+  if (
+    (pathname.startsWith("/api/cli/") || pathname.startsWith("/api/jobs/")) &&
+    req.headers.get("origin") !== null
+  ) {
+    return new NextResponse(JSON.stringify({ error: "forbidden" }), {
+      status: 403,
+      headers: { "content-type": "application/json" },
+    });
+  }
+
   // Edge-level admin guard: require a session cookie before any /admin route.
   // The per-request `getOptionalUser()` in the layout is the source of truth;
   // this is defense-in-depth so unauthenticated users don't hit server components.
