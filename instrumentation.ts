@@ -9,13 +9,15 @@ export async function register(): Promise<void> {
     "@opentelemetry/auto-instrumentations-node"
   );
   const { Resource } = await import("@opentelemetry/resources");
-  const semconv = await import("@opentelemetry/semantic-conventions");
+  const { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } = await import(
+    "@opentelemetry/semantic-conventions"
+  );
   const { TraceExporter } = await import("@google-cloud/opentelemetry-cloud-trace-exporter");
 
   const sdk = new NodeSDK({
     resource: new Resource({
-      [semconv.SemanticResourceAttributes.SERVICE_NAME]: "wpkiller",
-      [semconv.SemanticResourceAttributes.SERVICE_VERSION]: process.env.WPK_VERSION ?? "0.0.0",
+      [ATTR_SERVICE_NAME]: "wpkiller",
+      [ATTR_SERVICE_VERSION]: process.env.WPK_VERSION ?? "0.0.0",
       "deployment.environment": process.env.NODE_ENV ?? "development",
     }),
     traceExporter: new TraceExporter(),
