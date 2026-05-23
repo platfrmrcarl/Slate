@@ -8,19 +8,20 @@
 
 **Model defaults** (per master spec §9):
 
-| Feature | Model | Why |
-|---|---|---|
-| generate-page | `claude-opus-4-7` | Highest quality structured output. |
-| inline rewrite/expand/shorten | `claude-haiku-4-5` | Latency-sensitive, low cost. |
-| auto alt text (vision) | `claude-haiku-4-5` | Single-shot vision. |
-| auto SEO meta | `claude-haiku-4-5` | Short generation. |
-| translate-page | `claude-sonnet-4-6` | Quality multilingual, no Opus cost. |
-| sidebar chat | `claude-sonnet-4-6` | Conversational. |
-| spam classify | `claude-haiku-4-5` | Cheap, accurate enough. |
+| Feature                       | Model               | Why                                 |
+| ----------------------------- | ------------------- | ----------------------------------- |
+| generate-page                 | `claude-opus-4-7`   | Highest quality structured output.  |
+| inline rewrite/expand/shorten | `claude-haiku-4-5`  | Latency-sensitive, low cost.        |
+| auto alt text (vision)        | `claude-haiku-4-5`  | Single-shot vision.                 |
+| auto SEO meta                 | `claude-haiku-4-5`  | Short generation.                   |
+| translate-page                | `claude-sonnet-4-6` | Quality multilingual, no Opus cost. |
+| sidebar chat                  | `claude-sonnet-4-6` | Conversational.                     |
+| spam classify                 | `claude-haiku-4-5`  | Cheap, accurate enough.             |
 
 **Tech Stack additions:** `@anthropic-ai/sdk` v0.40+, `eventsource-parser` v3 (for SSE streaming), no new infrastructure.
 
 **Depends on:**
+
 - foundation (env + logger + Drizzle).
 - auth-and-users (`requireRole` for admin-only features; `ai_usage.userId` FK).
 - media-library (vision input downloads via `getObjectStream`; replaces the `media-alt-text` job stub).
@@ -34,52 +35,53 @@
 
 ## File Map
 
-| Path | Purpose |
-|---|---|
-| `src/env.ts` | **MODIFY** — add `ANTHROPIC_API_KEY`, `AI_DEFAULT_*` overrides, `AI_MONTHLY_TOKEN_BUDGET` |
-| `src/env.test.ts` | **MODIFY** — extend |
-| `src/db/schema.ts` | **MODIFY** — add `ai_usage`, `ai_chat_sessions`, `ai_chat_messages` |
-| `src/db/migrations/0006_ai.sql` | Generated migration |
-| `src/ai/client.ts` | Anthropic SDK wrapper with cache helpers, usage recording |
-| `src/ai/client.test.ts` | Tests |
-| `src/ai/models.ts` | Model + max_tokens defaults per feature |
-| `src/ai/models.test.ts` | Tests |
-| `src/ai/usage.ts` | `recordUsage`, `usageThisMonth`, budget checks |
-| `src/ai/usage.test.ts` | Tests |
-| `src/ai/disabled.ts` | `aiEnabled()` predicate; `disabledResult()` helper |
-| `src/ai/disabled.test.ts` | Tests |
-| `src/ai/features/generate-page.ts` | Opus structured-output page generator |
-| `src/ai/features/generate-page.test.ts` | Tests |
-| `src/ai/features/rewrite.ts` | Haiku rewrite/expand/shorten |
-| `src/ai/features/rewrite.test.ts` | Tests |
-| `src/ai/features/alt-text.ts` | Haiku vision alt-text |
-| `src/ai/features/alt-text.test.ts` | Tests |
-| `src/ai/features/seo-meta.ts` | Haiku SEO title + description |
-| `src/ai/features/seo-meta.test.ts` | Tests |
-| `src/ai/features/translate.ts` | Sonnet block-by-block translation |
-| `src/ai/features/translate.test.ts` | Tests |
-| `src/ai/features/spam-classify.ts` | Haiku spam classification |
-| `src/ai/features/spam-classify.test.ts` | Tests |
-| `src/ai/chat/session.ts` | Chat session CRUD |
-| `src/ai/chat/tools.ts` | Tool implementations (`get_site_settings`, `list_recent_posts`, etc.) |
-| `src/ai/chat/tools.test.ts` | Tests |
-| `src/ai/chat/run.ts` | Tool-use loop + streaming |
-| `src/ai/chat/run.test.ts` | Tests |
-| `src/app/actions/ai.ts` | Server Actions: generate page, rewrite, translate, auto SEO |
-| `src/app/actions/ai.test.ts` | Tests |
-| `src/app/api/jobs/media-alt-text/route.ts` | **REPLACES** the empty stub from media-library |
-| `src/app/api/jobs/media-alt-text/route.test.ts` | Tests |
-| `src/app/api/ai/chat/route.ts` | Streaming chat endpoint |
-| `src/app/api/ai/chat/route.test.ts` | Tests |
-| `src/app/admin/ai/page.tsx` | Usage dashboard |
-| `src/app/admin/posts/[id]/SidebarChat.tsx` | Sidebar chat client island |
-| `src/comments/spam.ts` | **MODIFY** — replace stub body with `classifyCommentSpam` Haiku call |
+| Path                                            | Purpose                                                                                   |
+| ----------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| `src/env.ts`                                    | **MODIFY** — add `ANTHROPIC_API_KEY`, `AI_DEFAULT_*` overrides, `AI_MONTHLY_TOKEN_BUDGET` |
+| `src/env.test.ts`                               | **MODIFY** — extend                                                                       |
+| `src/db/schema.ts`                              | **MODIFY** — add `ai_usage`, `ai_chat_sessions`, `ai_chat_messages`                       |
+| `src/db/migrations/0006_ai.sql`                 | Generated migration                                                                       |
+| `src/ai/client.ts`                              | Anthropic SDK wrapper with cache helpers, usage recording                                 |
+| `src/ai/client.test.ts`                         | Tests                                                                                     |
+| `src/ai/models.ts`                              | Model + max_tokens defaults per feature                                                   |
+| `src/ai/models.test.ts`                         | Tests                                                                                     |
+| `src/ai/usage.ts`                               | `recordUsage`, `usageThisMonth`, budget checks                                            |
+| `src/ai/usage.test.ts`                          | Tests                                                                                     |
+| `src/ai/disabled.ts`                            | `aiEnabled()` predicate; `disabledResult()` helper                                        |
+| `src/ai/disabled.test.ts`                       | Tests                                                                                     |
+| `src/ai/features/generate-page.ts`              | Opus structured-output page generator                                                     |
+| `src/ai/features/generate-page.test.ts`         | Tests                                                                                     |
+| `src/ai/features/rewrite.ts`                    | Haiku rewrite/expand/shorten                                                              |
+| `src/ai/features/rewrite.test.ts`               | Tests                                                                                     |
+| `src/ai/features/alt-text.ts`                   | Haiku vision alt-text                                                                     |
+| `src/ai/features/alt-text.test.ts`              | Tests                                                                                     |
+| `src/ai/features/seo-meta.ts`                   | Haiku SEO title + description                                                             |
+| `src/ai/features/seo-meta.test.ts`              | Tests                                                                                     |
+| `src/ai/features/translate.ts`                  | Sonnet block-by-block translation                                                         |
+| `src/ai/features/translate.test.ts`             | Tests                                                                                     |
+| `src/ai/features/spam-classify.ts`              | Haiku spam classification                                                                 |
+| `src/ai/features/spam-classify.test.ts`         | Tests                                                                                     |
+| `src/ai/chat/session.ts`                        | Chat session CRUD                                                                         |
+| `src/ai/chat/tools.ts`                          | Tool implementations (`get_site_settings`, `list_recent_posts`, etc.)                     |
+| `src/ai/chat/tools.test.ts`                     | Tests                                                                                     |
+| `src/ai/chat/run.ts`                            | Tool-use loop + streaming                                                                 |
+| `src/ai/chat/run.test.ts`                       | Tests                                                                                     |
+| `src/app/actions/ai.ts`                         | Server Actions: generate page, rewrite, translate, auto SEO                               |
+| `src/app/actions/ai.test.ts`                    | Tests                                                                                     |
+| `src/app/api/jobs/media-alt-text/route.ts`      | **REPLACES** the empty stub from media-library                                            |
+| `src/app/api/jobs/media-alt-text/route.test.ts` | Tests                                                                                     |
+| `src/app/api/ai/chat/route.ts`                  | Streaming chat endpoint                                                                   |
+| `src/app/api/ai/chat/route.test.ts`             | Tests                                                                                     |
+| `src/app/admin/ai/page.tsx`                     | Usage dashboard                                                                           |
+| `src/app/admin/posts/[id]/SidebarChat.tsx`      | Sidebar chat client island                                                                |
+| `src/comments/spam.ts`                          | **MODIFY** — replace stub body with `classifyCommentSpam` Haiku call                      |
 
 ---
 
 ## Task 1: Extend env + ai tables
 
 **Files:**
+
 - Modify: `src/env.ts`
 - Modify: `src/env.test.ts`
 - Modify: `src/db/schema.ts`
@@ -107,7 +109,9 @@ describe("parseEnv (ai additions)", () => {
   });
 
   it("rejects token budget < 1000", () => {
-    expect(() => parseEnv({ ...base, AI_MONTHLY_TOKEN_BUDGET: "500" })).toThrow(/AI_MONTHLY_TOKEN_BUDGET/);
+    expect(() => parseEnv({ ...base, AI_MONTHLY_TOKEN_BUDGET: "500" })).toThrow(
+      /AI_MONTHLY_TOKEN_BUDGET/,
+    );
   });
 });
 ```
@@ -207,6 +211,7 @@ git commit -m "feat(ai): env + ai_usage / ai_chat tables"
 ## Task 2: Model defaults + disabled helper (TDD)
 
 **Files:**
+
 - Create: `src/ai/models.ts`
 - Create: `src/ai/models.test.ts`
 - Create: `src/ai/disabled.ts`
@@ -345,6 +350,7 @@ git commit -m "feat(ai): model defaults + aiEnabled predicate"
 ## Task 3: Anthropic client wrapper + usage accounting (TDD)
 
 **Files:**
+
 - Create: `src/ai/client.ts`
 - Create: `src/ai/client.test.ts`
 - Create: `src/ai/usage.ts`
@@ -373,8 +379,12 @@ const uids: string[] = [];
 afterAll(async () => {
   if (!HAS_DB) return;
   for (const id of uids) {
-    await db().delete(aiUsage).where(sql`${aiUsage.userId} = ${id}`);
-    await db().delete(users).where(sql`${users.id} = ${id}`);
+    await db()
+      .delete(aiUsage)
+      .where(sql`${aiUsage.userId} = ${id}`);
+    await db()
+      .delete(users)
+      .where(sql`${users.id} = ${id}`);
   }
   await closeDb();
 });
@@ -788,6 +798,7 @@ git commit -m "feat(ai): client wrapper + usage accounting"
 ## Task 4: Page generation (TDD)
 
 **Files:**
+
 - Create: `src/ai/features/generate-page.ts`
 - Create: `src/ai/features/generate-page.test.ts`
 
@@ -956,7 +967,11 @@ const BLOCK_UNION_JSON_SCHEMA = {
 };
 
 export type Result<T> =
-  | { kind: "ok"; blocks: T; usage: { inputTokens: number; outputTokens: number; cacheReadTokens: number } }
+  | {
+      kind: "ok";
+      blocks: T;
+      usage: { inputTokens: number; outputTokens: number; cacheReadTokens: number };
+    }
   | DisabledResult
   | { kind: "error"; message: string };
 
@@ -1021,6 +1036,7 @@ git commit -m "feat(ai): generate-page (Opus structured output)"
 ## Task 5: Inline assists (rewrite/expand/shorten) (TDD)
 
 **Files:**
+
 - Create: `src/ai/features/rewrite.ts`
 - Create: `src/ai/features/rewrite.test.ts`
 
@@ -1159,6 +1175,7 @@ git commit -m "feat(ai): inline rewrite/expand/shorten"
 ## Task 6: Alt text + SEO meta (TDD)
 
 **Files:**
+
 - Create: `src/ai/features/alt-text.ts`
 - Create: `src/ai/features/alt-text.test.ts`
 - Create: `src/ai/features/seo-meta.ts`
@@ -1424,6 +1441,7 @@ git commit -m "feat(ai): alt-text (vision) + seo-meta"
 ## Task 7: Translation (TDD)
 
 **Files:**
+
 - Create: `src/ai/features/translate.ts`
 - Create: `src/ai/features/translate.test.ts`
 
@@ -1547,7 +1565,9 @@ export async function translateBlocks(input: TranslateInput): Promise<Result> {
     const translatedById = new Map<string, unknown>(
       (result.input.blocks as Array<{ id: string }>).map((b) => [b.id, b]),
     );
-    const merged = order.map((id) => translatedById.get(id) ?? passthrough.get(id) ?? null).filter(Boolean);
+    const merged = order
+      .map((id) => translatedById.get(id) ?? passthrough.get(id) ?? null)
+      .filter(Boolean);
     return { kind: "ok", blocks: merged };
   } catch (err) {
     return { kind: "error", message: err instanceof Error ? err.message : String(err) };
@@ -1575,6 +1595,7 @@ git commit -m "feat(ai): block-level translation"
 ## Task 8: Spam classifier (replace stub)
 
 **Files:**
+
 - Create: `src/ai/features/spam-classify.ts`
 - Create: `src/ai/features/spam-classify.test.ts`
 - Modify: `src/comments/spam.ts`
@@ -1710,6 +1731,7 @@ git commit -m "feat(ai): real spam-classifier replacing stub"
 ## Task 9: media-alt-text job handler
 
 **Files:**
+
 - Create: `src/app/api/jobs/media-alt-text/route.ts`
 - Create: `src/app/api/jobs/media-alt-text/route.test.ts`
 
@@ -1762,7 +1784,12 @@ describe("POST /api/jobs/media-alt-text", () => {
   });
 
   it("skips when media already has alt text", async () => {
-    getMediaById.mockResolvedValue({ id: "m-1", altText: "exists", mimeType: "image/jpeg", objectPath: "x" });
+    getMediaById.mockResolvedValue({
+      id: "m-1",
+      altText: "exists",
+      mimeType: "image/jpeg",
+      objectPath: "x",
+    });
     await POST(req({ mediaId: "11111111-1111-1111-1111-111111111111" }));
     expect(generateAltText).not.toHaveBeenCalled();
   });
@@ -1833,7 +1860,8 @@ export async function POST(req: Request): Promise<Response> {
   const media = await getMediaById(parsed.data.mediaId);
   if (!media) return NextResponse.json({ ok: true, skipped: "not-found" });
   if (media.altText) return NextResponse.json({ ok: true, skipped: "already-set" });
-  if (!ALLOWED.has(media.mimeType)) return NextResponse.json({ ok: true, skipped: "unsupported-mime" });
+  if (!ALLOWED.has(media.mimeType))
+    return NextResponse.json({ ok: true, skipped: "unsupported-mime" });
 
   const stream = await getObjectStream(media.objectPath);
   const bytes = await toBuffer(stream as unknown as AsyncIterable<Uint8Array>);
@@ -1869,6 +1897,7 @@ git commit -m "feat(ai): media-alt-text job handler"
 ## Task 10: Server Actions — generate page, rewrite, translate, auto SEO
 
 **Files:**
+
 - Create: `src/app/actions/ai.ts`
 - Create: `src/app/actions/ai.test.ts`
 
@@ -1923,15 +1952,25 @@ describe("generatePageAction", () => {
   it("denies when over budget", async () => {
     requireRole.mockResolvedValue({ id: "u-1" });
     isOverBudget.mockResolvedValueOnce(true);
-    const r = await generatePageAction(undefined, fd({ prompt: "x", pageType: "about", themeSlug: "wpk-default" }));
+    const r = await generatePageAction(
+      undefined,
+      fd({ prompt: "x", pageType: "about", themeSlug: "wpk-default" }),
+    );
     expect(r.error).toMatch(/budget/i);
   });
 
   it("forwards ok result", async () => {
     requireRole.mockResolvedValue({ id: "u-1" });
     isOverBudget.mockResolvedValueOnce(false);
-    generatePage.mockResolvedValue({ kind: "ok", blocks: [{ id: "h", type: "heading", level: 1, text: "H" }], usage: {} });
-    const r = await generatePageAction(undefined, fd({ prompt: "x", pageType: "about", themeSlug: "wpk-default" }));
+    generatePage.mockResolvedValue({
+      kind: "ok",
+      blocks: [{ id: "h", type: "heading", level: 1, text: "H" }],
+      usage: {},
+    });
+    const r = await generatePageAction(
+      undefined,
+      fd({ prompt: "x", pageType: "about", themeSlug: "wpk-default" }),
+    );
     expect(r.ok).toBe(true);
     expect(r.blocks).toHaveLength(1);
   });
@@ -1950,7 +1989,10 @@ describe("autoSeoAction", () => {
   it("returns seoTitle + seoDescription", async () => {
     requireRole.mockResolvedValue({ id: "u-1" });
     generateSeoMeta.mockResolvedValue({ kind: "ok", seoTitle: "T", seoDescription: "D" });
-    const r = await autoSeoAction(undefined, fd({ title: "T", excerpt: "", contentPreview: "body" }));
+    const r = await autoSeoAction(
+      undefined,
+      fd({ title: "T", excerpt: "", contentPreview: "body" }),
+    );
     expect(r.seoTitle).toBe("T");
     expect(r.seoDescription).toBe("D");
   });
@@ -1965,11 +2007,7 @@ describe("autoSeoAction", () => {
 "use server";
 
 import { z } from "zod";
-import {
-  requireRole,
-  AuthRequiredError,
-  PermissionDeniedError,
-} from "@/auth/context";
+import { requireRole, AuthRequiredError, PermissionDeniedError } from "@/auth/context";
 import { isOverBudget } from "@/ai/usage";
 import { generatePage } from "@/ai/features/generate-page";
 import { rewrite } from "@/ai/features/rewrite";
@@ -2026,7 +2064,15 @@ export async function generatePageAction(
     prompt: parsed.data.prompt,
     pageType: parsed.data.pageType,
     themeSlug: parsed.data.themeSlug,
-    availableBlocks: parsed.data.availableBlocks ?? ["heading", "paragraph", "list", "quote", "button", "hero", "divider"],
+    availableBlocks: parsed.data.availableBlocks ?? [
+      "heading",
+      "paragraph",
+      "list",
+      "quote",
+      "button",
+      "hero",
+      "divider",
+    ],
     userId: user.id,
   });
   if (result.kind === "disabled") return { error: "AI is disabled" };
@@ -2143,6 +2189,7 @@ git commit -m "feat(ai): server actions (generate page, rewrite, translate, auto
 ## Task 11: Sidebar chat — tools + run loop + streaming endpoint (TDD)
 
 **Files:**
+
 - Create: `src/ai/chat/tools.ts`
 - Create: `src/ai/chat/tools.test.ts`
 - Create: `src/ai/chat/run.ts`
@@ -2178,7 +2225,12 @@ export const chatTools: ChatTool[] = [
     run: async (args: unknown) => {
       const limit = Math.min(50, Math.max(1, Number((args as { limit?: number }).limit ?? 10)));
       const rows = await db()
-        .select({ id: posts.id, title: posts.title, slug: posts.slug, publishedAt: posts.publishedAt })
+        .select({
+          id: posts.id,
+          title: posts.title,
+          slug: posts.slug,
+          publishedAt: posts.publishedAt,
+        })
         .from(posts)
         .orderBy(desc(posts.publishedAt))
         .limit(limit);
@@ -2360,7 +2412,10 @@ export async function runChat(input: RunInput): Promise<RunResult> {
           content: JSON.stringify(output),
         });
       }
-      messages = [...messages, { role: "user", content: newToolResults as Anthropic.MessageParam["content"] }];
+      messages = [
+        ...messages,
+        { role: "user", content: newToolResults as Anthropic.MessageParam["content"] },
+      ];
     }
 
     return { reply: "Stopped after tool round limit.", toolCalls, error: "tool-round-limit" };
@@ -2458,9 +2513,16 @@ import { eq, desc, asc } from "drizzle-orm";
 import { db } from "@/db";
 import { aiChatSessions, aiChatMessages } from "@/db/schema";
 
-export async function getOrCreateSession(input: { userId: string; sessionId?: string; contextRef?: string }) {
+export async function getOrCreateSession(input: {
+  userId: string;
+  sessionId?: string;
+  contextRef?: string;
+}) {
   if (input.sessionId) {
-    const rows = await db().select().from(aiChatSessions).where(eq(aiChatSessions.id, input.sessionId));
+    const rows = await db()
+      .select()
+      .from(aiChatSessions)
+      .where(eq(aiChatSessions.id, input.sessionId));
     if (rows[0] && rows[0].userId === input.userId) return rows[0];
   }
   const [created] = await db()
@@ -2470,7 +2532,11 @@ export async function getOrCreateSession(input: { userId: string; sessionId?: st
   return created!;
 }
 
-export async function appendMessage(sessionId: string, role: "user" | "assistant", content: unknown) {
+export async function appendMessage(
+  sessionId: string,
+  role: "user" | "assistant",
+  content: unknown,
+) {
   await db().insert(aiChatMessages).values({ sessionId, role, content });
 }
 
@@ -2617,6 +2683,7 @@ git commit -m "feat(ai): sidebar chat (tools, run loop, session, endpoint)"
 ## Task 12: Usage dashboard + sidebar chat client island
 
 **Files:**
+
 - Create: `src/app/admin/ai/page.tsx`
 - Create: `src/app/admin/posts/[id]/SidebarChat.tsx`
 
@@ -2714,7 +2781,10 @@ export function SidebarChat({ postId }: { postId: string }) {
     }
     const body = (await res.json()) as { sessionId: string; reply: string; disabled?: boolean };
     setSessionId(body.sessionId);
-    setMsgs((m) => [...m, { role: "assistant", content: body.disabled ? "AI is disabled." : body.reply }]);
+    setMsgs((m) => [
+      ...m,
+      { role: "assistant", content: body.disabled ? "AI is disabled." : body.reply },
+    ]);
     setPending(false);
   }
 
@@ -2798,13 +2868,13 @@ Open the sidebar chat on a post edit page. Ask "What are my 5 most recent posts?
 
 ## Out of Scope (handled by sibling sub-plans)
 
-| Sub-plan | What it builds on top of ai-features |
-|---|---|
-| **multilingual** | Uses `translateBlocks` to create translation rows linked by `translation_of`. |
-| **importers** | Optionally calls auto-SEO + auto-alt-text after import completes. |
-| **plugin-system** | Plugins can add chat tools by appending to `chatTools` at plugin-registration time. |
+| Sub-plan                 | What it builds on top of ai-features                                                     |
+| ------------------------ | ---------------------------------------------------------------------------------------- |
+| **multilingual**         | Uses `translateBlocks` to create translation rows linked by `translation_of`.            |
+| **importers**            | Optionally calls auto-SEO + auto-alt-text after import completes.                        |
+| **plugin-system**        | Plugins can add chat tools by appending to `chatTools` at plugin-registration time.      |
 | **deployment-hardening** | Adds rate limits + IAM scoping on `/api/ai/chat`; provisions Cloud Tasks queue `wpk-ai`. |
 
 ---
 
-*End of ai-features plan.*
+_End of ai-features plan._
