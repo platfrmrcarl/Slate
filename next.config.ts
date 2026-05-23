@@ -15,6 +15,11 @@ const config: NextConfig = {
     "@node-rs/argon2",
     "pino",
     "pino-pretty",
+    // OpenTelemetry SDK + Cloud Trace exporter pull in dynamic require()s that
+    // Turbopack can't trace — keep them as runtime requires.
+    "@opentelemetry/sdk-node",
+    "@opentelemetry/auto-instrumentations-node",
+    "@google-cloud/opentelemetry-cloud-trace-exporter",
   ],
   env: {
     NEXT_PUBLIC_OAUTH_GOOGLE_ENABLED: process.env.GOOGLE_OAUTH_CLIENT_ID ? "1" : "0",
