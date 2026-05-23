@@ -39,6 +39,7 @@ export async function enqueueJob<P>(
 }
 
 async function runLocally(url: string, payload: unknown): Promise<void> {
+  const secret = process.env.INTERNAL_JOB_SECRET ?? "";
   const ac = new AbortController();
   const timer = setTimeout(() => ac.abort(), 30_000);
   try {
@@ -46,7 +47,7 @@ async function runLocally(url: string, payload: unknown): Promise<void> {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-Wpk-Local-Job": "1",
+        Authorization: `Bearer ${secret}`,
       },
       body: JSON.stringify(payload),
       signal: ac.signal,
@@ -77,11 +78,15 @@ async function runOnCloudTasks(
   }
   if (!tasksClient) tasksClient = new CloudTasksClient();
   const parent = tasksClient.queuePath(project, region, JOB_QUEUE[type]);
+  const secret = process.env.INTERNAL_JOB_SECRET ?? "";
   const task: Record<string, unknown> = {
     httpRequest: {
       httpMethod: "POST",
       url,
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${secret}`,
+      },
       body: Buffer.from(JSON.stringify(payload)).toString("base64"),
       oidcToken: { serviceAccountEmail: sa, audience: url },
     },
