@@ -5,7 +5,7 @@ resource "google_artifact_registry_repository" "slate" {
 }
 
 resource "google_cloudbuild_trigger" "main" {
-  name        = "wpk-main"
+  name        = "slate-main"
   description = "Build, migrate, deploy on push to main"
   filename    = "cloudbuild.yaml"
 

@@ -4,7 +4,7 @@
 
 ### Renamed: WordPressKiller → Slate
 
-The product was renamed from WordPressKiller to Slate. This is a breaking change for any existing local or deployed instance. The renames below are everything that landed across Tasks 1–6 of the rename plan (`docs/superpowers/plans/2026-05-23-slate-rename.md`); identifiers still using `wpk-` / `wpkiller` are listed under **Deferred** at the end of this entry.
+The product was renamed from WordPressKiller to Slate. This is a breaking change for any existing local or deployed instance. The renames below are everything that landed across Tasks 1–8 of the rename plan (`docs/superpowers/plans/2026-05-23-slate-rename.md`); identifiers still using `wpk-` / `wpkiller` are listed under **Deferred** at the end of this entry.
 
 #### Authentication
 
@@ -48,6 +48,11 @@ terraform state mv 'module.wpkiller' 'module.slate'
 terraform state mv \
   'module.slate.google_artifact_registry_repository.wpk' \
   'module.slate.google_artifact_registry_repository.slate'
+
+# Cloud SQL database resource label changed (the database `name` also changes — see below)
+terraform state mv \
+  'module.slate.google_sql_database.wpk' \
+  'module.slate.google_sql_database.slate'
 ```
 
 Even after `state mv`, these resources will be **destroyed and recreated** by the next `apply` because the underlying GCP resource identity changed:
@@ -55,12 +60,25 @@ Even after `state mv`, these resources will be **destroyed and recreated** by th
 - Service accounts: `wpk-runtime@…` → `slate-runtime@…`, `wpk-tasks-invoker@…` → `slate-tasks-invoker@…`
 - Cloud Tasks queues: `wpk-revalidate`, `wpk-media`, `wpk-ai`, `wpk-email`, `wpk-webhooks`, `wpk-imports`, `wpk-exports` → `slate-*` equivalents (the job-enqueue map in `src/jobs/enqueue.ts` was updated to match)
 - Artifact Registry repo: `repository_id: wpk` → `slate`
+- Cloud Run service: `wpk` → `slate` (`cloudrun.tf`)
+- Cloud Run Job (migrations): `wpk-migrate` → `slate-migrate` (`cloudrun.tf`); `cloudbuild.yaml` was already updated to deploy/execute the `slate-migrate` job
+- Cloud Build trigger: `wpk-main` → `slate-main` (`cloudbuild.tf`)
+- Cloud SQL instance: `wpk-pg` → `slate-pg` (`cloudsql.tf`) — note `deletion_protection = true` on the instance; you must `terraform state rm` (or temporarily flip the flag) before the rename can be applied, and you will need to dump-and-restore data into the new instance
+- Cloud SQL database: name `wpk` → `slate` (inside the same instance); the `DATABASE_URL` secret version is rewritten with the new database name
+- Cloud SQL user: name `wpk` → `slate`; the `DATABASE_URL` secret version is rewritten with the new user
+- VPC network: `wpk-vpc` → `slate-vpc` (`cloudsql.tf`)
+- Reserved private-services-access range: `wpk-private-ip` → `slate-private-ip` (`cloudsql.tf`)
+- Load balancer: `wpk-ip` → `slate-ip`, `wpk-cert` → `slate-cert`, `wpk-neg` → `slate-neg`, `wpk-backend` → `slate-backend`, `wpk-urlmap` → `slate-urlmap`, `wpk-https` → `slate-https`, `wpk-fr` → `slate-fr` (`lb.tf`). The managed SSL cert will need to re-provision (~15 min after DNS is live) and the global IP will change unless you `state mv` it.
+- Monitoring: uptime check `wpk-healthz` → `slate-healthz`; alert policy display names rebranded `wpk *` → `slate *`; the error-rate and p99 alert filters now select `service_name="slate"` (`monitoring.tf`)
 
 Operator checklist before / after the apply:
 
-- Re-push your Docker images to the new Artifact Registry repo (`slate` instead of `wpk`).
+- Re-push your Docker images to the new Artifact Registry repo (`slate` instead of `wpk`). The image *name* inside the repo is also now `slate` (was `wpk`) and the migration image is `slate-migration` (was `wpk-migration`); `cloudbuild.yaml` already uses the new names via `_AR_REPO: slate`.
 - Re-grant any out-of-Terraform IAM bindings on the old SAs to the new SAs (`slate-runtime`, `slate-tasks-invoker`).
 - Drain or re-enqueue any in-flight Cloud Tasks (the old queues will be deleted; new ones start empty).
+- **Cloud SQL data migration.** Renaming the instance, database, and user destroys the original. Before the apply: `gcloud sql export sql wpk-pg gs://…/dump.sql --database=wpk`. After the apply: `gcloud sql import sql slate-pg gs://…/dump.sql --database=slate`. The `DATABASE_URL` secret is regenerated automatically by Terraform once the new instance is up.
+- **Update DNS.** The global LB IP will change (new `google_compute_global_address`); update your A record and wait for the managed SSL cert to re-provision.
+- Reconnect any existing Cloud Build triggers or notification channels that referenced the old display names.
 
 #### Spec document
 
@@ -68,21 +86,11 @@ Operator checklist before / after the apply:
 
 ### Deferred — identifiers still using `wpk-` / `wpkiller`
 
-The following surfaces were intentionally left or missed by Tasks 1–6 and are **not** changed in this release. They are documented here so operators are not surprised and so follow-up work has a starting inventory.
+The following surfaces were intentionally left or missed by Tasks 1–8 and are **not** changed in this release. They are documented here so operators are not surprised and so follow-up work has a starting inventory.
 
 **Legacy exception (will not be renamed without a data migration):**
 
 - GCS bucket name templates `"${var.project_id}-wpk-media"` and `"${var.project_id}-wpk-themes"` in `infra/terraform/modules/slate/storage.tf`, plus matching local-dev values in `.env.example` (`GCS_BUCKET_MEDIA=wpk-media-local`). GCS bucket renames are not in-place; renaming would require a full data migration.
-
-**Terraform resources still named `wpk-*` inside the renamed `module.slate`:**
-
-- Cloud Run service: `name = "wpk"` (`cloudrun.tf:11`)
-- Cloud Run Job for migrations: `name = "wpk-migrate"` (`cloudrun.tf:93`) — note `cloudbuild.yaml` was updated to deploy a job named `slate-migrate`; these are inconsistent and will need reconciling before the next deploy.
-- Cloud Build trigger: `name = "wpk-main"` (`cloudbuild.tf`)
-- Cloud SQL: `wpk-vpc`, `wpk-private-ip`, `wpk-pg`, database `wpk`, user `wpk` (`cloudsql.tf`)
-- Load balancer: `wpk-ip`, `wpk-cert`, `wpk-neg`, `wpk-backend`, `wpk-urlmap`, `wpk-https`, `wpk-fr` (`lb.tf`)
-- Monitoring: `wpk-healthz` uptime check, alert display names referencing `wpk` (`monitoring.tf`)
-- `infra/terraform/README.md` references `wpk-migration`, `wpk-migrate`, `wpk-pg`
 
 **Application-level identifiers still referencing the old brand:**
 

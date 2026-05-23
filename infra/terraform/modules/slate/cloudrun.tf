@@ -8,7 +8,7 @@ locals {
 }
 
 resource "google_cloud_run_v2_service" "app" {
-  name     = "wpk"
+  name     = "slate"
   location = var.region
   ingress  = "INGRESS_TRAFFIC_INTERNAL_LOAD_BALANCER"
 
@@ -90,7 +90,7 @@ resource "google_cloud_run_v2_service" "app" {
 }
 
 resource "google_cloud_run_v2_job" "migrate" {
-  name     = "wpk-migrate"
+  name     = "slate-migrate"
   location = var.region
 
   template {

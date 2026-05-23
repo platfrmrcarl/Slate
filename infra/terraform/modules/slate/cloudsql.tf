@@ -1,10 +1,10 @@
 resource "google_compute_network" "vpc" {
-  name                    = "wpk-vpc"
+  name                    = "slate-vpc"
   auto_create_subnetworks = true
 }
 
 resource "google_compute_global_address" "private_ip_alloc" {
-  name          = "wpk-private-ip"
+  name          = "slate-private-ip"
   purpose       = "VPC_PEERING"
   address_type  = "INTERNAL"
   prefix_length = 16
@@ -18,7 +18,7 @@ resource "google_service_networking_connection" "private_vpc" {
 }
 
 resource "google_sql_database_instance" "pg" {
-  name             = "wpk-pg"
+  name             = "slate-pg"
   database_version = "POSTGRES_16"
   region           = var.region
   depends_on       = [google_service_networking_connection.private_vpc]
@@ -43,8 +43,8 @@ resource "google_sql_database_instance" "pg" {
   deletion_protection = true
 }
 
-resource "google_sql_database" "wpk" {
-  name     = "wpk"
+resource "google_sql_database" "slate" {
+  name     = "slate"
   instance = google_sql_database_instance.pg.name
 }
 
@@ -55,7 +55,7 @@ resource "random_password" "db" {
 
 resource "google_sql_user" "app" {
   instance = google_sql_database_instance.pg.name
-  name     = "wpk"
+  name     = "slate"
   password = random_password.db.result
 }
 
@@ -63,5 +63,5 @@ resource "google_sql_user" "app" {
 # the instance is provisioned.
 resource "google_secret_manager_secret_version" "database_url" {
   secret      = google_secret_manager_secret.secrets["DATABASE_URL"].id
-  secret_data = "postgresql://${google_sql_user.app.name}:${random_password.db.result}@${google_sql_database_instance.pg.private_ip_address}:5432/${google_sql_database.wpk.name}"
+  secret_data = "postgresql://${google_sql_user.app.name}:${random_password.db.result}@${google_sql_database_instance.pg.private_ip_address}:5432/${google_sql_database.slate.name}"
 }
