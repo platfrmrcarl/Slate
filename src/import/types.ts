@@ -38,30 +38,35 @@ const mediaRecord = z
   })
   .refine((v) => v.sourceUrl || v.inlineBytesBase64, "sourceUrl or inlineBytesBase64 required");
 
-const postOrPage = z
-  .object({
-    kind: z.enum(["post", "page"]),
-    externalId: z.string(),
-    title: z.string().min(1).max(500),
-    slug: z.string().min(1).max(200),
-    status: z.enum(["draft", "scheduled", "published", "archived", "trash"]).default("draft"),
-    publishedAt: z.string().datetime().optional(),
-    excerpt: z.string().optional(),
-    bodyHtml: z.string().optional(),
-    bodyMarkdown: z.string().optional(),
-    bodyMobiledoc: z.unknown().optional(),
-    blocks: z.array(z.unknown()).optional(),
-    locale: z.string().min(2).max(10).default("en"),
-    authorExternalId: z.string().optional(),
-    featuredMediaExternalId: z.string().optional(),
-    taxonomyRefs: z.array(taxonomyRef).default([]),
-    seoTitle: z.string().optional(),
-    seoDescription: z.string().optional(),
-  })
-  .refine(
-    (v) => v.bodyHtml || v.bodyMarkdown || v.bodyMobiledoc || v.blocks,
-    "post/page must provide bodyHtml, bodyMarkdown, bodyMobiledoc, or blocks",
-  );
+function makePostOrPage<K extends "post" | "page">(kind: K) {
+  return z
+    .object({
+      kind: z.literal(kind),
+      externalId: z.string(),
+      title: z.string().min(1).max(500),
+      slug: z.string().min(1).max(200),
+      status: z.enum(["draft", "scheduled", "published", "archived", "trash"]).default("draft"),
+      publishedAt: z.string().datetime().optional(),
+      excerpt: z.string().optional(),
+      bodyHtml: z.string().optional(),
+      bodyMarkdown: z.string().optional(),
+      bodyMobiledoc: z.unknown().optional(),
+      blocks: z.array(z.unknown()).optional(),
+      locale: z.string().min(2).max(10).default("en"),
+      authorExternalId: z.string().optional(),
+      featuredMediaExternalId: z.string().optional(),
+      taxonomyRefs: z.array(taxonomyRef).default([]),
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+    })
+    .refine(
+      (v) => v.bodyHtml || v.bodyMarkdown || v.bodyMobiledoc || v.blocks,
+      "post/page must provide bodyHtml, bodyMarkdown, bodyMobiledoc, or blocks",
+    );
+}
+
+const postRecord = makePostOrPage("post");
+const pageRecord = makePostOrPage("page");
 
 const commentRecord = z.object({
   kind: z.literal("comment"),
@@ -82,7 +87,7 @@ const allowedKinds = new Set(["user", "taxonomy", "media", "post", "page", "comm
 export const importRecordSchema = z.preprocess(
   (v) => v,
   z
-    .union([userRecord, taxonomyRecord, mediaRecord, postOrPage, commentRecord])
+    .union([userRecord, taxonomyRecord, mediaRecord, postRecord, pageRecord, commentRecord])
     .superRefine((value, ctx) => {
       const kind = (value as { kind?: unknown }).kind;
       if (typeof kind !== "string" || !allowedKinds.has(kind)) {
@@ -99,7 +104,8 @@ export type ImportRecord =
   | z.infer<typeof userRecord>
   | z.infer<typeof taxonomyRecord>
   | z.infer<typeof mediaRecord>
-  | z.infer<typeof postOrPage>
+  | z.infer<typeof postRecord>
+  | z.infer<typeof pageRecord>
   | z.infer<typeof commentRecord>;
 
 export interface ImportContext {

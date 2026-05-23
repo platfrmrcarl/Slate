@@ -1,10 +1,9 @@
-import {
-  parse,
-  type ChildNode,
-  type DocumentFragment,
-  type Element,
-  type TextNode,
-} from "parse5";
+import { parse, DefaultTreeAdapterTypes } from "parse5";
+
+type ChildNode = DefaultTreeAdapterTypes.ChildNode;
+type DocumentFragment = DefaultTreeAdapterTypes.DocumentFragment;
+type Element = DefaultTreeAdapterTypes.Element;
+type TextNode = DefaultTreeAdapterTypes.TextNode;
 
 let counter = 0;
 function nextId(prefix = "b"): string {

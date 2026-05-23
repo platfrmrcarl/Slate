@@ -1,9 +1,9 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import type * as AuthCtxMod from "@/auth/context";
 
 const requireRole = vi.fn().mockResolvedValue({ id: "11111111-1111-1111-1111-111111111111" });
 vi.mock("@/auth/context", async () => {
-  const actual =
-    await vi.importActual<typeof import("@/auth/context")>("@/auth/context");
+  const actual = await vi.importActual<typeof AuthCtxMod>("@/auth/context");
   return {
     ...actual,
     requireRole: (...a: unknown[]) => requireRole(...a),
