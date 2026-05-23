@@ -19,8 +19,10 @@ export async function* parseCsv(raw: string): AsyncGenerator<ImportRecord> {
   const parsed = Papa.parse<Row>(raw, { header: true, skipEmptyLines: true });
   for (const row of parsed.data) {
     if (!row.title) continue;
+    // papaparse turns an empty cell into "" not undefined, so use OR (not ??)
+    // to fall through to the title-derived slug when the column is blank.
     const slug =
-      row.slug ??
+      (row.slug && row.slug.trim()) ||
       row.title
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, "-")
