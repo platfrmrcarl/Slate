@@ -4,6 +4,7 @@ import { getMediaById } from "@/media/service";
 import { getObjectStream, NotFoundError } from "@/media/storage";
 import { parseTransform, applyTransform } from "@/media/transform";
 import { isTransformableImageMime } from "@/media/mime";
+import { recordHistogram } from "@/lib/otel";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -42,7 +43,11 @@ export async function GET(
     throw err;
   }
   const original = await streamToBuffer(stream);
+  const startedAt = performance.now();
   const result = await applyTransform(original, opts, req.headers.get("accept"));
+  recordHistogram("wpk.image.transform.ms", performance.now() - startedAt, {
+    format: result.contentType,
+  });
 
   return new Response(new Uint8Array(result.bytes), {
     status: 200,

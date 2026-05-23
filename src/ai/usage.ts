@@ -2,6 +2,7 @@ import { and, eq, gte, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { aiUsage } from "@/db/schema";
 import { env } from "@/env";
+import { recordCounter } from "@/lib/otel";
 
 export interface UsageInput {
   userId: string | null;
@@ -32,6 +33,9 @@ export async function recordUsage(input: UsageInput): Promise<void> {
     ...(input.errorMessage !== undefined ? { errorMessage: input.errorMessage } : {}),
   };
   await db().insert(aiUsage).values(values);
+  recordCounter("wpk.ai.tokens", input.inputTokens + input.outputTokens, {
+    feature: input.feature,
+  });
 }
 
 export interface UsageSummary {

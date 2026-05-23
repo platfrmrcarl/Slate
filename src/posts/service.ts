@@ -4,6 +4,7 @@ import { posts, postTaxonomies, type Post, type PostStatusValue } from "@/db/sch
 import { slugify, ensureUniqueSlug } from "@/lib/slug";
 import type { Block } from "@/blocks/types";
 import { emitSafe } from "@/plugins/emit";
+import { recordCounter } from "@/lib/otel";
 import type { SavePostInput } from "./types";
 
 async function isSlugUsed(slug: string, locale: string, excludeId?: string): Promise<boolean> {
@@ -100,6 +101,7 @@ export async function publishPost(id: string, publishedAt?: Date): Promise<Post>
     .where(eq(posts.id, id))
     .returning();
   if (row) {
+    recordCounter("wpk.post.publish", 1);
     emitSafe("post.published", {
       postId: row.id,
       slug: row.slug,
