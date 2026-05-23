@@ -73,7 +73,7 @@ steps:
     args:
       - build
       - "--target=migration"
-      - "--tag=${_AR_HOST}/${PROJECT_ID}/${_AR_REPO}/wpk-migration:${SHORT_SHA}"
+      - "--tag=${_AR_HOST}/${PROJECT_ID}/${_AR_REPO}/slate-migration:${SHORT_SHA}"
       - "."
     waitFor: ["lint", "test"]
 
@@ -81,7 +81,7 @@ steps:
     name: gcr.io/cloud-builders/docker
     args:
       - push
-      - "${_AR_HOST}/${PROJECT_ID}/${_AR_REPO}/wpk-migration:${SHORT_SHA}"
+      - "${_AR_HOST}/${PROJECT_ID}/${_AR_REPO}/slate-migration:${SHORT_SHA}"
     waitFor: ["build-migration-image"]
 
   - id: run-migration
@@ -90,14 +90,14 @@ steps:
     args:
       - -lc
       - |
-        gcloud run jobs deploy wpk-migrate \
-          --image=${_AR_HOST}/${PROJECT_ID}/${_AR_REPO}/wpk-migration:${SHORT_SHA} \
+        gcloud run jobs deploy slate-migrate \
+          --image=${_AR_HOST}/${PROJECT_ID}/${_AR_REPO}/slate-migration:${SHORT_SHA} \
           --region=${_REGION} \
           --set-secrets=DATABASE_URL=DATABASE_URL:latest \
-          --service-account=wpk-runtime@${PROJECT_ID}.iam.gserviceaccount.com \
+          --service-account=slate-runtime@${PROJECT_ID}.iam.gserviceaccount.com \
           --max-retries=0 \
           --quiet
-        gcloud run jobs execute wpk-migrate --region=${_REGION} --wait --quiet
+        gcloud run jobs execute slate-migrate --region=${_REGION} --wait --quiet
     waitFor: ["push-migration-image", "push-image"]
 
   - id: deploy
@@ -112,7 +112,7 @@ steps:
         gcloud run deploy wpk \
           --image=${_AR_HOST}/${PROJECT_ID}/${_AR_REPO}/wpk:${SHORT_SHA} \
           --region=${_REGION} \
-          --service-account=wpk-runtime@${PROJECT_ID}.iam.gserviceaccount.com \
+          --service-account=slate-runtime@${PROJECT_ID}.iam.gserviceaccount.com \
           --min-instances=0 \
           --max-instances=10 \
           --cpu=1 \

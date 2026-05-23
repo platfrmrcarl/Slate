@@ -13,15 +13,15 @@ export type JobType =
   | "comment-classify";
 
 export const JOB_QUEUE: Record<JobType, string> = {
-  "media-probe": "wpk-media",
-  "media-alt-text": "wpk-ai",
-  revalidate: "wpk-revalidate",
-  "webhook-deliver": "wpk-webhooks",
-  "ai-generate-page": "wpk-ai",
-  "email-send": "wpk-email",
-  "import-run": "wpk-imports",
-  "export-run": "wpk-exports",
-  "comment-classify": "wpk-ai",
+  "media-probe": "slate-media",
+  "media-alt-text": "slate-ai",
+  revalidate: "slate-revalidate",
+  "webhook-deliver": "slate-webhooks",
+  "ai-generate-page": "slate-ai",
+  "email-send": "slate-email",
+  "import-run": "slate-imports",
+  "export-run": "slate-exports",
+  "comment-classify": "slate-ai",
 };
 
 interface EnqueueOptions {
