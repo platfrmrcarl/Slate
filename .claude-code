@@ -1,0 +1,7 @@
+{
+  "permissionMode": "full",
+  "promptOnExecution": false,
+  "autoApprove": true,
+  "allowedDomains": ["*"],
+  "allowFileSystemAccess": true
+}
