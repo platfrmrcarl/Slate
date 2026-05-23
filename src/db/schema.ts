@@ -10,6 +10,7 @@ import {
   integer,
   boolean,
 } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 import type { Block } from "@/blocks/types";
 
 export const settings = pgTable("settings", {
@@ -105,6 +106,21 @@ export const passwordResetTokens = pgTable("password_reset_tokens", {
     .references(() => users.id, { onDelete: "cascade" }),
   expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
   usedAt: timestamp("used_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const adminTokens = pgTable("admin_tokens", {
+  tokenHash: text("token_hash").primaryKey(),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  label: text("label").notNull(),
+  scopes: text("scopes")
+    .array()
+    .notNull()
+    .default(sql`'{}'::text[]`),
+  expiresAt: timestamp("expires_at", { withTimezone: true }),
+  lastUsedAt: timestamp("last_used_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
