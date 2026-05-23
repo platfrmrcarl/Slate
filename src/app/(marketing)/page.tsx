@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import LandingNav from "./_components/LandingNav";
 
 export const dynamic = "force-static";
 export const revalidate = false;
@@ -8,8 +9,11 @@ export default function MarketingHome() {
     notFound();
   }
   return (
-    <main>
-      <h1>Slate</h1>
-    </main>
+    <>
+      <LandingNav />
+      <main>
+        <h1 className="sr-only">Slate</h1>
+      </main>
+    </>
   );
 }
