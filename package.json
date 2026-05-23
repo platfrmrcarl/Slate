@@ -32,6 +32,7 @@
     "@oslojs/encoding": "1",
     "arctic": "2",
     "drizzle-orm": "0.44",
+    "feed": "4",
     "file-type": "^22.0.1",
     "jose": "5",
     "mime-types": "^3.0.2",
