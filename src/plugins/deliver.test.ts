@@ -10,6 +10,11 @@ const getWebhook = vi.fn();
 vi.mock("./service", () => ({ getWebhookById: (...a: unknown[]) => getWebhook(...a) }));
 const enqueueJob = vi.fn();
 vi.mock("@/jobs/enqueue", () => ({ enqueueJob: (...a: unknown[]) => enqueueJob(...a) }));
+const assertUrlSafe = vi.fn().mockResolvedValue(undefined);
+vi.mock("./ssrf", () => ({
+  assertUrlSafeForOutboundFetch: (...a: unknown[]) => assertUrlSafe(...a),
+  SsrfError: class extends Error {},
+}));
 
 const fetchMock = vi.fn();
 vi.stubGlobal("fetch", fetchMock);
@@ -22,6 +27,7 @@ beforeEach(() => {
   getWebhook.mockReset();
   enqueueJob.mockReset();
   fetchMock.mockReset();
+  assertUrlSafe.mockReset().mockResolvedValue(undefined);
 });
 
 afterEach(() => vi.useRealTimers());
@@ -76,6 +82,29 @@ describe("deliverOnce", () => {
     fetchMock.mockResolvedValue({ ok: false, status: 502, text: async () => "" });
     await deliverOnce({ deliveryId: "d-1", webhookId: "w-1" });
     expect(recordDeliveryResult).toHaveBeenCalledWith(expect.objectContaining({ status: "failed" }));
+    expect(enqueueJob).not.toHaveBeenCalled();
+  });
+
+  it("marks failed without retry when the URL is SSRF-blocked", async () => {
+    getDelivery.mockResolvedValue({
+      id: "d-1",
+      webhookId: "w-1",
+      event: "post.published",
+      payload: {},
+      attempts: 0,
+    });
+    getWebhook.mockResolvedValue({ id: "w-1", url: "https://internal/x", secret: "a".repeat(64) });
+    assertUrlSafe.mockRejectedValue(
+      Object.assign(new Error("blocked: 10.0.0.1"), { name: "SsrfError" }),
+    );
+    const mod = await import("./ssrf");
+    assertUrlSafe.mockRejectedValue(new mod.SsrfError("blocked: 10.0.0.1"));
+
+    await deliverOnce({ deliveryId: "d-1", webhookId: "w-1" });
+    expect(recordDeliveryResult).toHaveBeenCalledWith(
+      expect.objectContaining({ status: "failed", lastError: expect.stringMatching(/blocked/) }),
+    );
+    expect(fetchMock).not.toHaveBeenCalled();
     expect(enqueueJob).not.toHaveBeenCalled();
   });
 

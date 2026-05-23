@@ -1,6 +1,7 @@
 import { signPayload } from "./hmac";
 import { getDelivery, recordDeliveryResult } from "./deliveries";
 import { getWebhookById } from "./service";
+import { assertUrlSafeForOutboundFetch, SsrfError } from "./ssrf";
 import { logger } from "@/lib/logger";
 import { enqueueJob } from "@/jobs/enqueue";
 
@@ -41,6 +42,29 @@ export async function deliverOnce(input: DeliverInput): Promise<void> {
     });
     return;
   }
+  // SSRF guard: refuse to dial private / loopback / link-local addresses.
+  // A rogue (or compromised) plugin manifest must not be able to use the app
+  // server as a stepping stone into internal infrastructure.
+  try {
+    await assertUrlSafeForOutboundFetch(webhook.url);
+  } catch (err) {
+    if (err instanceof SsrfError) {
+      logger().warn(
+        { deliveryId: delivery.id, webhookId: webhook.id, err: err.message },
+        "webhook-deliver:ssrf-blocked",
+      );
+      await recordDeliveryResult({
+        id: delivery.id,
+        status: "failed",
+        lastError: `blocked: ${err.message}`,
+        attemptsIncrement: 1,
+        deliveredAt: new Date(),
+      });
+      return;
+    }
+    throw err;
+  }
+
   const ts = Math.floor(Date.now() / 1000);
   const body = JSON.stringify({
     event: delivery.event,
