@@ -350,3 +350,57 @@ export const activeTheme = pgTable("active_theme", {
 });
 
 export type ThemeRow = typeof themes.$inferSelect;
+
+export const aiUsage = pgTable(
+  "ai_usage",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id").references(() => users.id),
+    feature: text("feature").notNull(),
+    model: text("model").notNull(),
+    inputTokens: integer("input_tokens").notNull(),
+    outputTokens: integer("output_tokens").notNull(),
+    cachedTokens: integer("cached_tokens").notNull().default(0),
+    cacheReadTokens: integer("cache_read_tokens").notNull().default(0),
+    latencyMs: integer("latency_ms"),
+    requestId: text("request_id"),
+    success: boolean("success").notNull().default(true),
+    errorMessage: text("error_message"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => ({
+    featureIdx: index("ai_usage_feature_idx").on(t.feature, t.createdAt),
+    userIdx: index("ai_usage_user_idx").on(t.userId, t.createdAt),
+  }),
+);
+
+export const aiChatSessions = pgTable("ai_chat_sessions", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  title: text("title").notNull().default("New chat"),
+  contextRef: text("context_ref"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const aiChatMessages = pgTable(
+  "ai_chat_messages",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    sessionId: uuid("session_id")
+      .notNull()
+      .references(() => aiChatSessions.id, { onDelete: "cascade" }),
+    role: text("role").notNull(),
+    content: jsonb("content").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => ({
+    sessionIdx: index("ai_chat_messages_session_idx").on(t.sessionId, t.createdAt),
+  }),
+);
+
+export type AiUsage = typeof aiUsage.$inferSelect;
+export type AiChatSession = typeof aiChatSessions.$inferSelect;
+export type AiChatMessage = typeof aiChatMessages.$inferSelect;

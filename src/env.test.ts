@@ -220,3 +220,53 @@ describe("parseEnv (media additions)", () => {
     );
   });
 });
+
+describe("parseEnv (ai additions)", () => {
+  const base = {
+    NODE_ENV: "production" as const,
+    DATABASE_URL: "postgres://localhost/wpk",
+    AUTH_SECRET: "a".repeat(64),
+    APP_URL: "https://example.com",
+    PREVIEW_TOKEN_SECRET: "p".repeat(64),
+    INTERNAL_JOB_SECRET: "i".repeat(64),
+    GCS_BUCKET_MEDIA: "wpk-media-prod",
+  };
+
+  it("ANTHROPIC_API_KEY is optional", () => {
+    const env = parseEnv(base);
+    expect(env.ANTHROPIC_API_KEY).toBeUndefined();
+  });
+
+  it("accepts a valid Anthropic-style key", () => {
+    const env = parseEnv({ ...base, ANTHROPIC_API_KEY: "sk-ant-xxxxxxxxxxxxxxxx" });
+    expect(env.ANTHROPIC_API_KEY).toBe("sk-ant-xxxxxxxxxxxxxxxx");
+  });
+
+  it("rejects badly-formatted ANTHROPIC_API_KEY", () => {
+    expect(() => parseEnv({ ...base, ANTHROPIC_API_KEY: "not-a-key" })).toThrow(
+      /ANTHROPIC_API_KEY/,
+    );
+  });
+
+  it("AI_MONTHLY_TOKEN_BUDGET defaults to 2,000,000", () => {
+    const env = parseEnv(base);
+    expect(env.AI_MONTHLY_TOKEN_BUDGET).toBe(2_000_000);
+  });
+
+  it("rejects token budget < 1000", () => {
+    expect(() => parseEnv({ ...base, AI_MONTHLY_TOKEN_BUDGET: "500" })).toThrow(
+      /AI_MONTHLY_TOKEN_BUDGET/,
+    );
+  });
+
+  it("defaults AI_MODEL_* per feature", () => {
+    const env = parseEnv(base);
+    expect(env.AI_MODEL_GENERATE_PAGE).toBe("claude-opus-4-7");
+    expect(env.AI_MODEL_REWRITE).toBe("claude-haiku-4-5");
+    expect(env.AI_MODEL_ALT_TEXT).toBe("claude-haiku-4-5");
+    expect(env.AI_MODEL_SEO_META).toBe("claude-haiku-4-5");
+    expect(env.AI_MODEL_TRANSLATE).toBe("claude-sonnet-4-6");
+    expect(env.AI_MODEL_CHAT).toBe("claude-sonnet-4-6");
+    expect(env.AI_MODEL_SPAM).toBe("claude-haiku-4-5");
+  });
+});

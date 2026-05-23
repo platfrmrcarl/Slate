@@ -32,6 +32,18 @@ const schema = z
       .optional(),
     GCS_EMULATOR_HOST: z.string().url().optional(),
     MEDIA_PUBLIC_URL: z.string().url().optional(),
+    ANTHROPIC_API_KEY: z
+      .string()
+      .regex(/^sk-ant-/, "ANTHROPIC_API_KEY must start with sk-ant-")
+      .optional(),
+    AI_MONTHLY_TOKEN_BUDGET: z.coerce.number().int().min(1000).default(2_000_000),
+    AI_MODEL_GENERATE_PAGE: z.string().default("claude-opus-4-7"),
+    AI_MODEL_REWRITE: z.string().default("claude-haiku-4-5"),
+    AI_MODEL_ALT_TEXT: z.string().default("claude-haiku-4-5"),
+    AI_MODEL_SEO_META: z.string().default("claude-haiku-4-5"),
+    AI_MODEL_TRANSLATE: z.string().default("claude-sonnet-4-6"),
+    AI_MODEL_CHAT: z.string().default("claude-sonnet-4-6"),
+    AI_MODEL_SPAM: z.string().default("claude-haiku-4-5"),
   })
   .superRefine((env, ctx) => {
     if (env.NODE_ENV === "production" && !env.APP_URL.startsWith("https://")) {
