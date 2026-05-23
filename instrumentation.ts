@@ -13,6 +13,8 @@ export async function register(): Promise<void> {
     "@opentelemetry/semantic-conventions"
   );
   const { TraceExporter } = await import("@google-cloud/opentelemetry-cloud-trace-exporter");
+  const { MetricExporter } = await import("@google-cloud/opentelemetry-cloud-monitoring-exporter");
+  const { PeriodicExportingMetricReader } = await import("@opentelemetry/sdk-metrics");
 
   const sdk = new NodeSDK({
     resource: new Resource({
@@ -21,6 +23,14 @@ export async function register(): Promise<void> {
       "deployment.environment": process.env.NODE_ENV ?? "development",
     }),
     traceExporter: new TraceExporter(),
+    // Without a MetricReader the global Meter is a no-op and every
+    // recordCounter / recordHistogram call is silently dropped. Export to
+    // Cloud Monitoring on a 60s cadence (Cloud Run minimum is 10s; 60s
+    // matches default GMP scrape intervals and keeps egress modest).
+    metricReader: new PeriodicExportingMetricReader({
+      exporter: new MetricExporter(),
+      exportIntervalMillis: 60_000,
+    }),
     instrumentations: [
       getNodeAutoInstrumentations({
         "@opentelemetry/instrumentation-fs": { enabled: false },
