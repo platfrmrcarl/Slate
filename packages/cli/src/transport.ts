@@ -8,7 +8,7 @@ export interface TransportOpts {
 }
 
 export function resolveTransport(opts: TransportOpts): TransportKind {
-  if (opts.url || process.env.WPK_URL) return "remote";
+  if (opts.url || process.env.SLATE_URL) return "remote";
   if (process.env.DATABASE_URL) return "local";
   return "remote";
 }
@@ -19,13 +19,13 @@ async function resolveCreds(opts: TransportOpts): Promise<{ url: string; token: 
     const stored = await loadCredentials();
     if (stored && stored.url === opts.url) return { url: opts.url, token: stored.token };
   }
-  const env = process.env.WPK_URL;
-  const tok = process.env.WPK_TOKEN;
+  const env = process.env.SLATE_URL;
+  const tok = process.env.SLATE_TOKEN;
   if (env && tok) return { url: env, token: tok };
   const stored = await loadCredentials();
   if (stored) return stored;
   throw new Error(
-    "No remote credentials. Run `wpkiller login --url https://your-install` or set WPK_URL + WPK_TOKEN.",
+    "No remote credentials. Run `wpkiller login --url https://your-install` or set SLATE_URL + SLATE_TOKEN.",
   );
 }
 

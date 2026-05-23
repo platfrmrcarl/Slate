@@ -12,9 +12,9 @@ export function importCommand(opts: TransportOpts): Command {
     .action(async (source: string, file: string) => {
       if (!SOURCES.has(source)) throw new Error(`unknown source: ${source}`);
       const buffer = await fs.promises.readFile(file);
-      const baseUrl = opts.url ?? process.env.WPK_URL;
-      if (!baseUrl) throw new Error("WPK_URL or --url required");
-      const token = opts.token ?? process.env.WPK_TOKEN;
+      const baseUrl = opts.url ?? process.env.SLATE_URL;
+      if (!baseUrl) throw new Error("SLATE_URL or --url required");
+      const token = opts.token ?? process.env.SLATE_TOKEN;
       const url = baseUrl.replace(/\/$/, "") + `/api/import/${source}`;
       const fd = new FormData();
       fd.append("file", new Blob([buffer]), file.split("/").pop() ?? "upload.bin");

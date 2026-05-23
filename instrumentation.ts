@@ -19,7 +19,7 @@ export async function register(): Promise<void> {
   const sdk = new NodeSDK({
     resource: new Resource({
       [ATTR_SERVICE_NAME]: "wpkiller",
-      [ATTR_SERVICE_VERSION]: process.env.WPK_VERSION ?? "0.0.0",
+      [ATTR_SERVICE_VERSION]: process.env.SLATE_VERSION ?? "0.0.0",
       "deployment.environment": process.env.NODE_ENV ?? "development",
     }),
     traceExporter: new TraceExporter(),

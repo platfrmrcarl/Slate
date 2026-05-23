@@ -3072,17 +3072,17 @@ pnpm dev
 
 - [ ] **Step 2: Authenticated upload via curl**
 
-Sign in once via the UI to obtain a `slate_session` cookie; export `WPK_SESSION` to that value. Then:
+Sign in once via the UI to obtain a `slate_session` cookie; export `SLATE_SESSION` to that value. Then:
 
 ```bash
 SIGNED=$(curl -s -X POST -H "Content-Type: application/json" \
-  -H "Cookie: slate_session=$WPK_SESSION" \
+  -H "Cookie: slate_session=$SLATE_SESSION" \
   -d '{"filename":"smoke.jpg","mimeType":"image/jpeg","sizeBytes":'"$(stat -c%s src/test/fixtures/sample.jpg)"'}' \
   http://localhost:3000/api/media/upload-url | jq -r '.url')
 OBJECT_PATH=$(echo "$SIGNED" | sed -n 's#.*o/\([^?]*\).*#\1#p' | python3 -c 'import sys, urllib.parse; print(urllib.parse.unquote(sys.stdin.read().strip()))')
 curl -s -X PUT -H "Content-Type: image/jpeg" --data-binary @src/test/fixtures/sample.jpg "$SIGNED"
 curl -s -X POST -H "Content-Type: application/json" \
-  -H "Cookie: slate_session=$WPK_SESSION" \
+  -H "Cookie: slate_session=$SLATE_SESSION" \
   -d "{\"objectPath\":\"$OBJECT_PATH\",\"mimeType\":\"image/jpeg\",\"originalFilename\":\"smoke.jpg\"}" \
   http://localhost:3000/api/media | jq
 ```

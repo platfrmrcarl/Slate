@@ -40,8 +40,8 @@ describe("resolveTransport", () => {
   it("picks remote when --url flag is present", () => {
     expect(resolveTransport({ url: "https://x.example", token: "t" })).toBe("remote");
   });
-  it("picks remote when WPK_URL env is set", () => {
-    vi.stubEnv("WPK_URL", "https://x.example");
+  it("picks remote when SLATE_URL env is set", () => {
+    vi.stubEnv("SLATE_URL", "https://x.example");
     expect(resolveTransport({})).toBe("remote");
     vi.unstubAllEnvs();
   });

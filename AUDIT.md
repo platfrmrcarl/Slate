@@ -174,7 +174,7 @@ The codebase is unusually clean of inline debt markers — no `FIXME`/`XXX`/`HAC
 
 - `README.md` is good (setup, commands, project layout).
 - **Missing:** `CONTRIBUTING.md`, `ARCHITECTURE.md`, `CHANGELOG.md`, threat-model doc (§20 of spec promises it), migration runbook, user docs site.
-- `.env.example` documents 13 vars but **omits 9** accepted by `src/env.ts`: `AI_MONTHLY_TOKEN_BUDGET`, `AI_MODEL_*` (×7), `OTEL_ENABLED`, `WPK_VERSION`.
+- `.env.example` documents 13 vars but **omits 9** accepted by `src/env.ts`: `AI_MONTHLY_TOKEN_BUDGET`, `AI_MODEL_*` (×7), `OTEL_ENABLED`, `SLATE_VERSION`.
 
 ---
 
