@@ -464,8 +464,9 @@ export type NewWebhookRow = typeof webhooks.$inferInsert;
 export type WebhookDeliveryRow = typeof webhookDeliveries.$inferSelect;
 export type NewWebhookDeliveryRow = typeof webhookDeliveries.$inferInsert;
 
-export const importJobs = pgTable("import_jobs", {
+export const dataJobs = pgTable("data_jobs", {
   id: uuid("id").primaryKey().defaultRandom(),
+  kind: text("kind").notNull().default("import"),
   source: text("source").notNull(),
   bucket: text("bucket").notNull(),
   objectPath: text("object_path").notNull(),
@@ -481,5 +482,5 @@ export const importJobs = pgTable("import_jobs", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
-export type ImportJob = typeof importJobs.$inferSelect;
-export type NewImportJob = typeof importJobs.$inferInsert;
+export type DataJob = typeof dataJobs.$inferSelect;
+export type NewDataJob = typeof dataJobs.$inferInsert;

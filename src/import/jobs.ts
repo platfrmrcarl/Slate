@@ -1,6 +1,6 @@
 import { eq, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { importJobs } from "@/db/schema";
+import { dataJobs } from "@/db/schema";
 
 export interface ImportProgress {
   total?: number;
@@ -27,25 +27,25 @@ export const ZERO_PROGRESS: ImportProgress = {
 
 export async function updateImportProgress(id: string, progress: ImportProgress): Promise<void> {
   await db()
-    .update(importJobs)
+    .update(dataJobs)
     .set({
       progress,
       status: "running",
-      startedAt: sql`coalesce(${importJobs.startedAt}, now())`,
+      startedAt: sql`coalesce(${dataJobs.startedAt}, now())`,
     })
-    .where(eq(importJobs.id, id));
+    .where(eq(dataJobs.id, id));
 }
 
 export async function markImportCompleted(id: string, summary: unknown): Promise<void> {
   await db()
-    .update(importJobs)
+    .update(dataJobs)
     .set({ status: "completed", completedAt: sql`now()`, result: summary as object })
-    .where(eq(importJobs.id, id));
+    .where(eq(dataJobs.id, id));
 }
 
 export async function markImportFailed(id: string, message: string): Promise<void> {
   await db()
-    .update(importJobs)
+    .update(dataJobs)
     .set({ status: "failed", completedAt: sql`now()`, errorMessage: message.slice(0, 4000) })
-    .where(eq(importJobs.id, id));
+    .where(eq(dataJobs.id, id));
 }

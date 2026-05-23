@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { requireRole } from "@/auth/context";
 import { db } from "@/db";
-import { importJobs } from "@/db/schema";
+import { dataJobs } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
 export const dynamic = "force-dynamic";
@@ -13,7 +13,7 @@ export default async function ImportDetail({
 }): Promise<React.ReactElement> {
   await requireRole("admin");
   const { id } = await params;
-  const rows = await db().select().from(importJobs).where(eq(importJobs.id, id));
+  const rows = await db().select().from(dataJobs).where(eq(dataJobs.id, id));
   const row = rows[0];
   if (!row) notFound();
   const p = row.progress as Record<string, number>;

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { randomUUID } from "node:crypto";
 import { requireRole, AuthRequiredError, PermissionDeniedError } from "@/auth/context";
 import { db } from "@/db";
-import { importJobs } from "@/db/schema";
+import { dataJobs } from "@/db/schema";
 import { putObject } from "@/media/storage";
 import { enqueueJob } from "@/jobs/enqueue";
 import { env } from "@/env";
@@ -48,8 +48,9 @@ export async function POST(
   await putObject(objectPath, bytes, file.type || "application/octet-stream");
 
   const [row] = await db()
-    .insert(importJobs)
+    .insert(dataJobs)
     .values({
+      kind: "import",
       source,
       bucket,
       objectPath,

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { authorizeJobRequest } from "@/jobs/authorize";
 import { db } from "@/db";
-import { importJobs } from "@/db/schema";
+import { dataJobs } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { getObjectStream } from "@/media/storage";
 import { IMPORTERS, type ImporterName } from "@/import/registry";
@@ -37,8 +37,8 @@ export async function POST(req: Request): Promise<Response> {
 
   const rows = await db()
     .select()
-    .from(importJobs)
-    .where(eq(importJobs.id, parsed.data.importJobId));
+    .from(dataJobs)
+    .where(eq(dataJobs.id, parsed.data.importJobId));
   const job = rows[0];
   if (!job) return NextResponse.json({ ok: true, skipped: "missing" });
 

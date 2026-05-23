@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { requireRole } from "@/auth/context";
 import { db } from "@/db";
-import { importJobs } from "@/db/schema";
+import { dataJobs } from "@/db/schema";
 import { desc } from "drizzle-orm";
 import { UploadForm } from "./UploadForm";
 
@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 
 export default async function ImportPage(): Promise<React.ReactElement> {
   await requireRole("admin");
-  const rows = await db().select().from(importJobs).orderBy(desc(importJobs.createdAt)).limit(30);
+  const rows = await db().select().from(dataJobs).orderBy(desc(dataJobs.createdAt)).limit(30);
   return (
     <main className="p-6">
       <h1 className="mb-4 text-2xl font-bold">Import</h1>
