@@ -10,7 +10,9 @@ const cleanup: string[] = [];
 afterAll(async () => {
   if (!HAS_DB) return;
   for (const id of cleanup) {
-    await db().delete(users).where(sql`${users.id} = ${id}`);
+    await db()
+      .delete(users)
+      .where(sql`${users.id} = ${id}`);
   }
   await closeDb();
 });

@@ -29,7 +29,9 @@ beforeAll(async () => {
 
 afterAll(async () => {
   if (!HAS_DB) return;
-  await db().delete(users).where(sql`${users.id} = ${userId}`);
+  await db()
+    .delete(users)
+    .where(sql`${users.id} = ${userId}`);
   await closeDb();
 });
 

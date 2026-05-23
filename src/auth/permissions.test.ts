@@ -60,9 +60,7 @@ describe("permissions matrix", () => {
       expect(can(u, "publish:own-post", resource)).toBe(false);
     });
     it("denies contributor and subscriber even on their own", () => {
-      expect(
-        can(actor("contributor", "u1"), "publish:own-post", { authorId: "u1" }),
-      ).toBe(false);
+      expect(can(actor("contributor", "u1"), "publish:own-post", { authorId: "u1" })).toBe(false);
       expect(can(actor("subscriber", "u1"), "publish:own-post", { authorId: "u1" })).toBe(false);
     });
   });
