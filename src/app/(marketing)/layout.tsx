@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import "./marketing.css";
 
+// The OpenGraph image is generated dynamically by
+// `src/app/(marketing)/opengraph-image.tsx` via Next's file-based convention,
+// which auto-injects the og:image meta tag at the matching route.
 export const metadata: Metadata = {
   title: "Slate — The CMS WordPress should have been",
   description:
@@ -9,7 +12,6 @@ export const metadata: Metadata = {
     title: "Slate — The CMS WordPress should have been",
     description:
       "Block-based authoring with AI drafts. Modern stack, fully managed.",
-    images: [{ url: "/og/slate-landing-1200x630.png", width: 1200, height: 630 }],
   },
 };
 
