@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Route } from "next";
 import type { ReactNode } from "react";
 import { tokensToCss, type TokenInputs } from "../tokens.css";
 
@@ -26,11 +27,11 @@ export function Layout({
       {t.showNav !== false && (
         <header className="border-b">
           <div className="mx-auto flex max-w-[var(--container-max)] items-center justify-between px-4 py-4">
-            <Link href="/" className="text-xl font-semibold">
+            <Link href={"/" as Route} className="text-xl font-semibold">
               {t.siteName ?? "Site"}
             </Link>
             <nav className="flex gap-4 text-sm">
-              <Link href="/">{t.navHomeLabel ?? "Home"}</Link>
+              <Link href={"/" as Route}>{t.navHomeLabel ?? "Home"}</Link>
               <Link href="/blog">{t.navBlogLabel ?? "Blog"}</Link>
             </nav>
           </div>

@@ -1,6 +1,7 @@
 "use server";
 
 import { z } from "zod";
+import type { Route } from "next";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { countOwners, createUser } from "@/auth/users";
@@ -70,5 +71,5 @@ export async function runSetupAction(
     path: "/",
     expires: expiresAt,
   });
-  redirect("/");
+  redirect("/" as Route);
 }
