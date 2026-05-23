@@ -58,9 +58,11 @@ export async function translateBlocks(input: TranslateInput): Promise<Result> {
     const translatedById = new Map<string, unknown>(
       (result.input.blocks as Array<{ id: string }>).map((b) => [b.id, b]),
     );
-    const merged = order
-      .map((id) => translatedById.get(id) ?? passthrough.get(id) ?? null)
-      .filter((b): b is unknown => b !== null);
+    const merged: unknown[] = [];
+    for (const id of order) {
+      const b = translatedById.get(id) ?? passthrough.get(id);
+      if (b !== undefined) merged.push(b);
+    }
     return { kind: "ok", blocks: merged };
   } catch (err) {
     return { kind: "error", message: err instanceof Error ? err.message : String(err) };

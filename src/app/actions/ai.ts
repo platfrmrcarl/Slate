@@ -17,18 +17,16 @@ export interface ActionResult {
   seoDescription?: string;
 }
 
-interface GuardOk {
-  user: { id: string };
-}
+type GuardResult = { ok: true; user: { id: string } } | { ok: false; error: string };
 
-async function guard(): Promise<ActionResult | GuardOk> {
+async function guard(): Promise<GuardResult> {
   try {
     const user = await requireRole("author");
-    return { user };
+    return { ok: true, user };
   } catch (err) {
-    if (err instanceof AuthRequiredError) return { error: "Sign in required" };
-    if (err instanceof PermissionDeniedError) return { error: "Forbidden" };
-    return { error: "Forbidden" };
+    if (err instanceof AuthRequiredError) return { ok: false, error: "Sign in required" };
+    if (err instanceof PermissionDeniedError) return { ok: false, error: "Forbidden" };
+    return { ok: false, error: "Forbidden" };
   }
 }
 
@@ -44,7 +42,7 @@ export async function generatePageAction(
   fd: FormData,
 ): Promise<ActionResult> {
   const g = await guard();
-  if ("error" in g) return g;
+  if (!g.ok) return { error: g.error };
   const user = g.user;
   if (await isOverBudget({ userId: user.id })) {
     return { error: "Monthly AI budget exceeded; ask an admin to raise the cap." };
@@ -88,7 +86,7 @@ export async function rewriteAction(
   fd: FormData,
 ): Promise<ActionResult> {
   const g = await guard();
-  if ("error" in g) return g;
+  if (!g.ok) return { error: g.error };
   if (await isOverBudget({ userId: g.user.id })) return { error: "AI budget exceeded" };
   const parsed = rewriteSchema.safeParse({
     mode: fd.get("mode"),
@@ -112,7 +110,7 @@ export async function translateAction(
   fd: FormData,
 ): Promise<ActionResult> {
   const g = await guard();
-  if ("error" in g) return g;
+  if (!g.ok) return { error: g.error };
   if (await isOverBudget({ userId: g.user.id })) return { error: "AI budget exceeded" };
   const parsed = translateSchema.safeParse({
     blocksJson: fd.get("blocksJson"),
@@ -146,7 +144,7 @@ export async function autoSeoAction(
   fd: FormData,
 ): Promise<ActionResult> {
   const g = await guard();
-  if ("error" in g) return g;
+  if (!g.ok) return { error: g.error };
   if (await isOverBudget({ userId: g.user.id })) return { error: "AI budget exceeded" };
   const parsed = autoSeoSchema.safeParse({
     title: fd.get("title"),
