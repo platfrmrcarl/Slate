@@ -6,22 +6,27 @@ import { sendEmail } from "./email";
 
 export const MAGIC_LINK_TTL_MS = 15 * 60 * 1000;
 
-export async function issueMagicLink(rawEmail: string): Promise<void> {
+export async function issueMagicLink(
+  rawEmail: string,
+  purpose: "signin" | "verify" = "signin",
+): Promise<void> {
   const email = rawEmail.trim().toLowerCase();
   const token = generateRandomToken();
   const tokenHash = hashToken(token);
   const expiresAt = new Date(Date.now() + MAGIC_LINK_TTL_MS);
 
-  await db().insert(magicLinkTokens).values({ tokenHash, email, expiresAt });
+  await db().insert(magicLinkTokens).values({ tokenHash, email, purpose, expiresAt });
 
   const appUrl = process.env.APP_URL ?? "http://localhost:3000";
-  const url = `${appUrl.replace(/\/$/, "")}/api/auth/magic-link/verify?token=${token}`;
+  const path = purpose === "verify" ? "/verify-email" : "/api/auth/magic-link/verify";
+  const url = `${appUrl.replace(/\/$/, "")}${path}?token=${token}`;
 
+  const action = purpose === "verify" ? "verify your email" : "sign in";
   await sendEmail({
     to: email,
-    subject: "Sign in to WordPressKiller",
-    text: `Click to sign in: ${url}\n\nThis link expires in 15 minutes.`,
-    html: `<p>Click to sign in: <a href="${url}">${url}</a></p><p>This link expires in 15 minutes.</p>`,
+    subject: purpose === "verify" ? "Verify your email" : "Sign in to WordPressKiller",
+    text: `Click to ${action}: ${url}\n\nThis link expires in 15 minutes.`,
+    html: `<p>Click to ${action}: <a href="${url}">${url}</a></p><p>This link expires in 15 minutes.</p>`,
   });
 }
 

@@ -89,6 +89,7 @@ export const magicLinkTokens = pgTable(
   {
     tokenHash: text("token_hash").primaryKey(),
     email: text("email").notNull(),
+    purpose: text("purpose").notNull().default("signin"), // 'signin' | 'verify'
     expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
     usedAt: timestamp("used_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
@@ -96,6 +97,7 @@ export const magicLinkTokens = pgTable(
   (t) => ({
     emailIdx: index("magic_link_email_idx").on(t.email),
     expiresIdx: index("magic_link_expires_idx").on(t.expiresAt),
+    purposeIdx: index("magic_link_purpose_idx").on(t.purpose),
   }),
 );
 
