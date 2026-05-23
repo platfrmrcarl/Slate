@@ -3,6 +3,8 @@ import { userCommand } from "./commands/user";
 import { themeCommand } from "./commands/theme";
 import { pluginCommand } from "./commands/plugin";
 import { migrateCommand } from "./commands/migrate";
+import { importCommand } from "./commands/import";
+import { exportCommand } from "./commands/export";
 
 const program = new Command()
   .name("wpkiller")
@@ -23,6 +25,9 @@ program.addCommand(userCommand(transportOpts()));
 program.addCommand(themeCommand(transportOpts()));
 program.addCommand(pluginCommand());
 program.addCommand(migrateCommand());
+program.addCommand(importCommand(transportOpts()));
+program.addCommand(exportCommand(transportOpts(), false));
+program.addCommand(exportCommand(transportOpts(), true));
 
 program.command("ping").action(() => console.log("pong"));
 

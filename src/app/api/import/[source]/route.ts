@@ -22,13 +22,23 @@ export async function POST(
   try {
     user = await requireRole("admin");
   } catch (err) {
-    if (err instanceof AuthRequiredError) {
-      return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
+    const authHeader = req.headers.get("authorization") ?? "";
+    if (authHeader.startsWith("Bearer ")) {
+      const { verifyAdminToken } = await import("@/auth/admin-token");
+      const tokenUser = await verifyAdminToken(authHeader.slice("Bearer ".length));
+      if (tokenUser && (tokenUser.role === "owner" || tokenUser.role === "admin")) {
+        user = tokenUser;
+      }
     }
-    if (err instanceof PermissionDeniedError) {
-      return NextResponse.json({ error: "forbidden" }, { status: 403 });
+    if (!user) {
+      if (err instanceof AuthRequiredError) {
+        return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
+      }
+      if (err instanceof PermissionDeniedError) {
+        return NextResponse.json({ error: "forbidden" }, { status: 403 });
+      }
+      throw err;
     }
-    throw err;
   }
   const { source } = await ctx.params;
   if (!VALID_SOURCES.has(source)) {
