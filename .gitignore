@@ -1,0 +1,43 @@
+# Dependencies
+node_modules
+.pnpm-store
+
+# Next.js
+.next
+out
+next-env.d.ts
+
+# Production
+build
+dist
+
+# Misc
+.DS_Store
+*.pem
+.env
+.env.local
+.env*.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor
+.vscode
+.idea
+*.swp
+
+# Test
+coverage
+.vitest
+
+# Drizzle
+src/db/migrations/meta
+
+# OS
+Thumbs.db
+
+# Claude local config
+.claude/settings.local.json
