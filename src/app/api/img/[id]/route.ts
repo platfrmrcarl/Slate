@@ -1,10 +1,15 @@
 import { NextResponse } from "next/server";
 import type { Readable } from "node:stream";
+import { getOptionalUser } from "@/auth/context";
 import { getMediaById } from "@/media/service";
+import { isMediaPubliclyReachable } from "@/media/visibility";
 import { getObjectStream, NotFoundError } from "@/media/storage";
 import { parseTransform, applyTransform } from "@/media/transform";
 import { isTransformableImageMime } from "@/media/mime";
 import { recordHistogram } from "@/lib/otel";
+
+// Editor or above sees any uploaded asset (admin browser, draft previews).
+const BACKSTAGE_ROLES = new Set(["editor", "admin", "owner"]);
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -22,6 +27,16 @@ export async function GET(
   const { id } = await ctx.params;
   const media = await getMediaById(id);
   if (!media) return NextResponse.json({ error: "not found" }, { status: 404 });
+
+  const user = await getOptionalUser();
+  const isBackstage = user ? BACKSTAGE_ROLES.has(user.role) : false;
+  const isOwner = user ? user.id === media.uploadedBy : false;
+  const isPublic = isBackstage || isOwner || (await isMediaPubliclyReachable(media.id));
+  if (!isPublic) {
+    // 404 (not 403) so callers can't tell whether a UUID exists.
+    return NextResponse.json({ error: "not found" }, { status: 404 });
+  }
+
   if (!isTransformableImageMime(media.mimeType)) {
     return NextResponse.json({ error: "media not transformable" }, { status: 415 });
   }
@@ -49,12 +64,20 @@ export async function GET(
     format: result.contentType,
   });
 
+  // Public-reachable media is safe to cache at the CDN. Backstage / owner
+  // access (drafts, private uploads) MUST NOT enter a shared cache — otherwise
+  // a later anonymous request would inherit the bytes.
+  const isShareableCache = !isBackstage && !isOwner;
+  const cacheControl = isShareableCache
+    ? "public, max-age=31536000, immutable"
+    : "private, no-store";
+
   return new Response(new Uint8Array(result.bytes), {
     status: 200,
     headers: {
       "content-type": result.contentType,
       "content-length": String(result.bytes.length),
-      "cache-control": "public, max-age=31536000, immutable",
+      "cache-control": cacheControl,
       vary: "accept",
     },
   });
