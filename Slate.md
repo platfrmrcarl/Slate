@@ -1186,7 +1186,7 @@ CLI talks to the running instance via internal admin API with a token issued at 
 - [ ] Posts CRUD + categories + tags
 - [ ] Media library (upload, list, delete, alt text)
 - [ ] Image transform endpoint
-- [ ] Default theme ("WPK Default") with full template set
+- [ ] Default theme ("Slate Default") with full template set
 - [ ] Theme install/activate (compose-time path)
 - [ ] Settings UI (site, reading, writing, theme customize)
 - [ ] User management

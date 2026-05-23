@@ -1,6 +1,6 @@
 import { logger } from "@/lib/logger";
 import { registerTheme, activateTheme, getActiveThemeRow, getThemeBySlug } from "./service";
-import defaultTheme from "../../themes/wpk-default";
+import defaultTheme from "../../themes/slate-default";
 
 let promise: Promise<void> | null = null;
 
@@ -10,19 +10,19 @@ export function ensureDefaultThemeSeeded(): Promise<void> {
 }
 
 async function run(): Promise<void> {
-  const existing = await getThemeBySlug("wpk-default");
+  const existing = await getThemeBySlug("slate-default");
   const themeRow = await registerTheme({
     manifest: defaultTheme.manifest,
-    sourceUrl: "compose-time://wpk-default",
+    sourceUrl: "compose-time://slate-default",
   });
   const active = await getActiveThemeRow();
   if (!active) {
     await activateTheme(themeRow.id);
-    logger().info({ themeId: themeRow.id }, "themes:activated wpk-default at boot");
+    logger().info({ themeId: themeRow.id }, "themes:activated slate-default at boot");
   } else if (!existing) {
     logger().info(
       { themeId: themeRow.id },
-      "themes:registered wpk-default (kept existing active theme)",
+      "themes:registered slate-default (kept existing active theme)",
     );
   }
 }

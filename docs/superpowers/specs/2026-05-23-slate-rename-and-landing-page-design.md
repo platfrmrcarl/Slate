@@ -21,7 +21,7 @@ All variants of the old brand are replaced. Inventory of occurrences (114 files)
 
 | Variant       | Count | Replacement      | Notes                                                          |
 | ------------- | ----- | ---------------- | -------------------------------------------------------------- |
-| `wpk-`        | 254   | `slate-`         | Theme dir prefix (`wpk-default` → `slate-default`), CSS classes, etc. |
+| `wpk-`        | 254   | `slate-`         | Theme dir prefix (`slate-default` → `slate-default`), CSS classes, etc. |
 | `wpkiller`    | 118   | `slate`          | Package names, identifiers                                     |
 | `wpk_`        | 59    | `slate_`         | Env var prefixes (`WPK_*` → `SLATE_*`), cookie names (`wpk_session` → `slate_session`), DB rows if any |
 | `WordPressKiller` | 58 | `Slate`         | Brand strings, docs, comments                                  |
@@ -30,7 +30,7 @@ All variants of the old brand are replaced. Inventory of occurrences (114 files)
 
 ### 1.2 Non-string surfaces that need attention
 
-- **Theme directory**: `themes/wpk-default/` → `themes/slate-default/`. Theme manifest references inside; update both sides.
+- **Theme directory**: `themes/slate-default/` → `themes/slate-default/`. Theme manifest references inside; update both sides.
 - **pnpm workspace package**: `packages/cli` exports as `@wpkiller/cli`. Rename the package, update consumers, regenerate `pnpm-lock.yaml`.
 - **Session cookie**: `wpk_session` is set/read in `src/auth/cookies.ts` and friends. Renaming logs everyone out — acceptable for pre-1.0 product; document as a "session reset on upgrade" note in CHANGELOG.
 - **Environment variables**: `WPK_*` prefixed vars (if any) in `.env.example` and Terraform. Update both, and add a one-line shim or migration note.

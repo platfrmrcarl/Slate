@@ -30,7 +30,7 @@ landed. When the two diverge, this file is wrong — file a PR.
                      ▲
                      │ enqueue
        ┌─────────────┴──┐
-       │ Cloud Tasks    │   queues: wpk-default, wpk-ai, wpk-exports
+       │ Cloud Tasks    │   queues: slate-default, wpk-ai, wpk-exports
        └─────────────┬──┘
                      │ HTTPS POST + INTERNAL_JOB_SECRET
                      ▼
@@ -94,7 +94,7 @@ the new revision serves traffic. See `cloudbuild.yaml`.
 | `src/lib/` | Small utilities: logger (pino), slug, rate-limit (Postgres token bucket), OTel meter helpers, settings kv, SEO JSON-LD builders. |
 | `src/db/` | Drizzle schema (one file), migrations (tracked SQL + snapshot chain), client. |
 | `src/emails/` | React Email templates. |
-| `themes/wpk-default/` | Baseline theme (Layout, templates, primitives, CSS tokens). |
+| `themes/slate-default/` | Baseline theme (Layout, templates, primitives, CSS tokens). |
 | `plugins/example-webhook/` | Sample plugin (manifest + entry). |
 | `packages/cli/` | `wpkiller` CLI workspace package. |
 | `infra/terraform/` | GCP Terraform module (Cloud Run, SQL, Storage, Tasks, LB, monitoring). |

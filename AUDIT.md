@@ -98,7 +98,7 @@ Terraform sets `ingress = "INGRESS_TRAFFIC_INTERNAL_LOAD_BALANCER"` (`infra/terr
 | Posts CRUD + taxonomies | ✅ | |
 | Media library | ✅ | |
 | Image transform endpoint | ✅ | But see §2.1 |
-| Default theme | ✅ | `themes/wpk-default/` |
+| Default theme | ✅ | `themes/slate-default/` |
 | Theme install/activate | ✅ | Compose-time only (v2 = runtime per spec) |
 | Settings UI | ❌ Mostly missing | Only `/admin/settings/locales` and theme customizer exist. No site/reading/writing settings. |
 | User management UI | ❌ Missing | No `/admin/users` route. Roles + permission matrix exist but unassignable via UI. |

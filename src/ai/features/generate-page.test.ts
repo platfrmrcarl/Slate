@@ -26,7 +26,7 @@ describe("generatePage", () => {
     const result = await generatePage({
       prompt: "An about page",
       pageType: "about",
-      themeSlug: "wpk-default",
+      themeSlug: "slate-default",
       availableBlocks: ["heading", "paragraph"],
       userId: "u-1",
     });
@@ -44,7 +44,7 @@ describe("generatePage", () => {
     const result = await generatePage({
       prompt: "x",
       pageType: "landing",
-      themeSlug: "wpk-default",
+      themeSlug: "slate-default",
       availableBlocks: ["heading"],
       userId: null,
     });
@@ -59,7 +59,7 @@ describe("generatePage", () => {
     const result = await generatePage({
       prompt: "x",
       pageType: "landing",
-      themeSlug: "wpk-default",
+      themeSlug: "slate-default",
       availableBlocks: ["heading"],
       userId: null,
     });

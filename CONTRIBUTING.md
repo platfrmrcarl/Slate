@@ -97,7 +97,7 @@ next contributor's `db:generate` diff cleanly. See
   `src/export/`, `src/ai/`, `src/jobs/` — feature modules
 - `src/db/` — schema + migrations + meta snapshots
 - `src/lib/` — small utilities (logger, slug, otel, rate-limit, settings, seo)
-- `themes/wpk-default/` — baseline theme
+- `themes/slate-default/` — baseline theme
 - `plugins/example-webhook/` — example plugin
 - `packages/cli/` — `wpkiller` CLI (workspace package)
 - `infra/terraform/` — GCP module

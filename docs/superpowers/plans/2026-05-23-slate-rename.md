@@ -19,7 +19,7 @@ The rename touches roughly 114 source files across these categories:
 | Category                  | Example paths                                                                                                          |
 | ------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
 | Brand strings             | `README.md`, `WordPressKiller.md` → `Slate.md`, `package.json` `name`, code comments, JSX strings                      |
-| Theme directory           | `themes/wpk-default/` → `themes/slate-default/` (entire directory tree + `manifest.json`)                              |
+| Theme directory           | `themes/slate-default/` → `themes/slate-default/` (entire directory tree + `manifest.json`)                              |
 | pnpm workspace package    | `packages/cli/package.json`, `pnpm-lock.yaml`, root `package.json` `cli` script                                        |
 | Cookie names              | `src/auth/cookies.ts`, `src/auth/cookies.test.ts`, `src/auth/admin-token.ts`, `src/middleware.ts`, OAuth callback code |
 | Env vars                  | `.env.example`, `src/auth/admin-token.ts`, `packages/cli/src/transport.ts`, Terraform var names                        |
@@ -55,7 +55,7 @@ These notes go in the PR description and `CHANGELOG.md`:
 - Modify: `WordPressKiller.md` content (renamed in Task 7)
 - Modify: ~58 source files with `WordPressKiller` strings — find via grep
 - Modify: theme `manifest.json` (handled fully in Task 2; but the `WordPressKiller` strings there are part of this task)
-- Modify: `themes/wpk-default/manifest.json` `name` ("WPK Default" → "Slate Default"), `author.name` ("WordPressKiller" → "Slate"), `description` ("Polished baseline theme bundled with WordPressKiller." → "Polished baseline theme bundled with Slate."), `customizations[footerText].default` ("Made with WordPressKiller." → "Made with Slate.")
+- Modify: `themes/slate-default/manifest.json` `name` ("WPK Default" → "Slate Default"), `author.name` ("WordPressKiller" → "Slate"), `description` ("Polished baseline theme bundled with WordPressKiller." → "Polished baseline theme bundled with Slate."), `customizations[footerText].default` ("Made with WordPressKiller." → "Made with Slate.")
 - Modify: `WordPressKiller.md` (rename to `Slate.md` in this task or Task 7 — handle in Task 7 to keep file-rename atomic)
 
 - [ ] **Step 1: Survey the surface**
@@ -76,7 +76,7 @@ grep -rIl --exclude-dir=node_modules --exclude-dir=.next --exclude-dir=.git "wor
 grep -rIl --exclude-dir=node_modules --exclude-dir=.next --exclude-dir=.git "WORDPRESSKILLER" . | xargs sed -i 's/WORDPRESSKILLER/SLATE/g'
 ```
 
-The "WPK Default" theme display name and "Made with WordPressKiller." footer default get handled by the same sweep (since they include the substring `WordPressKiller`). The standalone "WPK Default" name in `themes/wpk-default/manifest.json` is handled in Task 2 along with the dir rename.
+The "WPK Default" theme display name and "Made with WordPressKiller." footer default get handled by the same sweep (since they include the substring `WordPressKiller`). The standalone "WPK Default" name in `themes/slate-default/manifest.json` is handled in Task 2 along with the dir rename.
 
 - [ ] **Step 3: Verify nothing crucial broke**
 
@@ -97,17 +97,17 @@ git commit -m "refactor: rename WordPressKiller -> Slate brand strings"
 
 ## Task 2: Theme Directory
 
-**Goal:** Rename `themes/wpk-default/` to `themes/slate-default/` and update its manifest plus any references.
+**Goal:** Rename `themes/slate-default/` to `themes/slate-default/` and update its manifest plus any references.
 
 **Files:**
-- Move: `themes/wpk-default/` → `themes/slate-default/`
-- Modify: `themes/slate-default/manifest.json` (`slug` field: `"wpk-default"` → `"slate-default"`; `name` field: `"WPK Default"` → `"Slate Default"` if not already changed)
-- Modify: any file referencing `wpk-default` (theme loader code, tests, seeds, docs)
+- Move: `themes/slate-default/` → `themes/slate-default/`
+- Modify: `themes/slate-default/manifest.json` (`slug` field: `"slate-default"` → `"slate-default"`; `name` field: `"WPK Default"` → `"Slate Default"` if not already changed)
+- Modify: any file referencing `slate-default` (theme loader code, tests, seeds, docs)
 
 - [ ] **Step 1: Survey references**
 
 ```bash
-grep -rIn --exclude-dir=node_modules --exclude-dir=.next --exclude-dir=.git "wpk-default" . | tee /tmp/slate-rename-step2.txt
+grep -rIn --exclude-dir=node_modules --exclude-dir=.next --exclude-dir=.git "slate-default" . | tee /tmp/slate-rename-step2.txt
 ```
 
 Expected: hits in theme loader (`src/themes/...`), tests, seeds, docs/spec files.
@@ -115,27 +115,27 @@ Expected: hits in theme loader (`src/themes/...`), tests, seeds, docs/spec files
 - [ ] **Step 2: Rename the directory**
 
 ```bash
-git mv themes/wpk-default themes/slate-default
+git mv themes/slate-default themes/slate-default
 ```
 
 - [ ] **Step 3: Update the manifest**
 
 Edit `themes/slate-default/manifest.json`:
 - `"name": "WPK Default"` → `"name": "Slate Default"` (if not already replaced in Task 1)
-- `"slug": "wpk-default"` → `"slug": "slate-default"`
+- `"slug": "slate-default"` → `"slug": "slate-default"`
 
 - [ ] **Step 4: Update all references**
 
 ```bash
-grep -rIl --exclude-dir=node_modules --exclude-dir=.next --exclude-dir=.git "wpk-default" . | xargs sed -i 's/wpk-default/slate-default/g'
+grep -rIl --exclude-dir=node_modules --exclude-dir=.next --exclude-dir=.git "slate-default" . | xargs sed -i 's/slate-default/slate-default/g'
 ```
 
 - [ ] **Step 5: Update the active-theme seed/setting if hardcoded**
 
-Search for any hardcoded "wpk-default" still left after the sweep (e.g., a DB seed value or a fallback constant):
+Search for any hardcoded "slate-default" still left after the sweep (e.g., a DB seed value or a fallback constant):
 
 ```bash
-grep -rIn --exclude-dir=node_modules --exclude-dir=.next --exclude-dir=.git "wpk-default\|wpk_default" .
+grep -rIn --exclude-dir=node_modules --exclude-dir=.next --exclude-dir=.git "slate-default\|wpk_default" .
 ```
 
 Expected: empty. If any remain, edit them by hand.
@@ -152,7 +152,7 @@ Expected: PASS.
 
 ```bash
 git add -A
-git commit -m "refactor(themes): rename wpk-default to slate-default"
+git commit -m "refactor(themes): rename slate-default to slate-default"
 ```
 
 ---
@@ -441,7 +441,7 @@ The product was renamed from WordPressKiller to Slate. This is a breaking change
   - `WPK_TOKEN` → `SLATE_TOKEN`
   - `WPK_URL` → `SLATE_URL`
   - `WPK_VERSION` → `SLATE_VERSION`
-- **Theme directory.** `themes/wpk-default/` → `themes/slate-default/`. Sites that pinned the default theme by slug must update their active-theme setting.
+- **Theme directory.** `themes/slate-default/` → `themes/slate-default/`. Sites that pinned the default theme by slug must update their active-theme setting.
 - **pnpm workspace package.** `@wpkiller/cli` → `@slate/cli`. Existing scripts that invoked `pnpm --filter @wpkiller/cli ...` need updating.
 - **Terraform.** Module, resource IDs, service-account prefixes, queue names, and artifact-registry repo all renamed. Before `terraform apply`, run state migrations:
   ```bash
@@ -486,7 +486,7 @@ gh pr create --title "refactor: rename WordPressKiller to Slate" --body "$(cat <
 ## Summary
 
 - Full rename of the product from WordPressKiller to Slate across the project.
-- Breaking changes: sessions reset (cookie rename), env vars (`WPK_*` → `SLATE_*`), theme dir (`wpk-default` → `slate-default`), pnpm workspace package (`@wpkiller/cli` → `@slate/cli`), Terraform module + resources.
+- Breaking changes: sessions reset (cookie rename), env vars (`WPK_*` → `SLATE_*`), theme dir (`slate-default` → `slate-default`), pnpm workspace package (`@wpkiller/cli` → `@slate/cli`), Terraform module + resources.
 
 See `CHANGELOG.md` for the full breaking-change list and the `terraform state mv` migration commands.
 

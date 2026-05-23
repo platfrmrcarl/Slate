@@ -58,7 +58,7 @@ describe("generatePageAction", () => {
     isOverBudget.mockResolvedValueOnce(true);
     const r = await generatePageAction(
       undefined,
-      fd({ prompt: "make this", pageType: "about", themeSlug: "wpk-default" }),
+      fd({ prompt: "make this", pageType: "about", themeSlug: "slate-default" }),
     );
     expect(r.error).toMatch(/budget/i);
   });
@@ -72,7 +72,7 @@ describe("generatePageAction", () => {
     });
     const r = await generatePageAction(
       undefined,
-      fd({ prompt: "make this", pageType: "about", themeSlug: "wpk-default" }),
+      fd({ prompt: "make this", pageType: "about", themeSlug: "slate-default" }),
     );
     expect(r.ok).toBe(true);
     expect(r.blocks).toHaveLength(1);
@@ -83,7 +83,7 @@ describe("generatePageAction", () => {
     generatePage.mockResolvedValue({ kind: "disabled", reason: "no key" });
     const r = await generatePageAction(
       undefined,
-      fd({ prompt: "make this", pageType: "about", themeSlug: "wpk-default" }),
+      fd({ prompt: "make this", pageType: "about", themeSlug: "slate-default" }),
     );
     expect(r.error).toMatch(/disabled/i);
   });

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "name": "WPK Default",
-  "slug": "wpk-default",
+  "name": "Slate Default",
+  "slug": "slate-default",
   "version": "1.0.0",
   "description": "Polished baseline theme bundled with Slate.",
   "author": { "name": "Slate" },
