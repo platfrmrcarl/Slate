@@ -8,7 +8,7 @@ import { PasswordResetEmail } from "@/emails/PasswordResetEmail";
 import { invalidateAllUserSessions } from "./sessions";
 import { logger } from "@/lib/logger";
 
-export const RESET_TTL_MS = 24 * 60 * 60 * 1000;
+export const RESET_TTL_MS = 60 * 60 * 1000;
 
 export async function issuePasswordReset(rawEmail: string): Promise<void> {
   const email = rawEmail.trim().toLowerCase();

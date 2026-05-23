@@ -30,6 +30,9 @@ export async function POST(req: Request): Promise<Response> {
     .values({
       tokenHash: hashToken(token),
       userId: user.id,
+      // CLI-issued reset links use a longer 24h TTL than the public flow's
+      // 60min — the operator typically pastes the URL into a manual email or
+      // chat, which is slower than the user-initiated flow.
       expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
     });
   const url = `${(env().APP_URL ?? "").replace(/\/$/, "")}/reset-password?token=${token}`;
