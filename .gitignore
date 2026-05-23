@@ -47,3 +47,6 @@ Thumbs.db
 # Claude Code local config (user-specific, never commit)
 .claude/
 .claude-code
+
+# Superpowers brainstorm session content
+.superpowers/
