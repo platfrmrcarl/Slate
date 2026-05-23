@@ -8,7 +8,8 @@ export type JobType =
   | "webhook-deliver"
   | "ai-generate-page"
   | "email-send"
-  | "import-run";
+  | "import-run"
+  | "comment-classify";
 
 export const JOB_QUEUE: Record<JobType, string> = {
   "media-probe": "wpk-media",
@@ -18,6 +19,7 @@ export const JOB_QUEUE: Record<JobType, string> = {
   "ai-generate-page": "wpk-ai",
   "email-send": "wpk-email",
   "import-run": "wpk-imports",
+  "comment-classify": "wpk-ai",
 };
 
 interface EnqueueOptions {
