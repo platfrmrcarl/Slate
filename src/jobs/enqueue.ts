@@ -9,6 +9,7 @@ export type JobType =
   | "ai-generate-page"
   | "email-send"
   | "import-run"
+  | "export-run"
   | "comment-classify";
 
 export const JOB_QUEUE: Record<JobType, string> = {
@@ -19,6 +20,7 @@ export const JOB_QUEUE: Record<JobType, string> = {
   "ai-generate-page": "wpk-ai",
   "email-send": "wpk-email",
   "import-run": "wpk-imports",
+  "export-run": "wpk-exports",
   "comment-classify": "wpk-ai",
 };
 

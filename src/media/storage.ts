@@ -102,3 +102,12 @@ export async function createSignedUploadUrl(
   });
   return url;
 }
+
+export async function createSignedReadUrl(key: string, ttlSeconds = 300): Promise<string> {
+  const [url] = await file(key).getSignedUrl({
+    version: "v4",
+    action: "read",
+    expires: Date.now() + ttlSeconds * 1000,
+  });
+  return url;
+}
