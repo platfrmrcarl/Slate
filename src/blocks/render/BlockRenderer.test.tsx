@@ -98,4 +98,29 @@ describe("BlockRenderer", () => {
     expect(out).toContain("/api/img/m-1");
     expect(out).toContain("/api/img/m-2");
   });
+
+  it("renders plugin-contributed custom blocks via the registry", async () => {
+    const { blockRegistry } = await import("@/blocks/registry");
+    blockRegistry.register({
+      type: "custom:demo-callout",
+      render: (b: { text?: string }) => <aside className="demo">{b.text ?? ""}</aside>,
+    });
+    const out = await html([
+      {
+        id: id("c1"),
+        type: "custom:demo-callout",
+        text: "hello plugin",
+      } as never,
+    ]);
+    expect(out).toContain("hello plugin");
+    expect(out).toContain('class="demo"');
+    blockRegistry._reset();
+  });
+
+  it("falls back to an empty fragment when the plugin type is unregistered", async () => {
+    const out = await html([
+      { id: id("c2"), type: "custom:not-installed" } as never,
+    ]);
+    expect(out).not.toContain("undefined");
+  });
 });
