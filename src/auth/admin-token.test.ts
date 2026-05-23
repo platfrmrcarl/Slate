@@ -24,7 +24,7 @@ describe.runIf(HAS_DB)("admin-token", () => {
       .returning();
     cleanup.push(u!.id);
     const { token } = await issueAdminToken({ userId: u!.id, label: "CLI", scopes: ["cli"] });
-    expect(token).toMatch(/^wpk_/);
+    expect(token).toMatch(/^slate_/);
     const rows = await db()
       .select()
       .from(adminTokens)

@@ -10,7 +10,7 @@ export interface IssueInput {
   expiresAt?: Date;
 }
 
-const PREFIX = "wpk_";
+const PREFIX = "slate_";
 
 export async function issueAdminToken(
   input: IssueInput,
