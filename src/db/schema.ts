@@ -406,3 +406,60 @@ export const aiChatMessages = pgTable(
 export type AiUsage = typeof aiUsage.$inferSelect;
 export type AiChatSession = typeof aiChatSessions.$inferSelect;
 export type AiChatMessage = typeof aiChatMessages.$inferSelect;
+
+export const plugins = pgTable("plugins", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  slug: text("slug").notNull().unique(),
+  name: text("name").notNull(),
+  version: text("version").notNull(),
+  manifest: jsonb("manifest").notNull(),
+  enabled: boolean("enabled").notNull().default(true),
+  config: jsonb("config").notNull().default({}),
+  installedAt: timestamp("installed_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const webhooks = pgTable(
+  "webhooks",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    pluginId: uuid("plugin_id").references(() => plugins.id, { onDelete: "cascade" }),
+    events: text("events").array().notNull(),
+    url: text("url").notNull(),
+    secret: text("secret").notNull(),
+    active: boolean("active").notNull().default(true),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => ({ pluginIdx: index("webhooks_plugin_idx").on(t.pluginId) }),
+);
+
+export const webhookDeliveries = pgTable(
+  "webhook_deliveries",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    webhookId: uuid("webhook_id")
+      .notNull()
+      .references(() => webhooks.id, { onDelete: "cascade" }),
+    event: text("event").notNull(),
+    payload: jsonb("payload").notNull(),
+    status: text("status").notNull().default("pending"),
+    statusCode: integer("status_code"),
+    responseBodyPreview: text("response_body_preview"),
+    attempts: integer("attempts").notNull().default(0),
+    nextAttemptAt: timestamp("next_attempt_at", { withTimezone: true }),
+    deliveredAt: timestamp("delivered_at", { withTimezone: true }),
+    lastError: text("last_error"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => ({
+    webhookIdx: index("webhook_deliveries_webhook_idx").on(t.webhookId, t.createdAt),
+    statusIdx: index("webhook_deliveries_status_idx").on(t.status, t.nextAttemptAt),
+  }),
+);
+
+export type PluginRow = typeof plugins.$inferSelect;
+export type NewPluginRow = typeof plugins.$inferInsert;
+export type WebhookRow = typeof webhooks.$inferSelect;
+export type NewWebhookRow = typeof webhooks.$inferInsert;
+export type WebhookDeliveryRow = typeof webhookDeliveries.$inferSelect;
+export type NewWebhookDeliveryRow = typeof webhookDeliveries.$inferInsert;
