@@ -69,11 +69,22 @@ export async function findUserById(id: string): Promise<User | null> {
   return rows[0] ?? null;
 }
 
+// A pre-computed argon2id hash of an opaque random string. Used to keep the
+// failure path through verifyCredentials in the same time bucket as the
+// success path, so an attacker can't probe email existence by measuring
+// response latency.
+const DUMMY_ARGON2_HASH =
+  "$argon2id$v=19$m=19456,t=2,p=1$YWFhYWFhYWFhYWFhYWFhYQ$" +
+  "GmCAVe3pVqe/9pPHzhTYM6jzcRrAvNo7Hb88e1lxXgU";
+
 export async function verifyCredentials(email: string, password: string): Promise<User | null> {
   const user = await findUserByEmail(email);
-  if (!user || !user.passwordHash) return null;
-  const ok = await verifyPassword(user.passwordHash, password);
-  return ok ? user : null;
+  // Always run argon2 to flatten timing. If the user doesn't exist we verify
+  // against a fixed dummy hash so the failed branch costs the same as a real
+  // verify and returns null.
+  const hashToVerify = user?.passwordHash ?? DUMMY_ARGON2_HASH;
+  const ok = await verifyPassword(hashToVerify, password);
+  return user && ok ? user : null;
 }
 
 export async function countOwners(): Promise<number> {
