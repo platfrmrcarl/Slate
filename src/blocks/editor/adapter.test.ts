@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { toBlockNote, fromBlockNote } from "./adapter";
+import { editorSchema } from "./schema";
 import type { Block } from "../types";
 
 function id(k: string) {
@@ -61,5 +62,19 @@ describe("adapter round-trip", () => {
   it("toBlockNote assigns generated IDs to BlockNote blocks", () => {
     const src: Block[] = [{ id: id("h2"), type: "heading", level: 1, text: "x" }];
     expect(toBlockNote(src)[0]!.id).toBe(src[0]!.id);
+  });
+});
+
+describe("editorSchema", () => {
+  it("registers default block types", () => {
+    expect(editorSchema.blockSpecs.paragraph).toBeDefined();
+    expect(editorSchema.blockSpecs.heading).toBeDefined();
+  });
+
+  it("registers custom image/gallery/embed/button block specs", () => {
+    expect(editorSchema.blockSpecs.image).toBeDefined();
+    expect(editorSchema.blockSpecs.gallery).toBeDefined();
+    expect(editorSchema.blockSpecs.embed).toBeDefined();
+    expect(editorSchema.blockSpecs.button).toBeDefined();
   });
 });
