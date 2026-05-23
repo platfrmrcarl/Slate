@@ -10,7 +10,9 @@ beforeAll(() => {
 });
 
 const listPosts = vi.fn();
+const listPages = vi.fn();
 vi.mock("@/posts/service", () => ({ listPosts: (...a: unknown[]) => listPosts(...a) }));
+vi.mock("@/services/pages/service", () => ({ listPages: (...a: unknown[]) => listPages(...a) }));
 vi.mock("@/i18n/settings", () => ({
   getI18nSettings: async () => ({
     defaultLocale: "en",
@@ -21,7 +23,10 @@ vi.mock("@/i18n/settings", () => ({
 
 const { GET } = await import("./route");
 
-afterEach(() => listPosts.mockReset());
+afterEach(() => {
+  listPosts.mockReset();
+  listPages.mockReset();
+});
 
 describe("GET /sitemap.xml", () => {
   it("returns an XML sitemap including each published post", async () => {
@@ -31,10 +36,20 @@ describe("GET /sitemap.xml", () => {
       ],
       nextCursor: null,
     });
+    listPages.mockResolvedValue([]);
     const res = await GET();
     expect(res.headers.get("content-type")).toContain("application/xml");
     const body = await res.text();
     expect(body).toContain("<urlset");
     expect(body).toContain("https://app.test/blog/a");
+  });
+
+  it("includes published pages alongside posts", async () => {
+    listPosts.mockResolvedValue({ items: [], nextCursor: null });
+    listPages.mockResolvedValue([{ slug: "about", updatedAt: new Date("2026-02-02") }]);
+    const res = await GET();
+    const body = await res.text();
+    expect(body).toContain("https://app.test/about");
+    expect(body).toContain("2026-02-02");
   });
 });

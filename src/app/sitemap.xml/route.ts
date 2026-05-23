@@ -1,4 +1,5 @@
 import { listPosts } from "@/posts/service";
+import { listPages } from "@/services/pages/service";
 import { env } from "@/env";
 import { getI18nSettings } from "@/i18n/settings";
 import { buildLocalizedPath } from "@/i18n/url";
@@ -10,10 +11,16 @@ export async function GET(): Promise<Response> {
   const settings = await getI18nSettings();
   const urls: string[] = [];
   for (const locale of settings.enabledLocales) {
-    const { items } = await listPosts({ status: "published", locale, limit: 5000 });
-    for (const p of items) {
+    const { items: posts } = await listPosts({ status: "published", locale, limit: 5000 });
+    for (const p of posts) {
       urls.push(
         `<url><loc>${appUrl}${buildLocalizedPath(locale, `/blog/${p.slug}`, settings)}</loc><lastmod>${p.updatedAt.toISOString()}</lastmod></url>`,
+      );
+    }
+    const pages = await listPages({ status: "published", locale, limit: 5000 });
+    for (const pg of pages) {
+      urls.push(
+        `<url><loc>${appUrl}${buildLocalizedPath(locale, `/${pg.slug}`, settings)}</loc><lastmod>${pg.updatedAt.toISOString()}</lastmod></url>`,
       );
     }
   }
