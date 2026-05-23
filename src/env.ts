@@ -20,6 +20,18 @@ const schema = z
     GITHUB_OAUTH_CLIENT_SECRET: z.string().optional(),
     RESEND_API_KEY: z.string().optional(),
     EMAIL_FROM: z.string().email().default("noreply@example.com"),
+    GCS_BUCKET_MEDIA: z
+      .string()
+      .regex(
+        /^[a-z0-9][a-z0-9._-]{1,61}[a-z0-9]$/,
+        "GCS_BUCKET_MEDIA must be a valid GCS bucket name",
+      ),
+    GCS_BUCKET_THEMES: z
+      .string()
+      .regex(/^[a-z0-9][a-z0-9._-]{1,61}[a-z0-9]$/)
+      .optional(),
+    GCS_EMULATOR_HOST: z.string().url().optional(),
+    MEDIA_PUBLIC_URL: z.string().url().optional(),
   })
   .superRefine((env, ctx) => {
     if (env.NODE_ENV === "production" && !env.APP_URL.startsWith("https://")) {
@@ -41,6 +53,13 @@ const schema = z
         code: "custom",
         path: ["GITHUB_OAUTH_CLIENT_SECRET"],
         message: "GITHUB_OAUTH_CLIENT_ID and GITHUB_OAUTH_CLIENT_SECRET must be set together",
+      });
+    }
+    if (env.NODE_ENV === "production" && env.GCS_EMULATOR_HOST) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["GCS_EMULATOR_HOST"],
+        message: "GCS_EMULATOR_HOST must not be set in production",
       });
     }
   });

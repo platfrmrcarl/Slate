@@ -6,6 +6,7 @@ const REQUIRED_AUTH = {
   APP_URL: "https://example.com",
   PREVIEW_TOKEN_SECRET: "p".repeat(64),
   INTERNAL_JOB_SECRET: "i".repeat(64),
+  GCS_BUCKET_MEDIA: "wpk-media-prod",
 };
 
 describe("parseEnv", () => {
@@ -97,6 +98,7 @@ describe("parseEnv (auth additions)", () => {
     APP_URL: "https://example.com",
     PREVIEW_TOKEN_SECRET: "p".repeat(64),
     INTERNAL_JOB_SECRET: "i".repeat(64),
+    GCS_BUCKET_MEDIA: "wpk-media-prod",
   };
 
   it("accepts a complete auth environment", () => {
@@ -139,6 +141,7 @@ describe("parseEnv (preview + jobs)", () => {
     APP_URL: "https://example.com",
     PREVIEW_TOKEN_SECRET: "p".repeat(64),
     INTERNAL_JOB_SECRET: "i".repeat(64),
+    GCS_BUCKET_MEDIA: "wpk-media-prod",
   };
 
   it("accepts valid PREVIEW_TOKEN_SECRET and INTERNAL_JOB_SECRET", () => {
@@ -168,6 +171,52 @@ describe("parseEnv (preview + jobs)", () => {
   it("rejects short INTERNAL_JOB_SECRET", () => {
     expect(() => parseEnv({ ...base, INTERNAL_JOB_SECRET: "tooshort" })).toThrow(
       /INTERNAL_JOB_SECRET/,
+    );
+  });
+});
+
+describe("parseEnv (media additions)", () => {
+  const base = {
+    NODE_ENV: "production" as const,
+    DATABASE_URL: "postgres://localhost/wpk",
+    AUTH_SECRET: "a".repeat(64),
+    APP_URL: "https://example.com",
+    PREVIEW_TOKEN_SECRET: "p".repeat(64),
+    INTERNAL_JOB_SECRET: "i".repeat(64),
+    GCS_BUCKET_MEDIA: "wpk-media-prod",
+    MEDIA_PUBLIC_URL: "https://cdn.example.com",
+  };
+
+  it("accepts media env", () => {
+    const env = parseEnv(base);
+    expect(env.GCS_BUCKET_MEDIA).toBe("wpk-media-prod");
+    expect(env.MEDIA_PUBLIC_URL).toBe("https://cdn.example.com");
+  });
+
+  it("rejects missing GCS_BUCKET_MEDIA", () => {
+    const { GCS_BUCKET_MEDIA: _omit, ...rest } = base;
+    void _omit;
+    expect(() => parseEnv(rest)).toThrow(/GCS_BUCKET_MEDIA/);
+  });
+
+  it("rejects bucket names with uppercase or invalid chars", () => {
+    expect(() => parseEnv({ ...base, GCS_BUCKET_MEDIA: "WPK-Media" })).toThrow(/GCS_BUCKET_MEDIA/);
+    expect(() => parseEnv({ ...base, GCS_BUCKET_MEDIA: "bad name" })).toThrow(/GCS_BUCKET_MEDIA/);
+  });
+
+  it("allows GCS_EMULATOR_HOST in development", () => {
+    const env = parseEnv({
+      ...base,
+      NODE_ENV: "development",
+      APP_URL: "http://localhost:3000",
+      GCS_EMULATOR_HOST: "http://localhost:4443",
+    });
+    expect(env.GCS_EMULATOR_HOST).toBe("http://localhost:4443");
+  });
+
+  it("rejects GCS_EMULATOR_HOST in production", () => {
+    expect(() => parseEnv({ ...base, GCS_EMULATOR_HOST: "http://localhost:4443" })).toThrow(
+      /GCS_EMULATOR_HOST/,
     );
   });
 });

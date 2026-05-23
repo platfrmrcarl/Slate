@@ -7,6 +7,7 @@ import {
   uuid,
   index,
   uniqueIndex,
+  integer,
 } from "drizzle-orm/pg-core";
 import type { Block } from "@/blocks/types";
 
@@ -168,3 +169,37 @@ export type Page = typeof pages.$inferSelect;
 export type NewPage = typeof pages.$inferInsert;
 export type PageRevision = typeof pageRevisions.$inferSelect;
 export type PageStatusValue = (typeof pageStatus.enumValues)[number];
+
+export const media = pgTable(
+  "media",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    bucket: text("bucket").notNull(),
+    objectPath: text("object_path").notNull(),
+    mimeType: text("mime_type").notNull(),
+    originalFilename: text("original_filename").notNull(),
+    width: integer("width"),
+    height: integer("height"),
+    sizeBytes: integer("size_bytes").notNull(),
+    altText: text("alt_text"),
+    caption: text("caption"),
+    folder: text("folder").notNull().default("/"),
+    uploadedBy: uuid("uploaded_by")
+      .notNull()
+      .references(() => users.id),
+    probeStatus: text("probe_status").notNull().default("pending"),
+    probedAt: timestamp("probed_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => ({
+    bucketObjectUnique: uniqueIndex("media_bucket_object_unique").on(t.bucket, t.objectPath),
+    mimeIdx: index("media_mime_idx").on(t.mimeType),
+    folderIdx: index("media_folder_idx").on(t.folder),
+    uploadedByIdx: index("media_uploaded_by_idx").on(t.uploadedBy),
+    createdIdx: index("media_created_idx").on(t.createdAt),
+  }),
+);
+
+export type Media = typeof media.$inferSelect;
+export type NewMedia = typeof media.$inferInsert;
