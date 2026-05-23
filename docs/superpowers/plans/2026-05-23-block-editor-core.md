@@ -1729,7 +1729,7 @@ In `src/middleware.ts`, extend the `middleware()` body **before** the setup-stat
 
 ```ts
 if (pathname.startsWith("/admin")) {
-  const session = req.cookies.get("wpk_session");
+  const session = req.cookies.get("slate_session");
   if (!session) {
     const url = new URL("/sign-in", req.url);
     url.searchParams.set("redirectTo", pathname);

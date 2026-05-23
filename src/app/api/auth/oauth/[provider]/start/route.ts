@@ -6,8 +6,8 @@ import { githubClient } from "@/auth/oauth/github";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-const STATE_COOKIE_PREFIX = "wpk_oauth_state_";
-const PKCE_COOKIE_PREFIX = "wpk_oauth_pkce_";
+const STATE_COOKIE_PREFIX = "slate_oauth_state_";
+const PKCE_COOKIE_PREFIX = "slate_oauth_pkce_";
 const STATE_TTL_SEC = 600;
 
 function redirectTo(location: string): Response {

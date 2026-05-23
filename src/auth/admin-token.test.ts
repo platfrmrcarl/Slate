@@ -45,7 +45,7 @@ describe.runIf(HAS_DB)("admin-token", () => {
   });
 
   it("verifyAdminToken returns null for unknown token", async () => {
-    expect(await verifyAdminToken("wpk_unknown")).toBeNull();
+    expect(await verifyAdminToken("slate_unknown")).toBeNull();
   });
 
   it("revokeAdminToken removes the row", async () => {

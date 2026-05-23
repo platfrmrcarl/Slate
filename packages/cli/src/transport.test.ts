@@ -4,7 +4,7 @@ const fetchMock = vi.fn();
 vi.stubGlobal("fetch", fetchMock);
 
 vi.mock("./credentials", () => ({
-  loadCredentials: vi.fn().mockResolvedValue({ url: "https://app.example", token: "wpk_test" }),
+  loadCredentials: vi.fn().mockResolvedValue({ url: "https://app.example", token: "slate_test" }),
 }));
 
 const { remoteRequest, resolveTransport } = await import("./transport");
@@ -25,7 +25,7 @@ describe("remoteRequest", () => {
       "https://app.example/api/cli/whoami",
       expect.objectContaining({
         method: "GET",
-        headers: expect.objectContaining({ authorization: "Bearer wpk_test" }),
+        headers: expect.objectContaining({ authorization: "Bearer slate_test" }),
       }),
     );
   });

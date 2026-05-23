@@ -55,7 +55,7 @@ describe("middleware", () => {
   });
 
   it("lets /admin through when the session cookie is set (no /sign-in redirect)", async () => {
-    const res = await middleware(req("/admin", { cookie: "wpk_session=abc" }));
+    const res = await middleware(req("/admin", { cookie: "slate_session=abc" }));
     // Either NextResponse.next() (no location) or a rewrite — not the /sign-in
     // redirect. The setup-status fetch is also skipped because /admin is in
     // ALLOW_DURING_SETUP via /_next exclusion? No — /admin is NOT in
@@ -121,7 +121,7 @@ describe("middleware", () => {
   });
 
   it("attaches a per-request nonce CSP to /admin responses (no unsafe-inline in script-src)", async () => {
-    const res = await middleware(req("/admin", { cookie: "wpk_session=abc" }));
+    const res = await middleware(req("/admin", { cookie: "slate_session=abc" }));
     const csp = res.headers.get("Content-Security-Policy");
     expect(csp).toBeTruthy();
     // script-src directive includes a fresh nonce-… and does NOT include unsafe-inline

@@ -51,7 +51,7 @@ describe("GET /api/auth/magic-link/verify", () => {
     });
     const res = await GET(req("https://app.test/api/auth/magic-link/verify?token=abc"));
     expect(setCookie).toHaveBeenCalledWith(
-      expect.objectContaining({ name: "wpk_session", value: "t-9" }),
+      expect.objectContaining({ name: "slate_session", value: "t-9" }),
     );
     expect(res.headers.get("location")).toBe("/");
   });

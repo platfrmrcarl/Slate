@@ -24,7 +24,7 @@ vi.mock("@/auth/sessions", () => ({
   createSession: (...a: unknown[]) => createSession(...a),
 }));
 vi.mock("@/auth/cookies", () => ({
-  SESSION_COOKIE_NAME: "wpk_session",
+  SESSION_COOKIE_NAME: "slate_session",
 }));
 
 const cookieStore = new Map<string, string>();
@@ -66,20 +66,20 @@ function call(provider: string, qs: string): Promise<Response> {
 
 describe("GET /api/auth/oauth/[provider]/callback", () => {
   it("returns 400 when state from query doesn't match cookie", async () => {
-    cookieStore.set("wpk_oauth_state_google", "expected");
+    cookieStore.set("slate_oauth_state_google", "expected");
     const res = await call("google", "?code=c&state=other");
     expect(res.status).toBe(400);
   });
 
   it("returns 400 when code is missing", async () => {
-    cookieStore.set("wpk_oauth_state_google", "s1");
+    cookieStore.set("slate_oauth_state_google", "s1");
     const res = await call("google", "?state=s1");
     expect(res.status).toBe(400);
   });
 
   it("completes a google flow, sets a session cookie and redirects to /", async () => {
-    cookieStore.set("wpk_oauth_state_google", "s1");
-    cookieStore.set("wpk_oauth_pkce_google", "pk1");
+    cookieStore.set("slate_oauth_state_google", "s1");
+    cookieStore.set("slate_oauth_pkce_google", "pk1");
     googleClient.mockReturnValue({
       validateAuthorizationCode: vi.fn().mockResolvedValue({ accessToken: () => "t" }),
     });
@@ -97,7 +97,7 @@ describe("GET /api/auth/oauth/[provider]/callback", () => {
     expect(upsertOAuthUser).toHaveBeenCalled();
     // session cookie was set + state/pkce cookies cleared
     expect(cookieSet).toHaveBeenCalled();
-    expect(cookieDelete).toHaveBeenCalledWith("wpk_oauth_state_google");
-    expect(cookieDelete).toHaveBeenCalledWith("wpk_oauth_pkce_google");
+    expect(cookieDelete).toHaveBeenCalledWith("slate_oauth_state_google");
+    expect(cookieDelete).toHaveBeenCalledWith("slate_oauth_pkce_google");
   });
 });
