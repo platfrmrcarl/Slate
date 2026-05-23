@@ -7,6 +7,7 @@ import { redirect } from "next/navigation";
 import { createSession, invalidateSession, SESSION_DURATION_MS } from "@/auth/sessions";
 import { SESSION_COOKIE_NAME } from "@/auth/cookies";
 import { EmailInUseError, countOwners, createUser, verifyCredentials } from "@/auth/users";
+import { issueMagicLink } from "@/auth/magic-link";
 
 interface ActionResult {
   error?: string;
@@ -114,6 +115,22 @@ export async function signOutAction(): Promise<void> {
     cookieStore.delete(SESSION_COOKIE_NAME);
   }
   redirect("/");
+}
+
+const requestMagicLinkSchema = z.object({
+  email: z.string().email("Enter a valid email"),
+});
+
+export async function requestMagicLinkAction(
+  _prev: ActionResult | undefined,
+  formData: FormData,
+): Promise<ActionResult> {
+  const parsed = requestMagicLinkSchema.safeParse({ email: formData.get("email") });
+  if (!parsed.success) {
+    return { fieldErrors: { email: parsed.error.issues[0]!.message } };
+  }
+  await issueMagicLink(parsed.data.email);
+  redirect("/magic-link/sent" as Route);
 }
 
 // Referenced to ensure SESSION_DURATION_MS is exported in the right shape.
