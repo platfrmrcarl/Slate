@@ -59,6 +59,7 @@
     "unified": "11",
     "unist-util-visit": "5",
     "unzipper": "0.12",
+    "yazl": "3",
     "zod": "3"
   },
   "devDependencies": {
@@ -74,6 +75,7 @@
     "@types/react": "19.2.15",
     "@types/react-dom": "19.2.3",
     "@types/unzipper": "^0.10.11",
+    "@types/yazl": "^3.3.1",
     "@vitest/coverage-v8": "2",
     "autoprefixer": "10",
     "drizzle-kit": "0.30",
