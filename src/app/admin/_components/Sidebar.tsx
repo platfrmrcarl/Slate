@@ -20,6 +20,7 @@ const ROLE_RANK: Record<Role, number> = {
 const NAV: NavItem[] = [
   { href: "/admin" as Route, label: "Dashboard", minRole: "contributor" },
   { href: "/admin/pages" as Route, label: "Pages", minRole: "contributor" },
+  { href: "/admin/media" as Route, label: "Media", minRole: "author" },
 ];
 
 export function Sidebar({ role }: { role: Role }): React.ReactElement {
