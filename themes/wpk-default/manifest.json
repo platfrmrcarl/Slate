@@ -3,8 +3,8 @@
   "name": "WPK Default",
   "slug": "wpk-default",
   "version": "1.0.0",
-  "description": "Polished baseline theme bundled with WordPressKiller.",
-  "author": { "name": "WordPressKiller" },
+  "description": "Polished baseline theme bundled with Slate.",
+  "author": { "name": "Slate" },
   "license": "MIT",
   "preview": "preview.png",
   "supportedLocales": ["en"],
@@ -57,7 +57,7 @@
       "key": "footerText",
       "type": "text",
       "label": "Footer text",
-      "default": "Made with WordPressKiller."
+      "default": "Made with Slate."
     }
   ],
   "templates": {

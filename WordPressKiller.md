@@ -1,4 +1,4 @@
-# WordPressKiller — Design Specification
+# Slate — Design Specification
 
 **Status:** Draft v1 · **Date:** 2026-05-22 · **Owner:** carl@platfrmr.com
 
@@ -12,7 +12,7 @@ A modern, AI-native, self-hostable content management system. Delivers the WordP
 
 WordPress powers ~43% of the public web because three things compound: a forgiving content model, a thriving theme ecosystem, and a plugin marketplace that turns the CMS into a platform. It also drags around 20 years of accumulated complexity, a PHP runtime that punishes modern hosting, and a security surface that requires constant maintenance.
 
-WordPressKiller is a from-scratch reimplementation of that compounding triad on a 2026-era stack — Next.js 16 App Router, TypeScript end-to-end, Drizzle + Postgres, Cloud Run for serverless containers — with AI generation as a first-class authoring primitive rather than a bolt-on.
+Slate is a from-scratch reimplementation of that compounding triad on a 2026-era stack — Next.js 16 App Router, TypeScript end-to-end, Drizzle + Postgres, Cloud Run for serverless containers — with AI generation as a first-class authoring primitive rather than a bolt-on.
 
 ### 1.2 v1 Goals
 
@@ -1088,7 +1088,7 @@ Cost-reduction lever: replace Cloud SQL with self-managed Postgres on a small Co
 
 ```bash
 # Provision GCP resources + deploy
-npx create-wordpresskiller@latest my-site
+npx create-slate@latest my-site
 # prompts:
 #   GCP project ID:
 #   Region:
@@ -1098,7 +1098,7 @@ npx create-wordpresskiller@latest my-site
 # → runs Terraform → outputs Cloud Run URL → opens setup wizard
 ```
 
-The `create-wordpresskiller` CLI:
+The `create-slate` CLI:
 
 1. Asks for GCP project, region, optional custom domain.
 2. Authenticates via `gcloud auth application-default login` if no creds.
@@ -1207,7 +1207,7 @@ CLI talks to the running instance via internal admin API with a token issued at 
 - [ ] Observability wiring (OpenTelemetry, Cloud Logging)
 - [ ] `/api/healthz` and `/api/readyz`
 - [ ] Threat model doc + security checklist
-- [ ] User docs site (built with WordPressKiller itself, naturally)
+- [ ] User docs site (built with Slate itself, naturally)
 
 ---
 

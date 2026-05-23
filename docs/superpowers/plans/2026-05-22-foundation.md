@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Stand up a deployable, testable Next.js 16 application scaffold with Drizzle + PostgreSQL + Docker + Cloud Build CI, with validated environment, structured logging, and a working health/readiness probe. This is the foundation every subsequent WordPressKiller sub-plan builds on.
+**Goal:** Stand up a deployable, testable Next.js 16 application scaffold with Drizzle + PostgreSQL + Docker + Cloud Build CI, with validated environment, structured logging, and a working health/readiness probe. This is the foundation every subsequent Slate sub-plan builds on.
 
 **Architecture:** Next.js 16 App Router in standalone output mode, packaged as a distroless Docker image, deployable to Google Cloud Run. PostgreSQL accessed via Drizzle ORM with migrations managed by `drizzle-kit`. Local development uses `docker compose` for Postgres. Environment is validated at startup with Zod. Logging is Pino → stdout → Cloud Logging. CI is Cloud Build building, testing, and pushing images to Artifact Registry.
 
@@ -81,7 +81,7 @@ Files this plan creates or modifies:
 
 ```json
 {
-  "name": "wordpresskiller",
+  "name": "slate",
   "version": "0.1.0",
   "private": true,
   "packageManager": "pnpm@9.15.0",
@@ -176,7 +176,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "WordPressKiller",
+  title: "Slate",
   description: "AI-native CMS built on Next.js + GCP",
 };
 
@@ -195,7 +195,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 export default function HomePage() {
   return (
     <main className="p-8">
-      <h1 className="text-3xl font-bold">WordPressKiller</h1>
+      <h1 className="text-3xl font-bold">Slate</h1>
       <p className="mt-2 text-gray-600">Foundation scaffold. Sub-plans build on this.</p>
     </main>
   );
@@ -1342,7 +1342,7 @@ git commit -m "feat(foundation): /api/readyz readiness probe"
 .gitignore
 .gitattributes
 README.md
-WordPressKiller.md
+Slate.md
 docs
 docker-compose.yml
 .env
@@ -1544,11 +1544,11 @@ git commit -m "feat(foundation): Cloud Build pipeline (lint, test, build, push)"
 - [ ] **Step 1: Overwrite `README.md`**
 
 ````markdown
-# WordPressKiller
+# Slate
 
 An AI-native, block-based CMS built on Next.js 16 + Drizzle + PostgreSQL, deployable to Google Cloud Run.
 
-See [`WordPressKiller.md`](./WordPressKiller.md) for the full design specification.
+See [`Slate.md`](./Slate.md) for the full design specification.
 See [`docs/superpowers/plans/`](./docs/superpowers/plans/) for implementation plans.
 
 ## Prerequisites

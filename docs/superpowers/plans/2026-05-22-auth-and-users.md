@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Build the user, session, and authorization layer for WordPressKiller — Argon2id passwords, signed-cookie sessions, OAuth (Google + GitHub), magic-link sign-in, WordPress-style roles with a permission matrix, and the first-run `/setup` wizard that bootstraps the Owner.
+**Goal:** Build the user, session, and authorization layer for Slate — Argon2id passwords, signed-cookie sessions, OAuth (Google + GitHub), magic-link sign-in, WordPress-style roles with a permission matrix, and the first-run `/setup` wizard that bootstraps the Owner.
 
 **Architecture:** Custom session management built on `@oslojs/crypto` and `@oslojs/encoding` (the primitives the original Lucia author created and now recommends). A session token is generated as cryptographically random bytes, base32-encoded into the cookie, and SHA-256-hashed before storage so a database leak does not yield session hijacking material. OAuth flows use `arctic` for PKCE and state generation. Magic links and password reset use single-use, expiring DB-backed tokens. Permissions are a pure-function matrix consulted by every Server Action and Route Handler that mutates state.
 
@@ -2219,7 +2219,7 @@ export async function issueMagicLink(rawEmail: string): Promise<void> {
 
   await sendEmail({
     to: email,
-    subject: "Sign in to WordPressKiller",
+    subject: "Sign in to Slate",
     text: `Click to sign in: ${url}\n\nThis link expires in 15 minutes.`,
     html: `<p>Click to sign in: <a href="${url}">${url}</a></p><p>This link expires in 15 minutes.</p>`,
   });
@@ -2518,7 +2518,7 @@ export async function fetchGitHubProfile(accessToken: string): Promise<GitHubPro
     headers: {
       Authorization: `Bearer ${accessToken}`,
       Accept: "application/vnd.github+json",
-      "User-Agent": "wordpresskiller",
+      "User-Agent": "slate",
     },
   });
   if (!res.ok) throw new Error(`github user failed: ${res.status}`);
@@ -2530,7 +2530,7 @@ export async function fetchPrimaryGitHubEmail(accessToken: string): Promise<stri
     headers: {
       Authorization: `Bearer ${accessToken}`,
       Accept: "application/vnd.github+json",
-      "User-Agent": "wordpresskiller",
+      "User-Agent": "slate",
     },
   });
   if (!res.ok) return null;
@@ -3173,7 +3173,7 @@ export default async function SetupPage() {
   if ((await countOwners()) > 0) redirect("/sign-in");
   return (
     <main className="mx-auto max-w-md p-8">
-      <h1 className="text-2xl font-bold">Welcome to WordPressKiller</h1>
+      <h1 className="text-2xl font-bold">Welcome to Slate</h1>
       <p className="mt-2 text-gray-600">Set up your site and create the owner account.</p>
 
       <form action={runSetupAction} className="mt-6 grid gap-4">
@@ -3305,7 +3305,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="border-b bg-white p-4">
-        <h1 className="text-lg font-semibold">WordPressKiller</h1>
+        <h1 className="text-lg font-semibold">Slate</h1>
       </header>
       <main className="mx-auto max-w-md p-8">{children}</main>
     </div>

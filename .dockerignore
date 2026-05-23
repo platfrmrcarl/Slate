@@ -3,7 +3,7 @@
 .gitignore
 .gitattributes
 README.md
-WordPressKiller.md
+Slate.md
 docs
 docker-compose.yml
 .env

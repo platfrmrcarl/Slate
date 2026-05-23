@@ -71,7 +71,7 @@ export async function Sidebar({ role }: { role: Role }): Promise<React.ReactElem
   return (
     <aside className="border-r bg-white p-4">
       <Link href={"/admin" as Route} className="block text-lg font-semibold">
-        WordPressKiller
+        Slate
       </Link>
       <nav className="mt-6 grid gap-1 text-sm">
         {SECTIONS.map((section) => {

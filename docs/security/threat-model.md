@@ -1,7 +1,7 @@
-# WordPressKiller Threat Model (v1)
+# Slate Threat Model (v1)
 
 This document enumerates the assets, actors, attack surfaces, and
-controls for a single-tenant WordPressKiller deployment on GCP. It
+controls for a single-tenant Slate deployment on GCP. It
 complements `SECURITY.md` (which is the operator-facing summary) and
 `AUDIT.md` (which is the snapshot-in-time risk register).
 

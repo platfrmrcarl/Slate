@@ -1,7 +1,7 @@
-# WordPressKiller Architecture
+# Slate Architecture
 
 A high-level map of the codebase. The design rationale lives in
-[`WordPressKiller.md`](./WordPressKiller.md) (the spec). This document
+[`Slate.md`](./Slate.md) (the spec). This document
 describes *what's actually in the tree* after the v1 implementation plans
 landed. When the two diverge, this file is wrong — file a PR.
 
@@ -187,7 +187,7 @@ ingress to public on every push).
 
 ## Where to start reading
 
-- `WordPressKiller.md` for the *why*.
+- `Slate.md` for the *why*.
 - `src/db/schema.ts` for the data model.
 - `src/app/[locale]/[[...slug]]/page.tsx` and
   `src/services/pages/service.ts` for the public read path.

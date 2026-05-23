@@ -6,7 +6,7 @@ import { ensurePluginsSeeded } from "@/plugins/seed";
 import { loadPluginBlocks } from "@/plugins/blocks";
 
 export const metadata: Metadata = {
-  title: "WordPressKiller",
+  title: "Slate",
   description: "AI-native CMS built on Next.js + GCP",
 };
 

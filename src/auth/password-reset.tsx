@@ -31,7 +31,7 @@ export async function issuePasswordReset(rawEmail: string): Promise<void> {
   const resetUrl = `${appUrl}/reset-password?token=${token}`;
   await sendEmail({
     to: email,
-    subject: "Reset your WordPressKiller password",
+    subject: "Reset your Slate password",
     react: <PasswordResetEmail resetUrl={resetUrl} displayName={user.displayName} />,
   });
 }

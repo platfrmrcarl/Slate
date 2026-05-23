@@ -1,4 +1,4 @@
-# WordPressKiller Audit
+# Slate Audit
 
 **Date:** 2026-05-23
 **Scope:** Full-repo audit after 10-plan sequential implementation (foundation → password-reset-polish).
@@ -84,7 +84,7 @@ Terraform sets `ingress = "INGRESS_TRAFFIC_INTERNAL_LOAD_BALANCER"` (`infra/terr
 
 ---
 
-## 3. Spec Coverage (WordPressKiller.md §20)
+## 3. Spec Coverage (Slate.md §20)
 
 | Item | Status | Notes |
 |---|---|---|

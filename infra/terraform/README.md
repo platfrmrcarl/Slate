@@ -1,4 +1,4 @@
-# WordPressKiller Terraform
+# Slate Terraform
 
 One-command provision of every GCP resource the app needs.
 

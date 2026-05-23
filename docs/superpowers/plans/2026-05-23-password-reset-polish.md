@@ -104,7 +104,7 @@ export async function issueMagicLink(
 
   await sendEmail({
     to: email,
-    subject: purpose === "verify" ? "Verify your email" : "Sign in to WordPressKiller",
+    subject: purpose === "verify" ? "Verify your email" : "Sign in to Slate",
     text: `Click to ${purpose === "verify" ? "verify your email" : "sign in"}: ${url}\n\nLink expires in 15 minutes.`,
     html: `<p>Click to ${purpose === "verify" ? "verify your email" : "sign in"}: <a href="${url}">${url}</a></p><p>Link expires in 15 minutes.</p>`,
   });
@@ -201,14 +201,14 @@ export function PasswordResetEmail({ resetUrl, displayName }: PasswordResetEmail
   return (
     <Html>
       <Head />
-      <Preview>Reset your WordPressKiller password</Preview>
+      <Preview>Reset your Slate password</Preview>
       <Body style={{ fontFamily: "system-ui, sans-serif", background: "#f9fafb", padding: "20px" }}>
         <Container
           style={{ background: "white", padding: "24px", borderRadius: "8px", maxWidth: "560px" }}
         >
           <Heading style={{ fontSize: "20px", margin: 0 }}>Hi {displayName},</Heading>
           <Text>
-            We received a request to reset the password on your WordPressKiller account. Click the
+            We received a request to reset the password on your Slate account. Click the
             button below to choose a new one. The link expires in 24 hours.
           </Text>
           <Button
@@ -489,7 +489,7 @@ export async function issuePasswordReset(rawEmail: string): Promise<void> {
   const resetUrl = `${appUrl}/reset-password?token=${token}`;
   await sendEmail({
     to: email,
-    subject: "Reset your WordPressKiller password",
+    subject: "Reset your Slate password",
     react: PasswordResetEmail({ resetUrl, displayName: user.displayName }) as ReturnType<
       typeof PasswordResetEmail
     >,

@@ -7,7 +7,7 @@ export function setupCommand(): Command {
   return new Command("setup")
     .description("Interactive first-run config (writes credentials)")
     .action(async () => {
-      p.intro(pc.bold("WordPressKiller setup"));
+      p.intro(pc.bold("Slate setup"));
       const url = (await p.text({
         message: "Install URL (https://...)",
         placeholder: "https://example.com",

@@ -1,7 +1,7 @@
-# Contributing to WordPressKiller
+# Contributing to Slate
 
 Thanks for your interest. This file covers the minimum mechanics — the design
-spec (`WordPressKiller.md`) and architecture overview (`ARCHITECTURE.md`)
+spec (`Slate.md`) and architecture overview (`ARCHITECTURE.md`)
 explain *what* and *why*.
 
 ## Quick start

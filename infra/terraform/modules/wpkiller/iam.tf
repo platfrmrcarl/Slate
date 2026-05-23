@@ -1,11 +1,11 @@
 resource "google_service_account" "runtime" {
   account_id   = "wpk-runtime"
-  display_name = "WordPressKiller runtime SA"
+  display_name = "Slate runtime SA"
 }
 
 resource "google_service_account" "tasks_invoker" {
   account_id   = "wpk-tasks-invoker"
-  display_name = "WordPressKiller Cloud Tasks invoker"
+  display_name = "Slate Cloud Tasks invoker"
 }
 
 resource "google_project_iam_member" "runtime_sql" {

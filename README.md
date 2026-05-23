@@ -1,8 +1,8 @@
-# WordPressKiller
+# Slate
 
 An AI-native, block-based CMS built on Next.js 16 + Drizzle + PostgreSQL, deployable to Google Cloud Run.
 
-See [`WordPressKiller.md`](./WordPressKiller.md) for the full design specification.
+See [`Slate.md`](./Slate.md) for the full design specification.
 See [`docs/superpowers/plans/`](./docs/superpowers/plans/) for implementation plans.
 
 ## Prerequisites

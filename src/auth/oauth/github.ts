@@ -25,7 +25,7 @@ export async function fetchGitHubProfile(accessToken: string): Promise<GitHubPro
     headers: {
       Authorization: `Bearer ${accessToken}`,
       Accept: "application/vnd.github+json",
-      "User-Agent": "wordpresskiller",
+      "User-Agent": "slate",
     },
   });
   if (!res.ok) throw new Error(`github user failed: ${res.status}`);
@@ -37,7 +37,7 @@ export async function fetchPrimaryGitHubEmail(accessToken: string): Promise<stri
     headers: {
       Authorization: `Bearer ${accessToken}`,
       Accept: "application/vnd.github+json",
-      "User-Agent": "wordpresskiller",
+      "User-Agent": "slate",
     },
   });
   if (!res.ok) return null;
