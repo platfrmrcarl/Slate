@@ -5,6 +5,7 @@ import { requireRole } from "@/auth/context";
 import { listMedia } from "@/media/service";
 import { imgUrl } from "@/media/url";
 import { MediaBrowserClient } from "./MediaBrowserClient";
+import { AutoAltButton } from "./AutoAltButton";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -77,6 +78,16 @@ export default async function MediaPage({
               {m.width && m.height ? `${m.width}×${m.height} · ` : ""}
               {(m.sizeBytes / 1024).toFixed(0)} KB
             </p>
+            {m.mimeType.startsWith("image/") && !m.altText && (
+              <div className="mt-2">
+                <AutoAltButton mediaId={m.id} />
+              </div>
+            )}
+            {m.altText && (
+              <p className="mt-1 line-clamp-2 text-[10px] text-gray-500" title={m.altText}>
+                alt: {m.altText}
+              </p>
+            )}
           </li>
         ))}
       </ul>
