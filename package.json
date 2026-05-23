@@ -30,6 +30,7 @@
     "@oslojs/encoding": "1",
     "arctic": "2",
     "drizzle-orm": "0.44",
+    "jose": "5",
     "nanoid": "5",
     "next": "16.2.6",
     "pino": "9",

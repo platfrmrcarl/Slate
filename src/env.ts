@@ -12,6 +12,8 @@ const schema = z
     PORT: z.coerce.number().int().positive().default(3000),
     AUTH_SECRET: z.string().min(32, "AUTH_SECRET must be at least 32 chars"),
     APP_URL: z.string().url("APP_URL must be a valid URL"),
+    PREVIEW_TOKEN_SECRET: z.string().min(32, "PREVIEW_TOKEN_SECRET must be at least 32 chars"),
+    INTERNAL_JOB_SECRET: z.string().min(32, "INTERNAL_JOB_SECRET must be at least 32 chars"),
     GOOGLE_OAUTH_CLIENT_ID: z.string().optional(),
     GOOGLE_OAUTH_CLIENT_SECRET: z.string().optional(),
     GITHUB_OAUTH_CLIENT_ID: z.string().optional(),

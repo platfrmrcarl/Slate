@@ -60,6 +60,13 @@ export function EditorClient(props: Props): React.ReactElement {
     });
   }
 
+  async function openPreview(): Promise<void> {
+    const res = await fetch(`/api/preview/issue?pageId=${props.pageId}`, { method: "POST" });
+    if (!res.ok) return;
+    const { url } = (await res.json()) as { url: string };
+    window.open(url, "_blank");
+  }
+
   return (
     <div className="grid gap-4">
       <div className="grid gap-2 rounded border bg-white p-4">
@@ -94,6 +101,9 @@ export function EditorClient(props: Props): React.ReactElement {
       <div className="flex items-center gap-2">
         <button onClick={save} disabled={pending} className="rounded border px-4 py-2">
           Save draft
+        </button>
+        <button onClick={openPreview} disabled={pending} className="rounded border px-4 py-2">
+          Preview
         </button>
         {status !== "published" ? (
           <button

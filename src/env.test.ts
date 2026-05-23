@@ -4,6 +4,8 @@ import { parseEnv } from "./env";
 const REQUIRED_AUTH = {
   AUTH_SECRET: "a".repeat(64),
   APP_URL: "https://example.com",
+  PREVIEW_TOKEN_SECRET: "p".repeat(64),
+  INTERNAL_JOB_SECRET: "i".repeat(64),
 };
 
 describe("parseEnv", () => {
@@ -93,6 +95,8 @@ describe("parseEnv (auth additions)", () => {
     DATABASE_URL: "postgres://localhost/wpk",
     AUTH_SECRET: "a".repeat(64),
     APP_URL: "https://example.com",
+    PREVIEW_TOKEN_SECRET: "p".repeat(64),
+    INTERNAL_JOB_SECRET: "i".repeat(64),
   };
 
   it("accepts a complete auth environment", () => {
@@ -123,6 +127,47 @@ describe("parseEnv (auth additions)", () => {
   it("OAuth credentials require client_id + client_secret together", () => {
     expect(() => parseEnv({ ...base, GOOGLE_OAUTH_CLIENT_ID: "id-only" })).toThrow(
       /GOOGLE_OAUTH_CLIENT_SECRET/,
+    );
+  });
+});
+
+describe("parseEnv (preview + jobs)", () => {
+  const base = {
+    NODE_ENV: "production" as const,
+    DATABASE_URL: "postgres://localhost/wpk",
+    AUTH_SECRET: "a".repeat(64),
+    APP_URL: "https://example.com",
+    PREVIEW_TOKEN_SECRET: "p".repeat(64),
+    INTERNAL_JOB_SECRET: "i".repeat(64),
+  };
+
+  it("accepts valid PREVIEW_TOKEN_SECRET and INTERNAL_JOB_SECRET", () => {
+    const env = parseEnv(base);
+    expect(env.PREVIEW_TOKEN_SECRET).toHaveLength(64);
+    expect(env.INTERNAL_JOB_SECRET).toHaveLength(64);
+  });
+
+  it("rejects missing PREVIEW_TOKEN_SECRET", () => {
+    const { PREVIEW_TOKEN_SECRET: _omit, ...rest } = base;
+    void _omit;
+    expect(() => parseEnv(rest)).toThrow(/PREVIEW_TOKEN_SECRET/);
+  });
+
+  it("rejects short PREVIEW_TOKEN_SECRET", () => {
+    expect(() => parseEnv({ ...base, PREVIEW_TOKEN_SECRET: "tooshort" })).toThrow(
+      /PREVIEW_TOKEN_SECRET/,
+    );
+  });
+
+  it("rejects missing INTERNAL_JOB_SECRET", () => {
+    const { INTERNAL_JOB_SECRET: _omit, ...rest } = base;
+    void _omit;
+    expect(() => parseEnv(rest)).toThrow(/INTERNAL_JOB_SECRET/);
+  });
+
+  it("rejects short INTERNAL_JOB_SECRET", () => {
+    expect(() => parseEnv({ ...base, INTERNAL_JOB_SECRET: "tooshort" })).toThrow(
+      /INTERNAL_JOB_SECRET/,
     );
   });
 });
