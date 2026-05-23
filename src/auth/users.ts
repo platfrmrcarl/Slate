@@ -1,4 +1,4 @@
-import { eq, sql } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { users, type Role, type User } from "@/db/schema";
 import { emitSafe } from "@/plugins/emit";
@@ -85,6 +85,18 @@ export async function verifyCredentials(email: string, password: string): Promis
   const hashToVerify = user?.passwordHash ?? DUMMY_ARGON2_HASH;
   const ok = await verifyPassword(hashToVerify, password);
   return user && ok ? user : null;
+}
+
+export interface ListUsersInput {
+  role?: Role;
+  limit?: number;
+}
+
+export async function listUsers(input: ListUsersInput = {}): Promise<User[]> {
+  const limit = Math.min(Math.max(input.limit ?? 100, 1), 500);
+  const base = db().select().from(users);
+  const filtered = input.role ? base.where(and(eq(users.role, input.role))) : base;
+  return await filtered.orderBy(desc(users.createdAt)).limit(limit);
 }
 
 export async function countOwners(): Promise<number> {
