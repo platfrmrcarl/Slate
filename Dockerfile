@@ -5,6 +5,9 @@ FROM node:22-slim AS deps
 WORKDIR /app
 RUN corepack enable
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+# Copy workspace package manifests so pnpm install resolves their deps too;
+# without these, Next.js build's typecheck can't find CLI-only deps (commander).
+COPY packages/cli/package.json packages/cli/
 RUN pnpm install --frozen-lockfile
 
 # ---- Build stage ----
@@ -14,6 +17,15 @@ RUN corepack enable
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
+# Placeholder env values purely to satisfy the Zod env() validation that
+# Next.js page-data collection runs at build time. Real values are injected
+# at runtime by the Cloud Run service config (secrets + envFrom).
+ENV DATABASE_URL=postgres://build:build@localhost:5432/build \
+    AUTH_SECRET=build-time-only-build-time-only-build-time-only-build-time- \
+    APP_URL=https://build.example.com \
+    PREVIEW_TOKEN_SECRET=build-time-only-build-time-only-build-time-only-build \
+    INTERNAL_JOB_SECRET=build-time-only-build-time-only-build-time-only-build \
+    GCS_BUCKET_MEDIA=slate-build-placeholder
 RUN pnpm build
 RUN pnpm prune --prod
 

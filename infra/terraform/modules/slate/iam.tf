@@ -46,6 +46,18 @@ resource "google_cloud_run_v2_service_iam_member" "tasks_can_invoke" {
   member   = "serviceAccount:${google_service_account.tasks_invoker.email}"
 }
 
+# Public invoker for the Cloud Run service so the external HTTPS LB can route
+# requests through to the container. With ingress=internal-and-cloud-load-balancing
+# on the service itself, the *.run.app URL is still locked down — only requests
+# coming via the LB (or internal sources) are accepted.
+resource "google_cloud_run_v2_service_iam_member" "public_can_invoke" {
+  project  = var.project_id
+  location = var.region
+  name     = google_cloud_run_v2_service.app.name
+  role     = "roles/run.invoker"
+  member   = "allUsers"
+}
+
 output "service_account_email" {
   value = google_service_account.runtime.email
 }
