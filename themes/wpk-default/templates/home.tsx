@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
-export default function Template({ children }: { children?: ReactNode }) {
-  return <main>{children}</main>;
+
+export default function HomeTemplate({ children }: { children: ReactNode }) {
+  return <main className="py-10">{children}</main>;
 }
