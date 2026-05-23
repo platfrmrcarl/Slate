@@ -25,9 +25,10 @@ describe("MarketingHome", () => {
     expect(() => render(<MarketingHome />)).toThrow("NEXT_NOT_FOUND");
   });
 
-  it("renders when SLATE_MARKETING_HOME=1", () => {
+  it("renders the hero when SLATE_MARKETING_HOME=1", () => {
     process.env.SLATE_MARKETING_HOME = "1";
-    const { getByRole } = render(<MarketingHome />);
-    expect(getByRole("heading", { level: 1 }).textContent).toBe("Slate");
+    const { getByText } = render(<MarketingHome />);
+    expect(getByText(/should have been/)).toBeTruthy();
+    expect(getByText("Start free →")).toBeTruthy();
   });
 });

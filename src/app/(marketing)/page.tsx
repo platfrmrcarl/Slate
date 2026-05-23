@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import LandingNav from "./_components/LandingNav";
+import LandingHero from "./_components/LandingHero";
 
 export const dynamic = "force-static";
 export const revalidate = false;
@@ -12,7 +13,7 @@ export default function MarketingHome() {
     <>
       <LandingNav />
       <main>
-        <h1 className="sr-only">Slate</h1>
+        <LandingHero />
       </main>
     </>
   );
