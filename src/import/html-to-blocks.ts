@@ -1,4 +1,4 @@
-import { parse, DefaultTreeAdapterTypes } from "parse5";
+import { parse, type DefaultTreeAdapterTypes } from "parse5";
 
 type ChildNode = DefaultTreeAdapterTypes.ChildNode;
 type DocumentFragment = DefaultTreeAdapterTypes.DocumentFragment;
