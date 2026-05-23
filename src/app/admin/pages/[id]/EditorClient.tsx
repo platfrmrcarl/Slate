@@ -4,6 +4,8 @@ import { useState, useTransition } from "react";
 import { Editor } from "@/blocks/editor/Editor";
 import type { Block } from "@/blocks/types";
 import { publishAction, saveDraftAction, unpublishAction, deletePageAction } from "./actions";
+import { RewritePanel } from "@/app/admin/_components/RewritePanel";
+import { AutoSeoButton } from "@/app/admin/_components/AutoSeoButton";
 
 interface Props {
   pageId: string;
@@ -12,6 +14,8 @@ interface Props {
   excerpt: string;
   status: string;
   initialBlocks: Block[];
+  seoTitle: string;
+  seoDescription: string;
 }
 
 export function EditorClient(props: Props): React.ReactElement {
@@ -19,28 +23,31 @@ export function EditorClient(props: Props): React.ReactElement {
   const [slug, setSlug] = useState(props.slug);
   const [excerpt, setExcerpt] = useState(props.excerpt);
   const [blocks, setBlocks] = useState<Block[]>(props.initialBlocks);
+  const [seoTitle, setSeoTitle] = useState(props.seoTitle);
+  const [seoDescription, setSeoDescription] = useState(props.seoDescription);
   const [pending, start] = useTransition();
   const [status, setStatus] = useState(props.status);
 
+  function buildFormData(): FormData {
+    const fd = new FormData();
+    fd.append("title", title);
+    fd.append("slug", slug);
+    fd.append("excerpt", excerpt);
+    fd.append("blocks", JSON.stringify(blocks));
+    fd.append("seoTitle", seoTitle);
+    fd.append("seoDescription", seoDescription);
+    return fd;
+  }
+
   function save(): void {
     start(async () => {
-      const fd = new FormData();
-      fd.append("title", title);
-      fd.append("slug", slug);
-      fd.append("excerpt", excerpt);
-      fd.append("blocks", JSON.stringify(blocks));
-      await saveDraftAction(props.pageId, fd);
+      await saveDraftAction(props.pageId, buildFormData());
     });
   }
 
   function publish(): void {
     start(async () => {
-      const fd = new FormData();
-      fd.append("title", title);
-      fd.append("slug", slug);
-      fd.append("excerpt", excerpt);
-      fd.append("blocks", JSON.stringify(blocks));
-      await saveDraftAction(props.pageId, fd);
+      await saveDraftAction(props.pageId, buildFormData());
       await publishAction(props.pageId);
       setStatus("published");
     });
@@ -96,7 +103,47 @@ export function EditorClient(props: Props): React.ReactElement {
         </label>
       </div>
 
+      <RewritePanel />
+
       <Editor initialBlocks={blocks} onChange={setBlocks} />
+
+      <details className="rounded border bg-white p-4 text-sm">
+        <summary className="cursor-pointer font-medium">SEO</summary>
+        <div className="mt-3 grid gap-3">
+          <label className="grid gap-1">
+            <span className="text-gray-600">SEO title</span>
+            <input
+              value={seoTitle}
+              onChange={(e) => setSeoTitle(e.target.value)}
+              maxLength={120}
+              className="rounded border p-2"
+            />
+          </label>
+          <label className="grid gap-1">
+            <span className="text-gray-600">SEO description</span>
+            <textarea
+              value={seoDescription}
+              onChange={(e) => setSeoDescription(e.target.value)}
+              rows={3}
+              maxLength={300}
+              className="rounded border p-2"
+            />
+          </label>
+          <AutoSeoButton
+            title={title}
+            blocks={blocks}
+            excerpt={excerpt}
+            onSuggest={({ seoTitle: t, seoDescription: d }) => {
+              setSeoTitle(t);
+              setSeoDescription(d);
+            }}
+          />
+          <p className="text-xs text-gray-500">
+            AI suggestions populate the fields but don&apos;t auto-save. Click <em>Save draft</em>
+            when ready.
+          </p>
+        </div>
+      </details>
 
       <div className="flex items-center gap-2">
         <button onClick={save} disabled={pending} className="rounded border px-4 py-2">

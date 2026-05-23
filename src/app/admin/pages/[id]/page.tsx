@@ -37,6 +37,8 @@ export default async function EditPage({
         excerpt={page.excerpt ?? ""}
         status={page.status}
         initialBlocks={page.blocks}
+        seoTitle={page.seoTitle ?? ""}
+        seoDescription={page.seoDescription ?? ""}
       />
     </section>
   );

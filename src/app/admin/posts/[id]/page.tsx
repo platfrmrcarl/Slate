@@ -38,6 +38,8 @@ export default async function EditPostPage({
         excerpt={post.excerpt ?? ""}
         status={post.status}
         initialBlocks={post.blocks}
+        seoTitle={post.seoTitle ?? ""}
+        seoDescription={post.seoDescription ?? ""}
       />
       <section className="mt-12">
         <h2 className="text-lg font-semibold">Comments</h2>
