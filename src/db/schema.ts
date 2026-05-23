@@ -484,3 +484,12 @@ export const dataJobs = pgTable("data_jobs", {
 
 export type DataJob = typeof dataJobs.$inferSelect;
 export type NewDataJob = typeof dataJobs.$inferInsert;
+
+export const rateLimitBuckets = pgTable("rate_limit_buckets", {
+  key: text("key").primaryKey(),
+  tokens: integer("tokens").notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type RateLimitBucket = typeof rateLimitBuckets.$inferSelect;
+export type NewRateLimitBucket = typeof rateLimitBuckets.$inferInsert;
