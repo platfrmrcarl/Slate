@@ -1,6 +1,11 @@
+import { randomUUID } from "node:crypto";
 import { createPost } from "@/posts/service";
 import { createPage } from "@/services/pages/service";
 import { attachTaxonomyToPost } from "@/taxonomies/service";
+import { createComment, setCommentStatus } from "@/comments/service";
+import { createMediaRecord } from "@/media/service";
+import { putObject } from "@/media/storage";
+import { buildObjectPath } from "@/media/keys";
 import { resolveUserByEmail, ensureTaxonomy } from "./resolve";
 import { htmlToBlocks } from "./html-to-blocks";
 import { markdownToBlocks } from "./markdown-to-blocks";
@@ -157,12 +162,57 @@ async function handle(
       return;
     }
     case "media": {
-      // Media handling implemented in Task 11.
+      let bytes: Buffer;
+      if (record.inlineBytesBase64) {
+        bytes = Buffer.from(record.inlineBytesBase64, "base64");
+      } else if (record.sourceUrl) {
+        const res = await fetch(record.sourceUrl);
+        if (!res.ok) throw new Error(`media fetch failed ${res.status}`);
+        bytes = Buffer.from(await res.arrayBuffer());
+      } else {
+        progress.errors += 1;
+        return;
+      }
+      const objectPath = buildObjectPath({
+        now: new Date(),
+        uuid: randomUUID(),
+        filename: record.originalFilename,
+      });
+      await putObject(objectPath, bytes, record.mimeType);
+      const created = await createMediaRecord({
+        bucket: ctx.bucket,
+        objectPath,
+        mimeType: record.mimeType,
+        originalFilename: record.originalFilename,
+        sizeBytes: bytes.length,
+        uploadedBy: ctx.fallbackAuthorId,
+        ...(record.altText !== undefined ? { altText: record.altText } : {}),
+        ...(record.caption !== undefined ? { caption: record.caption } : {}),
+      });
+      ctx.mediaIdByExternalId.set(record.externalId, created.id);
       progress.media += 1;
       return;
     }
     case "comment": {
-      // Comment handling implemented in Task 11.
+      const postId = ctx.postIdByExternalId.get(record.postExternalId);
+      if (!postId) {
+        progress.errors += 1;
+        return;
+      }
+      const parentId = record.parentExternalId
+        ? ctx.postIdByExternalId.get(record.parentExternalId)
+        : undefined;
+      const created = await createComment({
+        postId,
+        ...(parentId ? { parentId } : {}),
+        ...(record.authorName !== undefined ? { authorName: record.authorName } : {}),
+        ...(record.authorEmail !== undefined ? { authorEmail: record.authorEmail } : {}),
+        body: record.body,
+        classifier: async () => "unknown",
+      });
+      if (record.status && record.status !== "pending") {
+        await setCommentStatus(created.id, record.status);
+      }
       progress.comments += 1;
       return;
     }
