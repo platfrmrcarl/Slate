@@ -1,4 +1,4 @@
-import { CloudTasksClient } from "@google-cloud/tasks";
+import type { CloudTasksClient as CloudTasksClientType } from "@google-cloud/tasks";
 import { logger } from "@/lib/logger";
 
 export type JobType =
@@ -61,7 +61,7 @@ async function runLocally(url: string, payload: unknown): Promise<void> {
   }
 }
 
-let tasksClient: CloudTasksClient | undefined;
+let tasksClient: CloudTasksClientType | undefined;
 
 async function runOnCloudTasks(
   type: JobType,
@@ -76,7 +76,14 @@ async function runOnCloudTasks(
     logger().warn({ type }, "cloud-tasks not configured; running locally");
     return runLocally(url, payload);
   }
-  if (!tasksClient) tasksClient = new CloudTasksClient();
+  if (!tasksClient) {
+    // Lazy-load the SDK so its proto-tree resolution only fires when Cloud Tasks
+    // is actually configured. Without this, the SDK module is evaluated at
+    // route-module load time and crashes on Next.js standalone builds that
+    // don't trace its proto JSON files.
+    const { CloudTasksClient } = await import("@google-cloud/tasks");
+    tasksClient = new CloudTasksClient();
+  }
   const parent = tasksClient.queuePath(project, region, JOB_QUEUE[type]);
   const secret = process.env.INTERNAL_JOB_SECRET ?? "";
   const task: Record<string, unknown> = {
