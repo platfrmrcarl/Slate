@@ -8,6 +8,7 @@ import {
   index,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
+import type { Block } from "@/blocks/types";
 
 export const settings = pgTable("settings", {
   key: text("key").primaryKey(),
@@ -109,3 +110,61 @@ export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type Session = typeof sessions.$inferSelect;
 export type Role = (typeof userRole.enumValues)[number];
+
+export const pageStatus = pgEnum("page_status", [
+  "draft",
+  "scheduled",
+  "published",
+  "archived",
+  "trash",
+]);
+
+export const pages = pgTable(
+  "pages",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    slug: text("slug").notNull(),
+    title: text("title").notNull(),
+    excerpt: text("excerpt"),
+    blocks: jsonb("blocks").$type<Block[]>().notNull().default([]),
+    status: pageStatus("status").notNull().default("draft"),
+    publishedAt: timestamp("published_at", { withTimezone: true }),
+    scheduledAt: timestamp("scheduled_at", { withTimezone: true }),
+    locale: text("locale").notNull().default("en"),
+    authorId: uuid("author_id")
+      .notNull()
+      .references(() => users.id),
+    seoTitle: text("seo_title"),
+    seoDescription: text("seo_description"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => ({
+    slugLocale: uniqueIndex("pages_slug_locale").on(t.slug, t.locale),
+    statusIdx: index("pages_status_idx").on(t.status, t.publishedAt),
+  }),
+);
+
+export const pageRevisions = pgTable(
+  "page_revisions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    pageId: uuid("page_id")
+      .notNull()
+      .references(() => pages.id, { onDelete: "cascade" }),
+    title: text("title").notNull(),
+    blocks: jsonb("blocks").$type<Block[]>().notNull(),
+    authorId: uuid("author_id")
+      .notNull()
+      .references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => ({
+    pageIdx: index("page_revisions_page_idx").on(t.pageId, t.createdAt),
+  }),
+);
+
+export type Page = typeof pages.$inferSelect;
+export type NewPage = typeof pages.$inferInsert;
+export type PageRevision = typeof pageRevisions.$inferSelect;
+export type PageStatusValue = (typeof pageStatus.enumValues)[number];
