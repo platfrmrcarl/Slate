@@ -3,6 +3,7 @@ import { db } from "@/db";
 import { posts, postTaxonomies, type Post, type PostStatusValue } from "@/db/schema";
 import { slugify, ensureUniqueSlug } from "@/lib/slug";
 import type { Block } from "@/blocks/types";
+import { emitSafe } from "@/plugins/emit";
 import type { SavePostInput } from "./types";
 
 async function isSlugUsed(slug: string, locale: string, excludeId?: string): Promise<boolean> {
@@ -43,6 +44,11 @@ export async function createPost(input: SavePostInput, authorId: string): Promis
   if (input.categoryIds.length || input.tagIds.length) {
     await setTaxonomies(row!.id, [...input.categoryIds, ...input.tagIds]);
   }
+  emitSafe("post.created", {
+    postId: row!.id,
+    slug: row!.slug,
+    authorId: row!.authorId,
+  });
   return row!;
 }
 
@@ -70,6 +76,11 @@ export async function updatePost(id: string, input: SavePostInput): Promise<Post
 
   const [row] = await db().update(posts).set(next as never).where(eq(posts.id, id)).returning();
   await setTaxonomies(row!.id, [...input.categoryIds, ...input.tagIds]);
+  emitSafe("post.updated", {
+    postId: row!.id,
+    slug: row!.slug,
+    changedFields: Object.keys(next).filter((k) => k !== "updatedAt"),
+  });
   return row!;
 }
 
@@ -88,6 +99,14 @@ export async function publishPost(id: string, publishedAt?: Date): Promise<Post>
     .set({ status: "published", publishedAt: when, updatedAt: sql`now()` })
     .where(eq(posts.id, id))
     .returning();
+  if (row) {
+    emitSafe("post.published", {
+      postId: row.id,
+      slug: row.slug,
+      url: `${process.env.APP_URL ?? ""}/blog/${row.slug}`,
+      publishedAt: (row.publishedAt ?? when).toISOString(),
+    });
+  }
   return row!;
 }
 
@@ -97,6 +116,9 @@ export async function unpublishPost(id: string): Promise<Post> {
     .set({ status: "draft", updatedAt: sql`now()` })
     .where(eq(posts.id, id))
     .returning();
+  if (row) {
+    emitSafe("post.unpublished", { postId: row.id });
+  }
   return row!;
 }
 

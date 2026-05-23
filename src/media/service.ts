@@ -1,6 +1,7 @@
 import { and, desc, eq, like, lt, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { media, type Media, type NewMedia } from "@/db/schema";
+import { emitSafe } from "@/plugins/emit";
 
 export type CreateMediaInput = Omit<NewMedia, "id">;
 
@@ -25,6 +26,12 @@ export async function createMediaRecord(input: CreateMediaInput): Promise<Media>
     ...(input.updatedAt !== undefined ? { updatedAt: input.updatedAt } : {}),
   };
   const [row] = await db().insert(media).values(values).returning();
+  emitSafe("media.uploaded", {
+    mediaId: row!.id,
+    mimeType: row!.mimeType,
+    sizeBytes: row!.sizeBytes,
+    uploadedBy: row!.uploadedBy,
+  });
   return row!;
 }
 

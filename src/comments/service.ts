@@ -1,6 +1,7 @@
 import { and, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { comments, type Comment } from "@/db/schema";
+import { emitSafe } from "@/plugins/emit";
 import { classifyCommentSpam, type SpamScore } from "./spam";
 
 export type CommentStatus = "pending" | "approved" | "spam" | "trash";
@@ -44,11 +45,20 @@ export async function createComment(input: CreateCommentInput): Promise<Comment>
   if (input.ipAddress) values.ipAddress = input.ipAddress;
   if (input.userAgent) values.userAgent = input.userAgent;
   const [row] = await db().insert(comments).values(values as never).returning();
+  const addedPayload: Record<string, unknown> = { commentId: row!.id };
+  if (row!.postId) addedPayload.postId = row!.postId;
+  if (row!.authorEmail) addedPayload.authorEmail = row!.authorEmail;
+  emitSafe("comment.added", addedPayload);
   return row!;
 }
 
 export async function setCommentStatus(id: string, status: CommentStatus): Promise<Comment> {
   const [row] = await db().update(comments).set({ status }).where(eq(comments.id, id)).returning();
+  if (row && status === "approved") {
+    const payload: Record<string, unknown> = { commentId: row.id };
+    if (row.postId) payload.postId = row.postId;
+    emitSafe("comment.approved", payload);
+  }
   return row!;
 }
 

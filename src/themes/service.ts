@@ -1,6 +1,7 @@
 import { eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { themes, activeTheme } from "@/db/schema";
+import { emitSafe } from "@/plugins/emit";
 import { themeManifestSchema, defaultCustomizationFor, type CustomizationValues } from "./manifest";
 
 export interface RegisterInput {
@@ -72,6 +73,7 @@ export async function activateTheme(themeId: string) {
       set: { themeId, customization: defaults, updatedAt: sql`now()` },
     })
     .returning();
+  emitSafe("theme.activated", { themeId: theme.id, slug: theme.slug });
   return row!;
 }
 

@@ -1,6 +1,7 @@
 import { eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { users, type Role, type User } from "@/db/schema";
+import { emitSafe } from "@/plugins/emit";
 import { hashPassword, verifyPassword } from "./passwords";
 
 function normalizeEmail(email: string): string {
@@ -35,6 +36,25 @@ export async function createUser(input: CreateUserInput): Promise<User> {
       role: input.role ?? "subscriber",
     })
     .returning();
+  emitSafe("user.created", { userId: row!.id, email: row!.email, role: row!.role });
+  return row!;
+}
+
+export async function updateRole(userId: string, newRole: Role): Promise<User> {
+  const before = await findUserById(userId);
+  if (!before) throw new Error(`user not found: ${userId}`);
+  const [row] = await db()
+    .update(users)
+    .set({ role: newRole, updatedAt: sql`now()` })
+    .where(eq(users.id, userId))
+    .returning();
+  if (row && before.role !== newRole) {
+    emitSafe("user.roleChanged", {
+      userId: row.id,
+      oldRole: before.role,
+      newRole: row.role,
+    });
+  }
   return row!;
 }
 
