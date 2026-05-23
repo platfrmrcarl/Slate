@@ -1,0 +1,37 @@
+{
+  "db": [
+    {
+      "data": {
+        "users": [
+          { "id": 1, "name": "Ghost Author", "email": "ga@example.com", "slug": "ghost-author" }
+        ],
+        "tags": [{ "id": 11, "name": "Notes", "slug": "notes" }],
+        "posts": [
+          {
+            "id": 101,
+            "uuid": "ghost-101",
+            "title": "Ghost Post",
+            "slug": "ghost-post",
+            "status": "published",
+            "published_at": "2025-09-01T10:00:00Z",
+            "mobiledoc": "{\"version\":\"0.3.1\",\"atoms\":[],\"cards\":[[\"markdown\",{\"markdown\":\"# G\\n\\nbody.\"}]],\"markups\":[],\"sections\":[[10,0]]}",
+            "type": "post",
+            "author_id": 1
+          },
+          {
+            "id": 102,
+            "uuid": "ghost-102",
+            "title": "Ghost Page",
+            "slug": "ghost-page",
+            "status": "published",
+            "published_at": "2025-08-01T10:00:00Z",
+            "mobiledoc": "{\"version\":\"0.3.1\",\"atoms\":[],\"cards\":[],\"markups\":[],\"sections\":[[1,\"p\",[[0,[],0,\"page body\"]]]]}",
+            "type": "page",
+            "author_id": 1
+          }
+        ],
+        "posts_tags": [{ "post_id": 101, "tag_id": 11 }]
+      }
+    }
+  ]
+}
