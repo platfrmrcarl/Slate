@@ -8,7 +8,7 @@ beforeAll(() => {
   process.env.APP_URL = "http://localhost:3000";
   process.env.PREVIEW_TOKEN_SECRET = "x".repeat(64);
   process.env.INTERNAL_JOB_SECRET = "x".repeat(64);
-  process.env.GCS_BUCKET_MEDIA = "wpk-test-bucket";
+  process.env.GCS_BUCKET_MEDIA = "slate-test-bucket";
 });
 
 const getMediaById = vi.fn();

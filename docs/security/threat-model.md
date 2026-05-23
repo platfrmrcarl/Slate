@@ -160,5 +160,5 @@ enqueue, Anthropic API call) is governed by an explicit primitive.
 4. If `ANTHROPIC_API_KEY` is exposed, rotate at Anthropic console first,
    then update Secret Manager.
 5. If admin tokens may be leaked, `DELETE FROM admin_tokens;` to revoke
-   all CLI bearers; users re-issue from `wpkiller setup`.
+   all CLI bearers; users re-issue from `slate setup`.
 6. File a follow-up commit + update `AUDIT.md`'s risk register.

@@ -101,7 +101,7 @@ export async function publishPost(id: string, publishedAt?: Date): Promise<Post>
     .where(eq(posts.id, id))
     .returning();
   if (row) {
-    recordCounter("wpk.post.publish", 1);
+    recordCounter("slate.post.publish", 1);
     emitSafe("post.published", {
       postId: row.id,
       slug: row.slug,

@@ -22,7 +22,7 @@ export async function POST(req: Request): Promise<Response> {
   const parsed = schema.safeParse(await req.json().catch(() => ({})));
   const includeDb = parsed.success ? parsed.data.includeDb : false;
   const bucket = env().GCS_BUCKET_MEDIA ?? "";
-  const objectPath = `exports/wpk-${new Date().toISOString().replace(/[:.]/g, "-")}.zip`;
+  const objectPath = `exports/slate-${new Date().toISOString().replace(/[:.]/g, "-")}.zip`;
   const [row] = await db()
     .insert(dataJobs)
     .values({

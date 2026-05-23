@@ -4,7 +4,7 @@ vi.stubEnv("DATABASE_URL", "postgres://test:test@localhost:5432/test");
 vi.stubEnv("AUTH_SECRET", "x".repeat(64));
 vi.stubEnv("PREVIEW_TOKEN_SECRET", "x".repeat(64));
 vi.stubEnv("INTERNAL_JOB_SECRET", "x".repeat(64));
-vi.stubEnv("GCS_BUCKET_MEDIA", "wpk-test-bucket");
+vi.stubEnv("GCS_BUCKET_MEDIA", "slate-test-bucket");
 vi.stubEnv("APP_URL", "https://app.test");
 vi.stubEnv("MEDIA_PUBLIC_URL", "https://cdn.test");
 

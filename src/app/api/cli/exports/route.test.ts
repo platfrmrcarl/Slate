@@ -1,7 +1,7 @@
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 
 beforeAll(() => {
-  process.env.GCS_BUCKET_MEDIA = "wpk-test";
+  process.env.GCS_BUCKET_MEDIA = "slate-test";
 });
 
 const verifyAdminToken = vi.fn();

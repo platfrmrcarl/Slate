@@ -9,7 +9,7 @@ describe("instrumentation", () => {
 
   it("attempts to register a Cloud Trace exporter when GCP_PROJECT_ID is set", async () => {
     vi.stubEnv("OTEL_ENABLED", "true");
-    vi.stubEnv("GCP_PROJECT_ID", "wpk-test");
+    vi.stubEnv("GCP_PROJECT_ID", "slate-test");
     vi.resetModules();
     // We don't actually want to spin up the SDK in tests — just confirm the
     // module decides to do so without crashing.

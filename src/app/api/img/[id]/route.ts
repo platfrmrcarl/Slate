@@ -60,7 +60,7 @@ export async function GET(
   const original = await streamToBuffer(stream);
   const startedAt = performance.now();
   const result = await applyTransform(original, opts, req.headers.get("accept"));
-  recordHistogram("wpk.image.transform.ms", performance.now() - startedAt, {
+  recordHistogram("slate.image.transform.ms", performance.now() - startedAt, {
     format: result.contentType,
   });
 

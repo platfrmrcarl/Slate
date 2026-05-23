@@ -48,21 +48,21 @@ describe("POST /api/cli/users/reset-password", () => {
 
   it("returns 403 for non-admin token", async () => {
     verifyAdminToken.mockResolvedValue({ id: "u", role: "editor" });
-    const res = await POST(req({ email: "a@b.com" }, { authorization: "Bearer wpk_x" }));
+    const res = await POST(req({ email: "a@b.com" }, { authorization: "Bearer slate_x" }));
     expect(res.status).toBe(403);
   });
 
   it("returns 404 when user not found", async () => {
     verifyAdminToken.mockResolvedValue({ id: "u", role: "admin" });
     selectChain.mockResolvedValue([]);
-    const res = await POST(req({ email: "a@b.com" }, { authorization: "Bearer wpk_x" }));
+    const res = await POST(req({ email: "a@b.com" }, { authorization: "Bearer slate_x" }));
     expect(res.status).toBe(404);
   });
 
   it("returns reset URL on success", async () => {
     verifyAdminToken.mockResolvedValue({ id: "u", role: "admin" });
     selectChain.mockResolvedValue([{ id: "user-1", email: "a@b.com" }]);
-    const res = await POST(req({ email: "a@b.com" }, { authorization: "Bearer wpk_x" }));
+    const res = await POST(req({ email: "a@b.com" }, { authorization: "Bearer slate_x" }));
     expect(res.status).toBe(200);
     const body = (await res.json()) as { url: string };
     expect(body.url).toBe("https://example.com/reset-password?token=rawtoken");

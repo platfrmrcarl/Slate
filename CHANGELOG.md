@@ -4,7 +4,7 @@
 
 ### Renamed: WordPressKiller → Slate
 
-The product was renamed from WordPressKiller to Slate. This is a breaking change for any existing local or deployed instance. The renames below are everything that landed across Tasks 1–9 of the rename plan (`docs/superpowers/plans/2026-05-23-slate-rename.md`); identifiers still using `wpk-` / `wpkiller` are listed under **Deferred** at the end of this entry.
+The product was renamed from WordPressKiller to Slate. This is a breaking change for any existing local or deployed instance. The renames below are everything that landed across Tasks 1–10 of the rename plan (`docs/superpowers/plans/2026-05-23-slate-rename.md`). The only remaining `wpk-` identifiers are the GCS bucket name templates (data-migration exception) and the historical implementation-plan docs — both documented under **Deferred** at the end of this entry.
 
 #### Authentication
 
@@ -118,19 +118,18 @@ Operator checklist before / after the apply:
 - The boot-time registry scan in `src/plugins/registry.ts` now matches `node_modules/slate-plugin-*` (was `wpkiller-plugin-*`).
 - Plugins shipped as npm packages must rename their package from `wpkiller-plugin-foo` to `slate-plugin-foo` (and bump version) to be discovered. Local plugins under `<repo>/plugins/*` are unaffected — they are discovered by directory walk, not by name pattern.
 
-### Deferred — identifiers still using `wpk-` / `wpkiller`
+#### Final internal cleanup (Task 10)
 
-The following surfaces were intentionally left or missed by Tasks 1–9 and are **not** changed in this release. They are documented here so operators are not surprised and so follow-up work has a starting inventory.
+The long tail of surfaces missed by Tasks 1–9 — editor CSS class prefix (`slate-editor-*`), export-ZIP object-path prefix (`exports/slate-<timestamp>.zip`), admin UI copy, internal OpenTelemetry metric names (`slate.healthz.hit`, `slate.post.publish`, `slate.ai.tokens`, `slate.image.transform.ms`), source-code comments, doc cross-references (`ARCHITECTURE.md`, `AUDIT.md`, `CONTRIBUTING.md`, `docs/security/threat-model.md`, `Slate.md`), test fixtures (`slate-test-bucket`, `slate-prod`, `slate-dev`, `slate-media-prod`, `Bearer slate_t`, etc.), and the GCS emulator fake service-account identifier in `src/media/storage.ts` were all rewritten to the `slate-*` / `slate.*` form.
+
+### Deferred — identifiers still using `wpk-`
+
+The following surfaces are documented here so operators are not surprised and so follow-up work has a starting inventory.
 
 **Legacy exception (will not be renamed without a data migration):**
 
-- GCS bucket name templates `"${var.project_id}-wpk-media"` and `"${var.project_id}-wpk-themes"` in `infra/terraform/modules/slate/storage.tf`, plus matching local-dev values in `.env.example` (`GCS_BUCKET_MEDIA=wpk-media-local`). GCS bucket renames are not in-place; renaming would require a full data migration.
+- GCS bucket name templates `"${var.project_id}-wpk-media"` and `"${var.project_id}-wpk-themes"` in `infra/terraform/modules/slate/storage.tf`, plus matching local-dev value in `.env.example` (`GCS_BUCKET_MEDIA=wpk-media-local`). GCS bucket renames are not in-place; renaming would require a full data migration of every existing media object.
 
-**Application-level identifiers still referencing the old brand:**
+**Historical artifacts (intentionally not rewritten):**
 
-- Plugin discovery admin UI text in `src/app/admin/plugins/page.tsx` and `src/app/admin/themes/install/page.tsx` still references `wpkiller` (the npm scan pattern itself is now `slate-plugin-*` — see above).
-- Editor CSS class prefix: `wpk-editor-block`, `wpk-editor-image`, `wpk-editor-gallery`, `wpk-editor-embed`, `wpk-editor-button` (`src/blocks/editor/schema.ts`).
-- Export object-path prefix: `exports/wpk-<timestamp>.zip` (`src/app/api/export/route.ts`, `src/app/api/cli/exports/route.ts`).
-- Doc references: `ARCHITECTURE.md`, `AUDIT.md`, `CONTRIBUTING.md`, `docs/security/threat-model.md`, and `Slate.md` (the spec body) still mention `wpkiller` in package/CLI/plugin contexts.
-- Historical implementation-plan documents under `docs/superpowers/plans/2026-05-22-*` and `2026-05-23-*` (other than the rename plan itself) retain the original `wpkiller` / `wpk-*` identifiers; those are historical artifacts and were not retroactively rewritten.
-- Many test fixtures still use legacy strings (e.g., `GCS_BUCKET_MEDIA=wpk-test-bucket`, `Bearer wpk_t` admin-token literals, `wpk-prod` GCP project IDs). These are inert in production but should be normalised in a follow-up sweep.
+- Implementation-plan documents under `docs/superpowers/plans/2026-05-22-*` and `2026-05-23-*` (other than the rename plan and the rename-and-landing spec) retain the original `wpkiller` / `wpk-*` identifiers. They are historical records of how the codebase was built and were not retroactively edited.

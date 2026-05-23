@@ -99,7 +99,7 @@ next contributor's `db:generate` diff cleanly. See
 - `src/lib/` — small utilities (logger, slug, otel, rate-limit, settings, seo)
 - `themes/slate-default/` — baseline theme
 - `plugins/example-webhook/` — example plugin
-- `packages/cli/` — `wpkiller` CLI (workspace package)
+- `packages/cli/` — `slate` CLI (workspace package, `@slate/cli`)
 - `infra/terraform/` — GCP module
 - `docs/superpowers/plans/` — historical implementation plans
 

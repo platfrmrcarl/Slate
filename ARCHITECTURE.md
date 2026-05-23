@@ -96,7 +96,7 @@ the new revision serves traffic. See `cloudbuild.yaml`.
 | `src/emails/` | React Email templates. |
 | `themes/slate-default/` | Baseline theme (Layout, templates, primitives, CSS tokens). |
 | `plugins/example-webhook/` | Sample plugin (manifest + entry). |
-| `packages/cli/` | `wpkiller` CLI workspace package. |
+| `packages/cli/` | `slate` CLI workspace package (`@slate/cli`). |
 | `infra/terraform/` | GCP Terraform module (Cloud Run, SQL, Storage, Tasks, LB, monitoring). |
 | `instrumentation.ts` | OpenTelemetry SDK boot — traces to Cloud Trace, metrics to Cloud Monitoring (gated on `OTEL_ENABLED=true`). |
 

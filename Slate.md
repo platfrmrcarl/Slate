@@ -429,7 +429,7 @@ Custom blocks ship as npm packages installed at build time (v1):
 
 ```ts
 // example-plugin/blocks/pricing.tsx
-import { defineBlock } from "wpkiller/blocks";
+import { defineBlock } from "slate/blocks";
 import { z } from "zod";
 
 export default defineBlock({
@@ -457,7 +457,7 @@ export default defineBlock({
 });
 ```
 
-The block registry is built into the bundle at compile time. Plugins are picked up by scanning `node_modules/wpkiller-plugin-*` and any `plugins/` directory.
+The block registry is built into the bundle at compile time. Plugins are picked up by scanning `node_modules/slate-plugin-*` and any `plugins/` directory.
 
 ### 6.4 Renderer
 
@@ -584,7 +584,7 @@ Admin "Customize" surface exposes these as form controls per the `customizations
 
 ### 8.1 v1 extension surfaces
 
-A plugin is an npm package matching `wpkiller-plugin-*` with a manifest:
+A plugin is an npm package matching `slate-plugin-*` with a manifest:
 
 ```ts
 // PluginManifest
@@ -615,7 +615,7 @@ A plugin is an npm package matching `wpkiller-plugin-*` with a manifest:
 }
 ```
 
-Plugins are installed by running `pnpm add wpkiller-plugin-mailchimp` and committing. The build picks up the manifest, registers blocks, webhooks, admin pages, and hook handlers.
+Plugins are installed by running `pnpm add slate-plugin-mailchimp` and committing. The build picks up the manifest, registers blocks, webhooks, admin pages, and hook handlers.
 
 ### 8.2 Webhook events (v1)
 
@@ -930,7 +930,7 @@ Markdown serialization uses a custom block-to-markdown writer that:
 The exporter ZIP is the portability primitive. To move to AWS / Azure / Fly / a bare VM:
 
 1. Provision Postgres + S3-compatible object store + a Node container host.
-2. Run `npx wpkiller migrate-import <export.zip> --target=<connection-string>` against the new database.
+2. Run `npx slate migrate-import <export.zip> --target=<connection-string>` against the new database.
 3. Update DNS, deploy the Docker image to the new host.
 
 Because the entire app is a single Docker container with externalized state (DB + object store), there's no GCP-specific code in the runtime. Cloud Run is the recommended host; nothing prevents running the same image on Fargate, App Runner, Container Apps, Fly Machines, Kubernetes, or `docker run` on a VPS.
@@ -978,12 +978,12 @@ export const comments = pgTable("comments", {
 
 ```hcl
 # infra/terraform/main.tf (sketch)
-module "wpkiller" {
-  source              = "./modules/wpkiller"
+module "slate" {
+  source              = "./modules/slate"
   project_id          = var.project_id
   region              = var.region                   # e.g., us-central1
   domain              = var.domain                   # e.g., example.com
-  image               = var.image                    # gcr.io/.../wpkiller:v1
+  image               = var.image                    # gcr.io/.../slate:v1
   db_tier             = "db-custom-2-7680"           # 2 vCPU, 7.5 GB
   cloud_run_min_inst  = 0
   cloud_run_max_inst  = 10
@@ -1060,7 +1060,7 @@ Cloud Run listens on `$PORT` (8080), Next.js standalone output handles that nati
 Drizzle migrations run as a Cloud Run **job** (separate from the main service) triggered before each deploy:
 
 ```bash
-gcloud run jobs execute wpkiller-migrate --region=us-central1
+gcloud run jobs execute slate-migrate --region=us-central1
 ```
 
 Cloud Build deploys the new revision only if migrations succeed.
@@ -1121,7 +1121,7 @@ The `create-slate` CLI:
 ### 17.4 CLI
 
 ```
-wpkiller <command>
+slate <command>
   setup                                  # interactive first-run config
   user create <email> --role=<role>
   user reset-password <email>
@@ -1200,7 +1200,7 @@ CLI talks to the running instance via internal admin API with a token issued at 
 - [ ] Exporter ZIP
 - [ ] Sitemap, robots, RSS
 - [ ] OpenGraph + JSON-LD
-- [ ] CLI (`wpkiller`)
+- [ ] CLI (`slate`)
 - [ ] Terraform module
 - [ ] Cloud Build pipeline
 - [ ] Dockerfile + Cloud Run deployment

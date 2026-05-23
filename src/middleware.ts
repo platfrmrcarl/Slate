@@ -110,7 +110,7 @@ export async function middleware(req: NextRequest): Promise<NextResponse> {
   };
 
   // CORS deny on machine-to-machine surfaces. Cloud Tasks (job push) and
-  // the wpkiller CLI never send an `Origin` header. A request that does
+  // the slate CLI never send an `Origin` header. A request that does
   // carry one is by definition a cross-origin browser probe, and we don't
   // want either surface reachable that way regardless of auth state.
   if (

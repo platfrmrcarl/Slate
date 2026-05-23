@@ -15,7 +15,7 @@ function getEmulatorCredentials(): { client_email: string; private_key: string }
   if (emulatorCredentials) return emulatorCredentials;
   const { privateKey } = generateKeyPairSync("rsa", { modulusLength: 2048 });
   emulatorCredentials = {
-    client_email: "fake-gcs@wpk-dev.iam.gserviceaccount.com",
+    client_email: "fake-gcs@slate-dev.iam.gserviceaccount.com",
     private_key: privateKey.export({ type: "pkcs8", format: "pem" }).toString(),
   };
   return emulatorCredentials;
@@ -28,7 +28,7 @@ function client(): Storage {
   if (e.GCS_EMULATOR_HOST) {
     cached = new Storage({
       apiEndpoint: e.GCS_EMULATOR_HOST,
-      projectId: "wpk-dev",
+      projectId: "slate-dev",
       credentials: getEmulatorCredentials(),
     });
   } else {

@@ -6,7 +6,7 @@ beforeAll(() => {
   process.env.APP_URL = "https://app.test";
   process.env.PREVIEW_TOKEN_SECRET = "x".repeat(64);
   process.env.INTERNAL_JOB_SECRET = "x".repeat(64);
-  process.env.GCS_BUCKET_MEDIA = "wpk-test-bucket";
+  process.env.GCS_BUCKET_MEDIA = "slate-test-bucket";
 });
 
 const listPosts = vi.fn();

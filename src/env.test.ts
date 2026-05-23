@@ -6,7 +6,7 @@ const REQUIRED_AUTH = {
   APP_URL: "https://example.com",
   PREVIEW_TOKEN_SECRET: "p".repeat(64),
   INTERNAL_JOB_SECRET: "i".repeat(64),
-  GCS_BUCKET_MEDIA: "wpk-media-prod",
+  GCS_BUCKET_MEDIA: "slate-media-prod",
 };
 
 describe("parseEnv", () => {
@@ -14,12 +14,12 @@ describe("parseEnv", () => {
     const env = parseEnv({
       ...REQUIRED_AUTH,
       NODE_ENV: "production",
-      DATABASE_URL: "postgres://user:pass@localhost:5432/wpk",
+      DATABASE_URL: "postgres://user:pass@localhost:5432/slate",
       LOG_LEVEL: "info",
       PORT: "8080",
     });
     expect(env.NODE_ENV).toBe("production");
-    expect(env.DATABASE_URL).toBe("postgres://user:pass@localhost:5432/wpk");
+    expect(env.DATABASE_URL).toBe("postgres://user:pass@localhost:5432/slate");
     expect(env.PORT).toBe(8080);
   });
 
@@ -27,7 +27,7 @@ describe("parseEnv", () => {
     const env = parseEnv({
       ...REQUIRED_AUTH,
       NODE_ENV: "development",
-      DATABASE_URL: "postgres://localhost/wpk",
+      DATABASE_URL: "postgres://localhost/slate",
     });
     expect(env.LOG_LEVEL).toBe("info");
   });
@@ -36,7 +36,7 @@ describe("parseEnv", () => {
     const env = parseEnv({
       ...REQUIRED_AUTH,
       NODE_ENV: "development",
-      DATABASE_URL: "postgres://localhost/wpk",
+      DATABASE_URL: "postgres://localhost/slate",
     });
     expect(env.PORT).toBe(3000);
   });
@@ -55,7 +55,7 @@ describe("parseEnv", () => {
       parseEnv({
         ...REQUIRED_AUTH,
         NODE_ENV: "development",
-        DATABASE_URL: "mysql://localhost/wpk",
+        DATABASE_URL: "mysql://localhost/slate",
       }),
     ).toThrow(/DATABASE_URL/);
   });
@@ -63,7 +63,7 @@ describe("parseEnv", () => {
   it("defaults NODE_ENV to 'development' when omitted", () => {
     const env = parseEnv({
       ...REQUIRED_AUTH,
-      DATABASE_URL: "postgres://localhost/wpk",
+      DATABASE_URL: "postgres://localhost/slate",
     });
     expect(env.NODE_ENV).toBe("development");
   });
@@ -73,7 +73,7 @@ describe("parseEnv", () => {
       parseEnv({
         ...REQUIRED_AUTH,
         NODE_ENV: "staging",
-        DATABASE_URL: "postgres://localhost/wpk",
+        DATABASE_URL: "postgres://localhost/slate",
       }),
     ).toThrow(/NODE_ENV/);
   });
@@ -83,7 +83,7 @@ describe("parseEnv", () => {
       parseEnv({
         ...REQUIRED_AUTH,
         NODE_ENV: "development",
-        DATABASE_URL: "postgres://localhost/wpk",
+        DATABASE_URL: "postgres://localhost/slate",
         LOG_LEVEL: "verbose",
       }),
     ).toThrow(/LOG_LEVEL/);
@@ -93,12 +93,12 @@ describe("parseEnv", () => {
 describe("parseEnv (auth additions)", () => {
   const base = {
     NODE_ENV: "production" as const,
-    DATABASE_URL: "postgres://localhost/wpk",
+    DATABASE_URL: "postgres://localhost/slate",
     AUTH_SECRET: "a".repeat(64),
     APP_URL: "https://example.com",
     PREVIEW_TOKEN_SECRET: "p".repeat(64),
     INTERNAL_JOB_SECRET: "i".repeat(64),
-    GCS_BUCKET_MEDIA: "wpk-media-prod",
+    GCS_BUCKET_MEDIA: "slate-media-prod",
   };
 
   it("accepts a complete auth environment", () => {
@@ -136,12 +136,12 @@ describe("parseEnv (auth additions)", () => {
 describe("parseEnv (preview + jobs)", () => {
   const base = {
     NODE_ENV: "production" as const,
-    DATABASE_URL: "postgres://localhost/wpk",
+    DATABASE_URL: "postgres://localhost/slate",
     AUTH_SECRET: "a".repeat(64),
     APP_URL: "https://example.com",
     PREVIEW_TOKEN_SECRET: "p".repeat(64),
     INTERNAL_JOB_SECRET: "i".repeat(64),
-    GCS_BUCKET_MEDIA: "wpk-media-prod",
+    GCS_BUCKET_MEDIA: "slate-media-prod",
   };
 
   it("accepts valid PREVIEW_TOKEN_SECRET and INTERNAL_JOB_SECRET", () => {
@@ -178,18 +178,18 @@ describe("parseEnv (preview + jobs)", () => {
 describe("parseEnv (media additions)", () => {
   const base = {
     NODE_ENV: "production" as const,
-    DATABASE_URL: "postgres://localhost/wpk",
+    DATABASE_URL: "postgres://localhost/slate",
     AUTH_SECRET: "a".repeat(64),
     APP_URL: "https://example.com",
     PREVIEW_TOKEN_SECRET: "p".repeat(64),
     INTERNAL_JOB_SECRET: "i".repeat(64),
-    GCS_BUCKET_MEDIA: "wpk-media-prod",
+    GCS_BUCKET_MEDIA: "slate-media-prod",
     MEDIA_PUBLIC_URL: "https://cdn.example.com",
   };
 
   it("accepts media env", () => {
     const env = parseEnv(base);
-    expect(env.GCS_BUCKET_MEDIA).toBe("wpk-media-prod");
+    expect(env.GCS_BUCKET_MEDIA).toBe("slate-media-prod");
     expect(env.MEDIA_PUBLIC_URL).toBe("https://cdn.example.com");
   });
 
@@ -224,12 +224,12 @@ describe("parseEnv (media additions)", () => {
 describe("parseEnv (ai additions)", () => {
   const base = {
     NODE_ENV: "production" as const,
-    DATABASE_URL: "postgres://localhost/wpk",
+    DATABASE_URL: "postgres://localhost/slate",
     AUTH_SECRET: "a".repeat(64),
     APP_URL: "https://example.com",
     PREVIEW_TOKEN_SECRET: "p".repeat(64),
     INTERNAL_JOB_SECRET: "i".repeat(64),
-    GCS_BUCKET_MEDIA: "wpk-media-prod",
+    GCS_BUCKET_MEDIA: "slate-media-prod",
   };
 
   it("ANTHROPIC_API_KEY is optional", () => {

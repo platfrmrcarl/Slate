@@ -25,7 +25,7 @@ export default async function PluginsPage(): Promise<React.ReactElement> {
       {list.length === 0 ? (
         <p className="text-sm text-gray-500">
           No plugins discovered. Drop a directory under <code>plugins/</code> with a valid{" "}
-          <code>manifest.json</code> or install a <code>wpkiller-plugin-*</code> npm package.
+          <code>manifest.json</code> or install a <code>slate-plugin-*</code> npm package.
         </p>
       ) : (
         <ul className="space-y-3">
