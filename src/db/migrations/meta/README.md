@@ -9,14 +9,20 @@ several plans to hand-write SQL instead of regenerating it.
 ## Current state
 
 - `0000_snapshot.json` … `0009_snapshot.json` — chained and accurate.
-- `0010_snapshot.json` … `0012_snapshot.json` — **MISSING**. These snapshots
-  were never written because `meta/` was ignored when the corresponding
-  migrations landed. The SQL migrations themselves are applied and correct;
-  only drizzle's internal snapshot history has gaps.
+- `0010_snapshot.json` … `0012_snapshot.json` — **PERMANENTLY MISSING**. These
+  snapshots were never written because `meta/` was gitignored when the
+  corresponding migrations landed. The SQL migrations themselves are applied
+  and correct; only drizzle's internal snapshot history has gaps that can't
+  be reconstructed without walking the schema back through each historical
+  state. Acceptable trade-off: drizzle's migrator (`pnpm db:migrate`) only
+  needs `_journal.json` + the SQL files, so applying migrations works fine.
+  Only `db:generate` (diff-from-snapshot) is affected.
 - `0013_snapshot.json` — reconstructed via `drizzle-kit pull` from the live
-  DB, with `prevId` patched to chain off `0009_snapshot.json`'s `id`.
+  DB, with `prevId` patched to chain off `0009_snapshot.json`'s `id`. The
+  intermediate gap is invisible to drizzle because it only follows the
+  `prevId` chain on the snapshots that exist.
 
-  Two caveats with this snapshot:
+  Two caveats with the reconstructed snapshot:
 
   1. `drizzle-kit pull` does NOT pick up Postgres `GENERATED` columns
      (`posts.search_vector_tsv`, `pages.search_vector`) or some manually-added
