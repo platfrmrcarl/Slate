@@ -1,5 +1,8 @@
 import { Command, Option } from "commander";
 import { userCommand } from "./commands/user";
+import { themeCommand } from "./commands/theme";
+import { pluginCommand } from "./commands/plugin";
+import { migrateCommand } from "./commands/migrate";
 
 const program = new Command()
   .name("wpkiller")
@@ -17,6 +20,9 @@ const transportOpts = () => {
 };
 
 program.addCommand(userCommand(transportOpts()));
+program.addCommand(themeCommand(transportOpts()));
+program.addCommand(pluginCommand());
+program.addCommand(migrateCommand());
 
 program.command("ping").action(() => console.log("pong"));
 
