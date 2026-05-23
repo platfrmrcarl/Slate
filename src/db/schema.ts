@@ -463,3 +463,23 @@ export type WebhookRow = typeof webhooks.$inferSelect;
 export type NewWebhookRow = typeof webhooks.$inferInsert;
 export type WebhookDeliveryRow = typeof webhookDeliveries.$inferSelect;
 export type NewWebhookDeliveryRow = typeof webhookDeliveries.$inferInsert;
+
+export const importJobs = pgTable("import_jobs", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  source: text("source").notNull(),
+  bucket: text("bucket").notNull(),
+  objectPath: text("object_path").notNull(),
+  uploadedBy: uuid("uploaded_by")
+    .notNull()
+    .references(() => users.id),
+  status: text("status").notNull().default("pending"),
+  progress: jsonb("progress").notNull().default({}),
+  result: jsonb("result"),
+  startedAt: timestamp("started_at", { withTimezone: true }),
+  completedAt: timestamp("completed_at", { withTimezone: true }),
+  errorMessage: text("error_message"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type ImportJob = typeof importJobs.$inferSelect;
+export type NewImportJob = typeof importJobs.$inferInsert;
