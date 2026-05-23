@@ -1,9 +1,23 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 const ALLOW_DURING_SETUP = ["/setup", "/api/healthz", "/api/readyz", "/_next", "/favicon.ico"];
+const SESSION_COOKIE_NAME = "wpk_session";
 
 export async function middleware(req: NextRequest): Promise<NextResponse> {
   const { pathname } = req.nextUrl;
+
+  // Edge-level admin guard: require a session cookie before any /admin route.
+  // The per-request `getOptionalUser()` in the layout is the source of truth;
+  // this is defense-in-depth so unauthenticated users don't hit server components.
+  if (pathname.startsWith("/admin")) {
+    const session = req.cookies.get(SESSION_COOKIE_NAME);
+    if (!session) {
+      const url = new URL("/sign-in", req.url);
+      url.searchParams.set("redirectTo", pathname);
+      return NextResponse.redirect(url);
+    }
+  }
+
   if (ALLOW_DURING_SETUP.some((p) => pathname.startsWith(p))) return NextResponse.next();
 
   // Hot path: bypass middleware for static assets without DB hits.
