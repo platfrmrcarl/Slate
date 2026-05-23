@@ -8,6 +8,7 @@ import {
   index,
   uniqueIndex,
   integer,
+  boolean,
 } from "drizzle-orm/pg-core";
 import type { Block } from "@/blocks/types";
 
@@ -327,3 +328,25 @@ export type NewTaxonomy = typeof taxonomies.$inferInsert;
 export type Comment = typeof comments.$inferSelect;
 export type NewComment = typeof comments.$inferInsert;
 export type PostStatusValue = (typeof postStatus.enumValues)[number];
+
+export const themes = pgTable("themes", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  slug: text("slug").notNull().unique(),
+  name: text("name").notNull(),
+  version: text("version").notNull(),
+  sourceUrl: text("source_url").notNull(),
+  manifest: jsonb("manifest").notNull(),
+  enabled: boolean("enabled").notNull().default(true),
+  installedAt: timestamp("installed_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const activeTheme = pgTable("active_theme", {
+  id: integer("id").primaryKey().default(1), // singleton row
+  themeId: uuid("theme_id")
+    .notNull()
+    .references(() => themes.id),
+  customization: jsonb("customization").notNull().default({}),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type ThemeRow = typeof themes.$inferSelect;
