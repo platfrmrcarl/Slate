@@ -16,5 +16,25 @@ services:
       timeout: 3s
       retries: 10
 
+  fake-gcs:
+    image: fsouza/fake-gcs-server:1.50
+    restart: unless-stopped
+    command:
+      [
+        "-scheme",
+        "http",
+        "-port",
+        "4443",
+        "-public-host",
+        "localhost:4443",
+        "-external-url",
+        "http://localhost:4443",
+      ]
+    ports:
+      - "4443:4443"
+    volumes:
+      - fake-gcs-data:/storage
+
 volumes:
   postgres-data:
+  fake-gcs-data:

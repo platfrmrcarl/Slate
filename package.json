@@ -25,6 +25,7 @@
     "@blocknote/mantine": "0.27",
     "@blocknote/react": "0.27",
     "@blocknote/shadcn": "0.27",
+    "@google-cloud/storage": "7",
     "@node-rs/argon2": "2",
     "@oslojs/crypto": "1",
     "@oslojs/encoding": "1",
