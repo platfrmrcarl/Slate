@@ -36,11 +36,13 @@ export default function SignInPage() {
       </p>
       <div className="mt-6 grid gap-2">
         {process.env.NEXT_PUBLIC_OAUTH_GOOGLE_ENABLED === "1" && (
+          // eslint-disable-next-line @next/next/no-html-link-for-pages
           <a className="rounded border px-4 py-2 text-center" href="/api/auth/oauth/google/start">
             Continue with Google
           </a>
         )}
         {process.env.NEXT_PUBLIC_OAUTH_GITHUB_ENABLED === "1" && (
+          // eslint-disable-next-line @next/next/no-html-link-for-pages
           <a className="rounded border px-4 py-2 text-center" href="/api/auth/oauth/github/start">
             Continue with GitHub
           </a>
