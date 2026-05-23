@@ -47,6 +47,13 @@ describe("parseEnv", () => {
     ).toThrow(/DATABASE_URL/);
   });
 
+  it("defaults NODE_ENV to 'development' when omitted", () => {
+    const env = parseEnv({
+      DATABASE_URL: "postgres://localhost/wpk",
+    });
+    expect(env.NODE_ENV).toBe("development");
+  });
+
   it("rejects invalid NODE_ENV", () => {
     expect(() =>
       parseEnv({
