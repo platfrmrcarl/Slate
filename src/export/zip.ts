@@ -1,5 +1,5 @@
 import yazl from "yazl";
-import { Readable } from "node:stream";
+import type { Readable } from "node:stream";
 
 export class ZipBuilder {
   private z = new yazl.ZipFile();

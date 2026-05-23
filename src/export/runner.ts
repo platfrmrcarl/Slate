@@ -1,4 +1,4 @@
-import { Readable } from "node:stream";
+import type { Readable } from "node:stream";
 import { ZipBuilder } from "./zip";
 import { blocksToMarkdown } from "./blocks-to-markdown";
 import { renderFrontmatter } from "./frontmatter";

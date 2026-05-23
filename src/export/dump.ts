@@ -1,5 +1,5 @@
 import { spawn } from "node:child_process";
-import { Readable } from "node:stream";
+import type { Readable } from "node:stream";
 import { env } from "@/env";
 import { logger } from "@/lib/logger";
 

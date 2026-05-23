@@ -38,6 +38,12 @@ export interface RunInput {
   fallbackAuthorId: string;
   defaultLocale: string;
   bucket: string;
+  /**
+   * Optional `media-manifest.json` from an exporter ZIP — when provided we use
+   * its external-id → media-id mapping to keep media references stable across
+   * export/import round-trips.
+   */
+  mediaManifest?: Record<string, { id?: string; path?: string }>;
 }
 
 export async function runImportRecords(input: RunInput): Promise<void> {
@@ -52,6 +58,13 @@ export async function runImportRecords(input: RunInput): Promise<void> {
     postIdByExternalId: new Map<string, string>(),
     taxonomyIdBySlug: new Map<string, string>(),
   };
+  // Pre-seed the media id map from an export manifest so re-imports of
+  // wpkiller-produced ZIPs preserve original media IDs.
+  if (input.mediaManifest) {
+    for (const [externalId, entry] of Object.entries(input.mediaManifest)) {
+      if (entry?.id) ctx.mediaIdByExternalId.set(externalId, entry.id);
+    }
+  }
   const progress: ImportProgress = { ...ZERO_PROGRESS };
   const flush = async (): Promise<void> => updateImportProgress(input.importJobId, { ...progress });
 
