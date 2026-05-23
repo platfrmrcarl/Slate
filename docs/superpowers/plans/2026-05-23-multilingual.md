@@ -9,6 +9,7 @@
 **No new external dependencies.** Translation uses `translateBlocks` from the **ai-features** sub-plan; the AI translation flow degrades gracefully when AI is disabled (the editor opens a blank target-locale row for manual entry).
 
 **Depends on:**
+
 - foundation, auth-and-users, block-editor-core, posts-taxonomies-comments (locale columns + slug-uniqueness scoped to locale already exist).
 - ai-features (`translateBlocks`).
 - themes (theme `Layout` receives a `languages` prop with the per-page translations).
@@ -17,41 +18,42 @@
 
 ## File Map
 
-| Path | Purpose |
-|---|---|
-| `src/db/schema.ts` | **MODIFY** — confirm `pages.translationOf` + `posts.translationOf` self-FK declarations (formalize) |
-| `src/db/migrations/0007_multilingual.sql` | Adds FK constraint + i18n settings seed |
-| `src/i18n/locales.ts` | Built-in locale catalogue (code, English name, native name, RTL flag) |
-| `src/i18n/locales.test.ts` | Tests |
-| `src/i18n/settings.ts` | Persist + read enabled locales / default locale via `settings` table |
-| `src/i18n/settings.test.ts` | Tests |
-| `src/i18n/url.ts` | URL ↔ locale helpers (prefix on/off, route building) |
-| `src/i18n/url.test.ts` | Tests |
-| `src/i18n/translations.ts` | Resolve sibling translations for a row across locales |
-| `src/i18n/translations.test.ts` | Tests |
-| `src/middleware.ts` | **MODIFY** — locale resolution + redirect |
-| `src/app/[locale]/layout.tsx` | Per-locale layout wrapper passing `languages` to theme |
-| `src/app/[locale]/page.tsx` | Per-locale home |
-| `src/app/[locale]/[...slug]/page.tsx` | Per-locale page |
-| `src/app/[locale]/blog/page.tsx` | Per-locale blog index |
-| `src/app/[locale]/blog/[slug]/page.tsx` | Per-locale single post |
-| `src/app/[locale]/blog/category/[slug]/page.tsx` | Per-locale category archive |
-| `src/app/[locale]/blog/tag/[slug]/page.tsx` | Per-locale tag archive |
-| `src/components/LanguageSwitcher.tsx` | Server Component theme primitive |
-| `src/components/Hreflang.tsx` | Emits `<link rel="alternate" hreflang="..."/>` |
-| `src/app/actions/translations.ts` | Server Action: translatePage / translatePost |
-| `src/app/actions/translations.test.ts` | Tests |
-| `src/app/admin/settings/locales/page.tsx` | Admin: enabled-locales settings |
-| `src/app/admin/posts/[id]/TranslateButton.tsx` | Per-row "Translate to…" UI |
-| `src/app/admin/pages/[id]/TranslateButton.tsx` | Mirror for pages |
-| `src/posts/service.ts` | **MODIFY** — `getPostBySlug` accepts a locale (already), `findCanonical` helper |
-| `src/pages/service.ts` | **MODIFY** — mirror helper for pages |
+| Path                                             | Purpose                                                                                             |
+| ------------------------------------------------ | --------------------------------------------------------------------------------------------------- |
+| `src/db/schema.ts`                               | **MODIFY** — confirm `pages.translationOf` + `posts.translationOf` self-FK declarations (formalize) |
+| `src/db/migrations/0007_multilingual.sql`        | Adds FK constraint + i18n settings seed                                                             |
+| `src/i18n/locales.ts`                            | Built-in locale catalogue (code, English name, native name, RTL flag)                               |
+| `src/i18n/locales.test.ts`                       | Tests                                                                                               |
+| `src/i18n/settings.ts`                           | Persist + read enabled locales / default locale via `settings` table                                |
+| `src/i18n/settings.test.ts`                      | Tests                                                                                               |
+| `src/i18n/url.ts`                                | URL ↔ locale helpers (prefix on/off, route building)                                                |
+| `src/i18n/url.test.ts`                           | Tests                                                                                               |
+| `src/i18n/translations.ts`                       | Resolve sibling translations for a row across locales                                               |
+| `src/i18n/translations.test.ts`                  | Tests                                                                                               |
+| `src/middleware.ts`                              | **MODIFY** — locale resolution + redirect                                                           |
+| `src/app/[locale]/layout.tsx`                    | Per-locale layout wrapper passing `languages` to theme                                              |
+| `src/app/[locale]/page.tsx`                      | Per-locale home                                                                                     |
+| `src/app/[locale]/[...slug]/page.tsx`            | Per-locale page                                                                                     |
+| `src/app/[locale]/blog/page.tsx`                 | Per-locale blog index                                                                               |
+| `src/app/[locale]/blog/[slug]/page.tsx`          | Per-locale single post                                                                              |
+| `src/app/[locale]/blog/category/[slug]/page.tsx` | Per-locale category archive                                                                         |
+| `src/app/[locale]/blog/tag/[slug]/page.tsx`      | Per-locale tag archive                                                                              |
+| `src/components/LanguageSwitcher.tsx`            | Server Component theme primitive                                                                    |
+| `src/components/Hreflang.tsx`                    | Emits `<link rel="alternate" hreflang="..."/>`                                                      |
+| `src/app/actions/translations.ts`                | Server Action: translatePage / translatePost                                                        |
+| `src/app/actions/translations.test.ts`           | Tests                                                                                               |
+| `src/app/admin/settings/locales/page.tsx`        | Admin: enabled-locales settings                                                                     |
+| `src/app/admin/posts/[id]/TranslateButton.tsx`   | Per-row "Translate to…" UI                                                                          |
+| `src/app/admin/pages/[id]/TranslateButton.tsx`   | Mirror for pages                                                                                    |
+| `src/posts/service.ts`                           | **MODIFY** — `getPostBySlug` accepts a locale (already), `findCanonical` helper                     |
+| `src/pages/service.ts`                           | **MODIFY** — mirror helper for pages                                                                |
 
 ---
 
 ## Task 1: Locale catalogue (TDD)
 
 **Files:**
+
 - Create: `src/i18n/locales.ts`
 - Create: `src/i18n/locales.test.ts`
 
@@ -66,9 +68,7 @@ import { ALL_LOCALES, findLocale, isLocaleCode } from "./locales";
 describe("ALL_LOCALES", () => {
   it("includes en, fr, es, de, ja, ar (RTL), zh-Hans", () => {
     const codes = ALL_LOCALES.map((l) => l.code);
-    expect(codes).toEqual(
-      expect.arrayContaining(["en", "fr", "es", "de", "ja", "ar", "zh-Hans"]),
-    );
+    expect(codes).toEqual(expect.arrayContaining(["en", "fr", "es", "de", "ja", "ar", "zh-Hans"]));
   });
 
   it("marks Arabic as rtl=true", () => {
@@ -183,6 +183,7 @@ git commit -m "feat(i18n): locale catalogue + validation"
 ## Task 2: i18n settings (TDD)
 
 **Files:**
+
 - Create: `src/i18n/settings.ts`
 - Create: `src/i18n/settings.test.ts`
 - Create: `src/db/migrations/0007_multilingual.sql`
@@ -208,13 +209,17 @@ const HAS_DB = !!process.env.DATABASE_URL;
 
 afterAll(async () => {
   if (!HAS_DB) return;
-  await db().delete(settings).where(sql`${settings.key} = 'i18n'`);
+  await db()
+    .delete(settings)
+    .where(sql`${settings.key} = 'i18n'`);
   await closeDb();
 });
 
 beforeEach(async () => {
   if (!HAS_DB) return;
-  await db().delete(settings).where(sql`${settings.key} = 'i18n'`);
+  await db()
+    .delete(settings)
+    .where(sql`${settings.key} = 'i18n'`);
   invalidateI18nSettings();
 });
 
@@ -386,6 +391,7 @@ git commit -m "feat(i18n): settings + translation FK constraint"
 ## Task 3: URL helpers (TDD)
 
 **Files:**
+
 - Create: `src/i18n/url.ts`
 - Create: `src/i18n/url.test.ts`
 
@@ -433,9 +439,10 @@ describe("extractLocaleFromPathname", () => {
   });
 
   it("when hideDefaultPrefix=false, default locale needs a prefix to match", () => {
-    expect(
-      extractLocaleFromPathname("/about", { ...settings, hideDefaultPrefix: false }),
-    ).toEqual({ locale: "en", pathWithoutLocale: "/about" });
+    expect(extractLocaleFromPathname("/about", { ...settings, hideDefaultPrefix: false })).toEqual({
+      locale: "en",
+      pathWithoutLocale: "/about",
+    });
   });
 });
 
@@ -466,16 +473,16 @@ export interface ExtractResult {
   pathWithoutLocale: string;
 }
 
-export function extractLocaleFromPathname(
-  pathname: string,
-  settings: I18nSettings,
-): ExtractResult {
+export function extractLocaleFromPathname(pathname: string, settings: I18nSettings): ExtractResult {
   const segments = pathname.split("/");
   // segments[0] is "" (leading slash)
   const first = segments[1] ?? "";
   if (settings.enabledLocales.includes(first)) {
     const rest = "/" + segments.slice(2).join("/");
-    return { locale: first, pathWithoutLocale: rest === "/" ? "/" : rest.replace(/\/+$/, "") || "/" };
+    return {
+      locale: first,
+      pathWithoutLocale: rest === "/" ? "/" : rest.replace(/\/+$/, "") || "/",
+    };
   }
   return { locale: settings.defaultLocale, pathWithoutLocale: pathname };
 }
@@ -512,6 +519,7 @@ git commit -m "feat(i18n): URL ↔ locale helpers"
 ## Task 4: Translation graph helpers (TDD)
 
 **Files:**
+
 - Create: `src/i18n/translations.ts`
 - Create: `src/i18n/translations.test.ts`
 
@@ -532,8 +540,14 @@ const pids: string[] = [];
 
 afterAll(async () => {
   if (!HAS_DB) return;
-  for (const id of pids) await db().delete(posts).where(sql`${posts.id} = ${id}`);
-  for (const id of uids) await db().delete(users).where(sql`${users.id} = ${id}`);
+  for (const id of pids)
+    await db()
+      .delete(posts)
+      .where(sql`${posts.id} = ${id}`);
+  for (const id of uids)
+    await db()
+      .delete(users)
+      .where(sql`${users.id} = ${id}`);
   await closeDb();
 });
 
@@ -625,7 +639,10 @@ export interface Sibling {
   status: string | null;
 }
 
-export async function findCanonicalId(input: { table: TranslatableTable; id: string }): Promise<string> {
+export async function findCanonicalId(input: {
+  table: TranslatableTable;
+  id: string;
+}): Promise<string> {
   const rows = await db().execute<{ canonical_id: string }>(sql`
     SELECT coalesce(translation_of, id) AS canonical_id
     FROM ${sql.raw(`"${input.table}"`)}
@@ -672,6 +689,7 @@ git commit -m "feat(i18n): translation graph helpers"
 ## Task 5: Middleware locale resolution
 
 **Files:**
+
 - Modify: `src/middleware.ts`
 
 - [ ] **Step 1: Replace middleware**
@@ -740,6 +758,7 @@ git commit -m "feat(i18n): middleware locale resolution + default-prefix rewrite
 ## Task 6: Locale-prefixed public routes
 
 **Files:**
+
 - Create: `src/app/[locale]/layout.tsx`
 - Create: `src/app/[locale]/page.tsx`
 - Create: `src/app/[locale]/[...slug]/page.tsx`
@@ -800,11 +819,7 @@ import { Hreflang } from "@/components/Hreflang";
 
 export const revalidate = 60;
 
-export default async function LocaleHome({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
+export default async function LocaleHome({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const home = await getPageBySlug("home", locale, { publishedOnly: true });
   if (!home) notFound();
@@ -890,9 +905,7 @@ export default async function LocaleBlogIndex({
                 {p.title}
               </Link>
             </h2>
-            <p className="text-sm text-gray-500">
-              {p.publishedAt?.toISOString().slice(0, 10)}
-            </p>
+            <p className="text-sm text-gray-500">{p.publishedAt?.toISOString().slice(0, 10)}</p>
             {p.excerpt && <p className="mt-1 text-gray-700">{p.excerpt}</p>}
           </li>
         ))}
@@ -942,9 +955,7 @@ export default async function LocalePostPage({
       <Hreflang table="posts" id={post.id} />
       <article>
         <h1 className="mb-2 text-3xl font-bold">{post.title}</h1>
-        <p className="mb-6 text-sm text-gray-500">
-          {post.publishedAt?.toISOString().slice(0, 10)}
-        </p>
+        <p className="mb-6 text-sm text-gray-500">{post.publishedAt?.toISOString().slice(0, 10)}</p>
         <BlockRenderer blocks={post.blocks as []} />
       </article>
       {post.commentsEnabled !== "off" && (
@@ -1033,6 +1044,7 @@ git commit -m "feat(i18n): locale-prefixed public routes"
 ## Task 7: Hreflang + LanguageSwitcher components (TDD)
 
 **Files:**
+
 - Create: `src/components/Hreflang.tsx`
 - Create: `src/components/Hreflang.test.tsx`
 - Create: `src/components/LanguageSwitcher.tsx`
@@ -1104,13 +1116,7 @@ import { getI18nSettings } from "@/i18n/settings";
 import { buildLocalizedPath } from "@/i18n/url";
 import { env } from "@/env";
 
-export async function Hreflang({
-  table,
-  id,
-}: {
-  table: TranslatableTable;
-  id: string;
-}) {
+export async function Hreflang({ table, id }: { table: TranslatableTable; id: string }) {
   const [sibs, settings] = await Promise.all([
     siblingTranslations({ table, id }),
     getI18nSettings(),
@@ -1122,7 +1128,8 @@ export async function Hreflang({
     <>
       {sibs.map((s) => {
         const href =
-          base + buildLocalizedPath(s.locale, `${prefix}/${s.slug}`.replace(/\/\//g, "/"), settings);
+          base +
+          buildLocalizedPath(s.locale, `${prefix}/${s.slug}`.replace(/\/\//g, "/"), settings);
         return <link key={s.id} rel="alternate" hrefLang={s.locale} href={href} />;
       })}
       {/* x-default points at the default-locale row */}
@@ -1265,6 +1272,7 @@ git commit -m "feat(i18n): Hreflang + LanguageSwitcher components"
 ## Task 8: Translate-to action (TDD)
 
 **Files:**
+
 - Create: `src/app/actions/translations.ts`
 - Create: `src/app/actions/translations.test.ts`
 
@@ -1288,7 +1296,9 @@ vi.mock("@/ai/features/translate", () => ({
   translateBlocks: (...a: unknown[]) => translateBlocks(...a),
 }));
 const findCanonicalId = vi.fn();
-vi.mock("@/i18n/translations", () => ({ findCanonicalId: (...a: unknown[]) => findCanonicalId(...a) }));
+vi.mock("@/i18n/translations", () => ({
+  findCanonicalId: (...a: unknown[]) => findCanonicalId(...a),
+}));
 const redirect = vi.fn();
 vi.mock("next/navigation", () => ({ redirect }));
 
@@ -1328,7 +1338,10 @@ describe("translatePostAction", () => {
     });
     createPost.mockResolvedValue({ id: "p-2", slug: "hello", locale: "fr" });
 
-    await translatePostAction(undefined, fd({ postId: "11111111-1111-1111-1111-111111111111", targetLocale: "fr" }));
+    await translatePostAction(
+      undefined,
+      fd({ postId: "11111111-1111-1111-1111-111111111111", targetLocale: "fr" }),
+    );
     expect(createPost).toHaveBeenCalledWith(
       expect.objectContaining({
         locale: "fr",
@@ -1354,7 +1367,10 @@ describe("translatePostAction", () => {
     findCanonicalId.mockResolvedValue("p-1");
     translateBlocks.mockResolvedValue({ kind: "disabled", reason: "x" });
     createPost.mockResolvedValue({ id: "p-2", slug: "hello", locale: "fr" });
-    await translatePostAction(undefined, fd({ postId: "11111111-1111-1111-1111-111111111111", targetLocale: "fr" }));
+    await translatePostAction(
+      undefined,
+      fd({ postId: "11111111-1111-1111-1111-111111111111", targetLocale: "fr" }),
+    );
     expect(createPost).toHaveBeenCalledWith(
       expect.objectContaining({
         blocks: [{ id: "h", type: "heading", level: 1, text: "Hello" }],
@@ -1380,7 +1396,9 @@ import { createPage, getPageById } from "@/pages/service"; // delivered by block
 import { translateBlocks } from "@/ai/features/translate";
 import { findCanonicalId } from "@/i18n/translations";
 
-interface ActionResult { error?: string }
+interface ActionResult {
+  error?: string;
+}
 
 const schema = z.object({
   postId: z.string().uuid().optional(),
@@ -1478,6 +1496,7 @@ git commit -m "feat(i18n): translate-post / translate-page actions"
 ## Task 9: Translate buttons + admin locale settings page
 
 **Files:**
+
 - Create: `src/app/admin/posts/[id]/TranslateButton.tsx`
 - Create: `src/app/admin/pages/[id]/TranslateButton.tsx`
 - Create: `src/app/admin/settings/locales/page.tsx`
@@ -1492,7 +1511,13 @@ import { enabledLocales } from "@/i18n/settings";
 import { findLocale } from "@/i18n/locales";
 import { translatePostAction } from "@/app/actions/translations";
 
-export async function TranslateButton({ postId, currentLocale }: { postId: string; currentLocale: string }) {
+export async function TranslateButton({
+  postId,
+  currentLocale,
+}: {
+  postId: string;
+  currentLocale: string;
+}) {
   const locales = await enabledLocales();
   const targets = locales.filter((l) => l !== currentLocale);
   if (targets.length === 0) return null;
@@ -1505,9 +1530,7 @@ export async function TranslateButton({ postId, currentLocale }: { postId: strin
             <form action={translatePostAction.bind(null, undefined)}>
               <input type="hidden" name="postId" value={postId} />
               <input type="hidden" name="targetLocale" value={code} />
-              <button className="text-sm underline">
-                {findLocale(code)?.nativeName ?? code}
-              </button>
+              <button className="text-sm underline">{findLocale(code)?.nativeName ?? code}</button>
             </form>
           </li>
         ))}
@@ -1570,7 +1593,15 @@ export function LocalesForm({
 
   return (
     <form action={action} className="space-y-4">
-      <input type="hidden" name="payload" value={JSON.stringify({ defaultLocale: def, enabledLocales: enabled, hideDefaultPrefix: hide })} />
+      <input
+        type="hidden"
+        name="payload"
+        value={JSON.stringify({
+          defaultLocale: def,
+          enabledLocales: enabled,
+          hideDefaultPrefix: hide,
+        })}
+      />
       <fieldset>
         <legend className="font-semibold">Enabled locales</legend>
         <ul className="mt-2 grid grid-cols-2 gap-2 md:grid-cols-3">
@@ -1582,7 +1613,9 @@ export function LocalesForm({
                   checked={enabled.includes(l.code)}
                   onChange={(e) =>
                     setEnabled((cur) =>
-                      e.target.checked ? Array.from(new Set([...cur, l.code])) : cur.filter((c) => c !== l.code),
+                      e.target.checked
+                        ? Array.from(new Set([...cur, l.code]))
+                        : cur.filter((c) => c !== l.code),
                     )
                   }
                 />
@@ -1596,7 +1629,11 @@ export function LocalesForm({
 
       <label className="block text-sm">
         <span className="mb-1 block font-semibold">Default locale</span>
-        <select value={def} onChange={(e) => setDef(e.target.value)} className="rounded border px-2 py-1">
+        <select
+          value={def}
+          onChange={(e) => setDef(e.target.value)}
+          className="rounded border px-2 py-1"
+        >
           {enabled.map((code) => (
             <option key={code} value={code}>
               {code}
@@ -1632,7 +1669,9 @@ import { z } from "zod";
 import { requireRole } from "@/auth/context";
 import { setI18nSettings, invalidateI18nSettings } from "@/i18n/settings";
 
-interface ActionResult { error?: string }
+interface ActionResult {
+  error?: string;
+}
 
 const schema = z.object({
   defaultLocale: z.string(),
@@ -1677,6 +1716,7 @@ git commit -m "feat(i18n): translate buttons + admin locales settings"
 ## Task 10: Sitemap + RSS per-locale
 
 **Files:**
+
 - Modify: `src/app/sitemap.xml/route.ts`
 - Modify: `src/app/rss.xml/route.ts`
 
@@ -1760,14 +1800,14 @@ pnpm build
 
 ## Out of Scope (handled by sibling sub-plans)
 
-| Sub-plan | What it adds |
-|---|---|
-| **importers** | When importing WordPress XML with `<wp:post_translations>` metadata (WPML/Polylang), set `translation_of` and `locale` accordingly. |
-| **exporter-backups** | Round-trips locale + translation links via `pages/<locale>/<slug>.md` paths in the export ZIP. |
-| **themes** | Themes consume `LanguageSwitcher` in their Layout. |
-| **plugin-system** | Plugins can register additional translation providers (DeepL, Google Translate) by swapping out `translateBlocks` via a hook. |
-| **deployment-hardening** | CDN cache key includes `:lang` segment so locale-scoped pages cache separately. |
+| Sub-plan                 | What it adds                                                                                                                        |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------- |
+| **importers**            | When importing WordPress XML with `<wp:post_translations>` metadata (WPML/Polylang), set `translation_of` and `locale` accordingly. |
+| **exporter-backups**     | Round-trips locale + translation links via `pages/<locale>/<slug>.md` paths in the export ZIP.                                      |
+| **themes**               | Themes consume `LanguageSwitcher` in their Layout.                                                                                  |
+| **plugin-system**        | Plugins can register additional translation providers (DeepL, Google Translate) by swapping out `translateBlocks` via a hook.       |
+| **deployment-hardening** | CDN cache key includes `:lang` segment so locale-scoped pages cache separately.                                                     |
 
 ---
 
-*End of multilingual plan.*
+_End of multilingual plan._
