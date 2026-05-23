@@ -1,7 +1,8 @@
 import { signPayload } from "./hmac";
 import { getDelivery, recordDeliveryResult } from "./deliveries";
 import { getWebhookById } from "./service";
-import { assertUrlSafeForOutboundFetch, SsrfError } from "./ssrf";
+import { SsrfError } from "./ssrf";
+import { safeFetch } from "./safeFetch";
 import { logger } from "@/lib/logger";
 import { enqueueJob } from "@/jobs/enqueue";
 
@@ -42,11 +43,33 @@ export async function deliverOnce(input: DeliverInput): Promise<void> {
     });
     return;
   }
-  // SSRF guard: refuse to dial private / loopback / link-local addresses.
-  // A rogue (or compromised) plugin manifest must not be able to use the app
-  // server as a stepping stone into internal infrastructure.
+  const ts = Math.floor(Date.now() / 1000);
+  const body = JSON.stringify({
+    event: delivery.event,
+    deliveredAt: new Date().toISOString(),
+    payload: delivery.payload,
+  });
+  const signature = signPayload(webhook.secret, ts, body);
+
+  let status = 0;
+  let bodyText = "";
   try {
-    await assertUrlSafeForOutboundFetch(webhook.url);
+    // safeFetch runs the SSRF guard, resolves DNS once, and pins the resolved
+    // IP for the actual socket connect — defeats DNS rebinding mid-request.
+    // SsrfError thrown from inside still gets caught and routed to "failed"
+    // by the outer try/catch below.
+    const res = await safeFetch(webhook.url, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "x-wpk-event": delivery.event,
+        "x-wpk-timestamp": String(ts),
+        "x-wpk-signature": `t=${ts},v1=${signature}`,
+      },
+      body,
+    });
+    status = res.status;
+    bodyText = await res.text();
   } catch (err) {
     if (err instanceof SsrfError) {
       logger().warn(
@@ -62,33 +85,6 @@ export async function deliverOnce(input: DeliverInput): Promise<void> {
       });
       return;
     }
-    throw err;
-  }
-
-  const ts = Math.floor(Date.now() / 1000);
-  const body = JSON.stringify({
-    event: delivery.event,
-    deliveredAt: new Date().toISOString(),
-    payload: delivery.payload,
-  });
-  const signature = signPayload(webhook.secret, ts, body);
-
-  let status = 0;
-  let bodyText = "";
-  try {
-    const res = await fetch(webhook.url, {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        "x-wpk-event": delivery.event,
-        "x-wpk-timestamp": String(ts),
-        "x-wpk-signature": `t=${ts},v1=${signature}`,
-      },
-      body,
-    });
-    status = res.status;
-    bodyText = await res.text();
-  } catch (err) {
     logger().warn({ err, deliveryId: delivery.id }, "webhook-deliver:network-error");
     return await handleFailure({
       deliveryId: delivery.id,

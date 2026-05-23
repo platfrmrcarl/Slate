@@ -10,14 +10,19 @@ const getWebhook = vi.fn();
 vi.mock("./service", () => ({ getWebhookById: (...a: unknown[]) => getWebhook(...a) }));
 const enqueueJob = vi.fn();
 vi.mock("@/jobs/enqueue", () => ({ enqueueJob: (...a: unknown[]) => enqueueJob(...a) }));
-const assertUrlSafe = vi.fn().mockResolvedValue(undefined);
-vi.mock("./ssrf", () => ({
-  assertUrlSafeForOutboundFetch: (...a: unknown[]) => assertUrlSafe(...a),
-  SsrfError: class extends Error {},
-}));
 
-const fetchMock = vi.fn();
-vi.stubGlobal("fetch", fetchMock);
+// SafeFetch encapsulates the SSRF guard + IP-pinned dial. Mock it whole so
+// tests don't try to open real sockets.
+const safeFetchMock = vi.fn();
+vi.mock("./safeFetch", () => ({
+  safeFetch: (...a: unknown[]) => safeFetchMock(...a),
+}));
+import type * as SsrfModule from "./ssrf";
+vi.mock("./ssrf", async () => ({
+  // Re-export the real SsrfError class so `instanceof` checks in deliver.ts
+  // match what tests throw.
+  ...(await vi.importActual<typeof SsrfModule>("./ssrf")),
+}));
 
 const { deliverOnce, computeBackoffSec, MAX_ATTEMPTS } = await import("./deliver");
 
@@ -26,8 +31,7 @@ beforeEach(() => {
   recordDeliveryResult.mockReset().mockResolvedValue(undefined);
   getWebhook.mockReset();
   enqueueJob.mockReset();
-  fetchMock.mockReset();
-  assertUrlSafe.mockReset().mockResolvedValue(undefined);
+  safeFetchMock.mockReset();
 });
 
 afterEach(() => vi.useRealTimers());
@@ -42,7 +46,7 @@ describe("deliverOnce", () => {
       attempts: 0,
     });
     getWebhook.mockResolvedValue({ id: "w-1", url: "https://e.test/hook", secret: "a".repeat(64) });
-    fetchMock.mockResolvedValue({ ok: true, status: 200, text: async () => "OK" });
+    safeFetchMock.mockResolvedValue({ status: 200, headers: {}, text: async () => "OK" });
     await deliverOnce({ deliveryId: "d-1", webhookId: "w-1" });
     expect(recordDeliveryResult).toHaveBeenCalledWith(
       expect.objectContaining({ status: "success", statusCode: 200 }),
@@ -58,7 +62,7 @@ describe("deliverOnce", () => {
       attempts: 0,
     });
     getWebhook.mockResolvedValue({ id: "w-1", url: "https://e.test/hook", secret: "a".repeat(64) });
-    fetchMock.mockResolvedValue({ ok: false, status: 503, text: async () => "Service down" });
+    safeFetchMock.mockResolvedValue({ status: 503, headers: {}, text: async () => "Service down" });
     await deliverOnce({ deliveryId: "d-1", webhookId: "w-1" });
     expect(recordDeliveryResult).toHaveBeenCalledWith(
       expect.objectContaining({ status: "retrying" }),
@@ -79,13 +83,13 @@ describe("deliverOnce", () => {
       attempts: MAX_ATTEMPTS,
     });
     getWebhook.mockResolvedValue({ id: "w-1", url: "https://e.test/hook", secret: "a".repeat(64) });
-    fetchMock.mockResolvedValue({ ok: false, status: 502, text: async () => "" });
+    safeFetchMock.mockResolvedValue({ status: 502, headers: {}, text: async () => "" });
     await deliverOnce({ deliveryId: "d-1", webhookId: "w-1" });
     expect(recordDeliveryResult).toHaveBeenCalledWith(expect.objectContaining({ status: "failed" }));
     expect(enqueueJob).not.toHaveBeenCalled();
   });
 
-  it("marks failed without retry when the URL is SSRF-blocked", async () => {
+  it("marks failed without retry when safeFetch raises SsrfError", async () => {
     getDelivery.mockResolvedValue({
       id: "d-1",
       webhookId: "w-1",
@@ -93,18 +97,18 @@ describe("deliverOnce", () => {
       payload: {},
       attempts: 0,
     });
-    getWebhook.mockResolvedValue({ id: "w-1", url: "https://internal/x", secret: "a".repeat(64) });
-    assertUrlSafe.mockRejectedValue(
-      Object.assign(new Error("blocked: 10.0.0.1"), { name: "SsrfError" }),
-    );
-    const mod = await import("./ssrf");
-    assertUrlSafe.mockRejectedValue(new mod.SsrfError("blocked: 10.0.0.1"));
+    getWebhook.mockResolvedValue({
+      id: "w-1",
+      url: "https://internal/x",
+      secret: "a".repeat(64),
+    });
+    const { SsrfError } = await import("./ssrf");
+    safeFetchMock.mockRejectedValue(new SsrfError("blocked: 10.0.0.1"));
 
     await deliverOnce({ deliveryId: "d-1", webhookId: "w-1" });
     expect(recordDeliveryResult).toHaveBeenCalledWith(
       expect.objectContaining({ status: "failed", lastError: expect.stringMatching(/blocked/) }),
     );
-    expect(fetchMock).not.toHaveBeenCalled();
     expect(enqueueJob).not.toHaveBeenCalled();
   });
 
@@ -117,7 +121,7 @@ describe("deliverOnce", () => {
       attempts: 1,
     });
     getWebhook.mockResolvedValue({ id: "w-1", url: "https://e.test/hook", secret: "a".repeat(64) });
-    fetchMock.mockRejectedValue(new Error("ECONNRESET"));
+    safeFetchMock.mockRejectedValue(new Error("ECONNRESET"));
     await deliverOnce({ deliveryId: "d-1", webhookId: "w-1" });
     expect(recordDeliveryResult).toHaveBeenCalledWith(
       expect.objectContaining({ status: "retrying" }),

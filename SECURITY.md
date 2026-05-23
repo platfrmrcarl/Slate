@@ -33,7 +33,7 @@ the full document. Brief summary:
 - Multi-tenant isolation (v2).
 - Runtime plugin / theme code execution sandboxing (v2; v1 uses
   compose-time install only).
-- DNS-rebinding-resistant SSRF (v1 has best-effort DNS-resolve guard).
+- — (DNS-rebinding-resistant SSRF: implemented in v1 via IP-pinned dial.)
 - Defense against compromised Cloud Run service account credentials.
 
 ## Security primitives in use
@@ -49,7 +49,9 @@ the full document. Brief summary:
 - **Webhook signing:** HMAC-SHA256 with timing-safe verify, 300s
   freshness window, versioned `v1=` prefix.
 - **Webhook SSRF guard:** rejects non-https schemes, literal private
-  IPs, and hostnames that DNS-resolve into private ranges.
+  IPs, and hostnames that DNS-resolve into private ranges. The resolved
+  IP is pinned for the subsequent socket connect (`https.request` with
+  a `lookup` override) so a hostile resolver can't rebind mid-request.
 - **Job auth:** `Authorization: Bearer ${INTERNAL_JOB_SECRET}` with
   timing-safe compare.
 - **Rate limiting:** Postgres token bucket on `/api/auth/*`,

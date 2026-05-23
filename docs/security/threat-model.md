@@ -115,6 +115,7 @@ enqueue, Anthropic API call) is governed by an explicit primitive.
 | Risk | Mitigation |
 |---|---|
 | SSRF via plugin-declared URL | Block non-https; reject literal private/loopback/metadata IPs; DNS-resolve hostnames and reject if any resolves to a blocked range |
+| DNS rebinding mid-request | `safeFetch` resolves once, then pins the resolved IP for the socket connect via `https.request`'s `lookup` override; TLS still validates against the original hostname (SNI). Hostile resolver cannot redirect the dial. |
 | Webhook secret leak | HMAC-SHA256 with 300s freshness window; versioned `v1=` prefix; timing-safe verify |
 | Unbounded retry storms | Exponential backoff capped at 24h; MAX_ATTEMPTS=12 then mark failed |
 
@@ -144,8 +145,7 @@ enqueue, Anthropic API call) is governed by an explicit primitive.
 
 | Risk | Why accepted |
 |---|---|
-| DNS-rebinding mid-request | Pinning the resolved IP requires rewriting fetch; out of scope for v1. SSRF guard still blocks the common single-request attacks. |
-| Admin CSP `'unsafe-inline'` | Next 16 inlines runtime scripts; per-request nonces deferred. Strict CSP scope limited to admin/auth routes. |
+| Admin CSP `style-src 'unsafe-inline'` | Tailwind 4 + CSS modules inject runtime `<style>` tags. `script-src` uses per-request nonce + `'strict-dynamic'`; styles will move to hash/nonce in a follow-up. |
 | Plugin in-process execution | v1 plugins are compose-time installs by the operator; runtime sandbox is a v2 deliverable. Operator must vet plugins before installing. |
 | No CAPTCHA on sign-up | Rate limit + email verification deemed sufficient for self-host scale. Add CAPTCHA when needed. |
 | `pages.translation_of_fk` and `posts.search_vector_tsv` missing from drizzle snapshot 0013 | Drizzle introspection blind spot; documented in `src/db/migrations/meta/README.md`. Doesn't affect runtime; only future `db:generate` needs hand-cleaning. |

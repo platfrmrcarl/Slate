@@ -2,17 +2,15 @@ import { promises as dns } from "node:dns";
 import net from "node:net";
 
 /**
- * Best-effort SSRF guard for outbound webhook delivery. Rejects:
+ * SSRF guard for outbound webhook delivery. Rejects:
  *   - non-https schemes
  *   - literal loopback / private / link-local / metadata IPs
  *   - hostnames that resolve to any of the above
  *
- * Caveat: this does NOT defend against DNS rebinding mid-request. Node's fetch
- * re-resolves the hostname when it dials, so a hostile resolver could return a
- * public IP at check time and a private IP at fetch time. Mitigating that
- * would require pinning the resolved IP and rewriting the request — out of
- * scope for v1. The guard still raises the bar considerably and blocks the
- * common "subscribe to http://169.254.169.254/" attacks.
+ * `resolveSafeIp` returns a single safe IP that callers should pin for the
+ * subsequent connect (see `safeFetch`) — pinning closes the DNS-rebinding
+ * window where a hostile resolver could return a public IP at check time
+ * and a private IP at fetch time.
  */
 export class SsrfError extends Error {
   constructor(message: string) {
@@ -22,6 +20,21 @@ export class SsrfError extends Error {
 }
 
 export async function assertUrlSafeForOutboundFetch(rawUrl: string): Promise<void> {
+  await resolveSafeIp(rawUrl);
+}
+
+export interface ResolvedSafe {
+  url: URL;
+  ip: string;
+  family: 4 | 6;
+}
+
+/**
+ * Validates the URL + resolves DNS + returns one safe IP from the resolved
+ * set. Callers must pin this IP for the subsequent socket connect so a
+ * hostile resolver can't rebind to a private IP between check and fetch.
+ */
+export async function resolveSafeIp(rawUrl: string): Promise<ResolvedSafe> {
   let url: URL;
   try {
     url = new URL(rawUrl);
@@ -32,20 +45,19 @@ export async function assertUrlSafeForOutboundFetch(rawUrl: string): Promise<voi
     throw new SsrfError(`scheme not allowed: ${url.protocol}`);
   }
 
-  // Reject literal blocked IPs in the hostname (skipping DNS).
-  if (net.isIP(url.hostname)) {
+  // Literal IP in the hostname — no DNS round-trip, no rebind window.
+  const literalFamily = net.isIP(url.hostname);
+  if (literalFamily) {
     if (isBlockedIp(url.hostname)) {
       throw new SsrfError(`blocked IP: ${url.hostname}`);
     }
-    return;
+    return { url, ip: url.hostname, family: literalFamily === 4 ? 4 : 6 };
   }
 
-  // Resolve all A / AAAA records and reject if ANY resolves into a blocked range.
   let addrs: Array<{ address: string; family: number }>;
   try {
     addrs = await dns.lookup(url.hostname, { all: true });
   } catch {
-    // If we can't resolve, fail closed.
     throw new SsrfError(`cannot resolve host: ${url.hostname}`);
   }
   for (const a of addrs) {
@@ -53,6 +65,9 @@ export async function assertUrlSafeForOutboundFetch(rawUrl: string): Promise<voi
       throw new SsrfError(`host resolves to blocked IP: ${a.address}`);
     }
   }
+  const first = addrs[0];
+  if (!first) throw new SsrfError(`no addresses for host: ${url.hostname}`);
+  return { url, ip: first.address, family: first.family === 6 ? 6 : 4 };
 }
 
 /**
