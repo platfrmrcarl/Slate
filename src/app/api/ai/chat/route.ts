@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireRole } from "@/auth/context";
 import { runChat, type ChatMessage } from "@/ai/chat/run";
 import { appendMessage, getOrCreateSession, historyFor } from "@/ai/chat/session";
+import { isOverBudget } from "@/ai/usage";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -22,6 +23,12 @@ export async function POST(req: Request): Promise<Response> {
   }
   const parsed = schema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "invalid input" }, { status: 400 });
+  if (await isOverBudget({ userId: user.id })) {
+    return NextResponse.json(
+      { error: "monthly AI token budget exceeded" },
+      { status: 429, headers: { "retry-after": "3600" } },
+    );
+  }
   const sessionInput: Parameters<typeof getOrCreateSession>[0] = { userId: user.id };
   if (parsed.data.sessionId !== undefined) sessionInput.sessionId = parsed.data.sessionId;
   if (parsed.data.contextRef !== undefined) sessionInput.contextRef = parsed.data.contextRef;

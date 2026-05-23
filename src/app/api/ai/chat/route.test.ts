@@ -14,6 +14,8 @@ vi.mock("@/ai/chat/session", () => ({
   appendMessage: (...a: unknown[]) => appendMessage(...a),
   historyFor: (...a: unknown[]) => historyFor(...a),
 }));
+const isOverBudget = vi.fn().mockResolvedValue(false);
+vi.mock("@/ai/usage", () => ({ isOverBudget: (...a: unknown[]) => isOverBudget(...a) }));
 
 const { POST } = await import("./route");
 
@@ -22,6 +24,8 @@ afterEach(() => {
   runChat.mockReset();
   getOrCreateSession.mockReset();
   appendMessage.mockClear();
+  isOverBudget.mockReset();
+  isOverBudget.mockResolvedValue(false);
 });
 
 function req(body: unknown): Request {
@@ -43,6 +47,16 @@ describe("POST /api/ai/chat", () => {
     requireRole.mockResolvedValue({ id: "u-1", role: "author" });
     const res = await POST(req({ message: "" }));
     expect(res.status).toBe(400);
+  });
+
+  it("returns 429 when monthly budget is exceeded", async () => {
+    requireRole.mockResolvedValue({ id: "u-1", role: "author" });
+    isOverBudget.mockResolvedValue(true);
+    const res = await POST(req({ message: "hi" }));
+    expect(res.status).toBe(429);
+    expect(res.headers.get("retry-after")).toBe("3600");
+    expect(getOrCreateSession).not.toHaveBeenCalled();
+    expect(runChat).not.toHaveBeenCalled();
   });
 
   it("creates a session, appends user + assistant, returns reply", async () => {
