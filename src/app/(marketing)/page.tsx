@@ -4,6 +4,7 @@ import LandingHero from "./_components/LandingHero";
 import FeaturePillars from "./_components/FeaturePillars";
 import ProductPeek from "./_components/ProductPeek";
 import AIDemo from "./_components/AIDemo";
+import StackStrip from "./_components/StackStrip";
 
 export const dynamic = "force-static";
 export const revalidate = false;
@@ -20,6 +21,7 @@ export default function MarketingHome() {
         <FeaturePillars />
         <ProductPeek />
         <AIDemo />
+        <StackStrip />
       </main>
     </>
   );
