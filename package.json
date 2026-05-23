@@ -40,6 +40,8 @@
     "@opentelemetry/semantic-conventions": "1.28",
     "@oslojs/crypto": "1",
     "@oslojs/encoding": "1",
+    "@react-email/components": "0.0.31",
+    "@react-email/render": "1.0.6",
     "arctic": "2",
     "drizzle-orm": "0.44",
     "fast-xml-parser": "4",
