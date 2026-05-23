@@ -30,7 +30,7 @@ landed. When the two diverge, this file is wrong — file a PR.
                      ▲
                      │ enqueue
        ┌─────────────┴──┐
-       │ Cloud Tasks    │   queues: slate-default, wpk-ai, wpk-exports
+       │ Cloud Tasks    │   queues: wpk-default, wpk-ai, wpk-exports
        └─────────────┬──┘
                      │ HTTPS POST + INTERNAL_JOB_SECRET
                      ▼
