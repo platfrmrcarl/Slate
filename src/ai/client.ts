@@ -1,6 +1,8 @@
 import type Anthropic from "@anthropic-ai/sdk";
+import type { MessageCreateParamsNonStreaming } from "@anthropic-ai/sdk/resources/messages";
 import { recordUsage } from "./usage";
 import { logger } from "@/lib/logger";
+import { isTextBlock, isToolUseBlock, type SdkMessage } from "./sdk-types";
 
 let cached: Anthropic | undefined;
 
@@ -11,6 +13,22 @@ async function client(): Promise<Anthropic> {
     cached = new Ctor({ apiKey: process.env.ANTHROPIC_API_KEY });
   }
   return cached;
+}
+
+/**
+ * Thin wrapper around `client.messages.create` that hides the SDK Message →
+ * narrow `SdkMessage` widening in one place. All adapters in `src/ai/*`
+ * should go through this rather than building their own client + cast.
+ *
+ * `SdkMessage` keeps the fields we actually read and uses an open-ended
+ * `SdkUnknownBlock` for content variants we don't render — so the SDK's
+ * concrete `Message` widens here with a single `as` assertion (no
+ * `as unknown as ...` round-trip).
+ */
+export async function createMessage(params: MessageCreateParamsNonStreaming): Promise<SdkMessage> {
+  const c = await client();
+  const res = await c.messages.create(params);
+  return res as SdkMessage;
 }
 
 export interface CacheableTextBlock {
@@ -42,29 +60,10 @@ export interface CallToolResult<T = unknown> {
   usage: { inputTokens: number; outputTokens: number; cacheReadTokens: number };
 }
 
-interface AnthropicUsage {
-  input_tokens: number;
-  output_tokens: number;
-  cache_read_input_tokens?: number | null;
-  cache_creation_input_tokens?: number | null;
-}
-
-interface AnthropicMessageResponse {
-  id: string;
-  content: Array<
-    | { type: "text"; text: string }
-    | { type: "tool_use"; id: string; name: string; input: unknown }
-    | { type: string; [k: string]: unknown }
-  >;
-  usage: AnthropicUsage;
-  stop_reason?: string;
-}
-
 export async function callTool<T = unknown>(input: CallToolInput): Promise<CallToolResult<T>> {
   const started = Date.now();
   try {
-    const c = await client();
-    const res = (await c.messages.create({
+    const res = await createMessage({
       model: input.model,
       max_tokens: input.maxTokens,
       system: input.system,
@@ -78,11 +77,8 @@ export async function callTool<T = unknown>(input: CallToolInput): Promise<CallT
       ],
       tool_choice: { type: "tool", name: input.tool.name },
       messages: [{ role: "user", content: input.user }],
-    })) as unknown as AnthropicMessageResponse;
-    const toolBlock = res.content.find(
-      (c2): c2 is { type: "tool_use"; id: string; name: string; input: unknown } =>
-        c2.type === "tool_use",
-    );
+    });
+    const toolBlock = res.content.find(isToolUseBlock);
     if (!toolBlock) throw new Error("model did not return a tool_use block");
     await recordUsage({
       userId: input.userId,
@@ -137,17 +133,13 @@ export interface CallTextResult {
 export async function callText(input: CallTextInput): Promise<CallTextResult> {
   const started = Date.now();
   try {
-    const c = await client();
-    const res = (await c.messages.create({
+    const res = await createMessage({
       model: input.model,
       max_tokens: input.maxTokens,
       system: input.system,
       messages: [{ role: "user", content: input.user }],
-    })) as unknown as AnthropicMessageResponse;
-    const text = res.content
-      .filter((b): b is { type: "text"; text: string } => b.type === "text")
-      .map((b) => b.text)
-      .join("\n");
+    });
+    const text = res.content.filter(isTextBlock).map((b) => b.text).join("\n");
     await recordUsage({
       userId: input.userId,
       feature: input.feature,

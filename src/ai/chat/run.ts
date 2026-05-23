@@ -1,18 +1,9 @@
-import type Anthropic from "@anthropic-ai/sdk";
 import { aiEnabled } from "@/ai/disabled";
+import { createMessage } from "@/ai/client";
 import { modelFor, MAX_TOKENS } from "@/ai/models";
+import { isTextBlock, isToolUseBlock } from "@/ai/sdk-types";
 import { recordUsage } from "@/ai/usage";
 import { chatTools, findTool } from "./tools";
-
-let cached: Anthropic | undefined;
-async function client(): Promise<Anthropic> {
-  if (!cached) {
-    const mod = await import("@anthropic-ai/sdk");
-    const Ctor = mod.default;
-    cached = new Ctor({ apiKey: process.env.ANTHROPIC_API_KEY });
-  }
-  return cached;
-}
 
 export interface ChatMessage {
   role: "user" | "assistant";
@@ -35,25 +26,6 @@ export interface RunResult {
 
 const MAX_TOOL_ROUNDS = 3;
 
-interface AnthropicContentBlock {
-  type: string;
-  text?: string;
-  id?: string;
-  name?: string;
-  input?: unknown;
-}
-
-interface AnthropicMessageResponse {
-  id: string;
-  content: AnthropicContentBlock[];
-  usage: {
-    input_tokens: number;
-    output_tokens: number;
-    cache_read_input_tokens?: number | null;
-  };
-  stop_reason?: string;
-}
-
 export async function runChat(input: RunInput): Promise<RunResult> {
   if (!aiEnabled()) return { reply: "AI is disabled.", toolCalls: [], disabled: true };
   const model = modelFor("chat");
@@ -71,8 +43,7 @@ export async function runChat(input: RunInput): Promise<RunResult> {
     let lastResponseId = "";
 
     for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
-      const c = await client();
-      const res = (await c.messages.create({
+      const res = await createMessage({
         model,
         max_tokens: MAX_TOKENS.chat,
         system: [
@@ -91,7 +62,7 @@ export async function runChat(input: RunInput): Promise<RunResult> {
           input_schema: input_schema as any,
         })),
         messages,
-      })) as unknown as AnthropicMessageResponse;
+      });
       lastResponseId = res.id;
       inputTokens += res.usage.input_tokens;
       outputTokens += res.usage.output_tokens;
@@ -100,7 +71,8 @@ export async function runChat(input: RunInput): Promise<RunResult> {
       const stopReason = res.stop_reason;
       if (stopReason !== "tool_use") {
         const reply = res.content
-          .filter((b): b is { type: "text"; text: string } => b.type === "text" && !!b.text)
+          .filter(isTextBlock)
+          .filter((b) => !!b.text)
           .map((b) => b.text)
           .join("\n");
         await recordUsage({
@@ -121,8 +93,8 @@ export async function runChat(input: RunInput): Promise<RunResult> {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const newToolResults: any[] = [];
       for (const block of res.content) {
-        if (block.type !== "tool_use") continue;
-        const tool = findTool(block.name!);
+        if (!isToolUseBlock(block)) continue;
+        const tool = findTool(block.name);
         let output: unknown;
         if (!tool) {
           output = { error: `unknown tool: ${block.name}` };
@@ -133,10 +105,10 @@ export async function runChat(input: RunInput): Promise<RunResult> {
             output = { error: err instanceof Error ? err.message : String(err) };
           }
         }
-        toolCalls.push({ name: block.name!, input: block.input, output });
+        toolCalls.push({ name: block.name, input: block.input, output });
         newToolResults.push({
           type: "tool_result",
-          tool_use_id: block.id!,
+          tool_use_id: block.id,
           content: JSON.stringify(output),
         });
       }
