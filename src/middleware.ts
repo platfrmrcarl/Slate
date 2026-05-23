@@ -223,4 +223,8 @@ export async function middleware(req: NextRequest): Promise<NextResponse> {
 
 export const config = {
   matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  // Next.js 16 defaults middleware to the Edge Runtime, which doesn't support
+  // node: imports. We use node:crypto for the per-request CSP nonce and pino
+  // transitively from the rate-limit module; opt into the Node.js runtime.
+  runtime: "nodejs",
 };
