@@ -19,7 +19,7 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx src/db/migrate.ts",
     "db:studio": "drizzle-kit studio",
-    "cli": "pnpm --filter @wpkiller/cli start --"
+    "cli": "pnpm --filter @slate/cli start --"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.98.0",
