@@ -7,6 +7,7 @@ import AIDemo from "./_components/AIDemo";
 import StackStrip from "./_components/StackStrip";
 import HowItWorks from "./_components/HowItWorks";
 import SignUpCTA from "./_components/SignUpCTA";
+import LandingFooter from "./_components/LandingFooter";
 
 export const dynamic = "force-static";
 export const revalidate = false;
@@ -27,6 +28,7 @@ export default function MarketingHome() {
         <HowItWorks />
         <SignUpCTA />
       </main>
+      <LandingFooter />
     </>
   );
 }
