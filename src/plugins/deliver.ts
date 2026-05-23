@@ -62,9 +62,9 @@ export async function deliverOnce(input: DeliverInput): Promise<void> {
       method: "POST",
       headers: {
         "content-type": "application/json",
-        "x-wpk-event": delivery.event,
-        "x-wpk-timestamp": String(ts),
-        "x-wpk-signature": `t=${ts},v1=${signature}`,
+        "x-slate-event": delivery.event,
+        "x-slate-timestamp": String(ts),
+        "x-slate-signature": `t=${ts},v1=${signature}`,
       },
       body,
     });

@@ -43,7 +43,7 @@ export async function discoverLocalPlugins(): Promise<LoadedPlugin[]> {
 }
 
 /**
- * Scan `node_modules/wpkiller-plugin-*` for manifest.json files. Returns
+ * Scan `node_modules/slate-plugin-*` for manifest.json files. Returns
  * an empty array when node_modules is unreadable or no matching packages
  * are installed.
  */
@@ -57,7 +57,7 @@ export async function discoverNpmPlugins(): Promise<LoadedPlugin[]> {
   }
   const out: LoadedPlugin[] = [];
   for (const name of entries) {
-    if (!name.startsWith("wpkiller-plugin-")) continue;
+    if (!name.startsWith("slate-plugin-")) continue;
     const root = path.join(modulesDir, name);
     const manifestPath = path.join(root, "manifest.json");
     let raw: string;

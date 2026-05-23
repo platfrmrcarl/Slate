@@ -4,7 +4,7 @@
 
 ### Renamed: WordPressKiller → Slate
 
-The product was renamed from WordPressKiller to Slate. This is a breaking change for any existing local or deployed instance. The renames below are everything that landed across Tasks 1–8 of the rename plan (`docs/superpowers/plans/2026-05-23-slate-rename.md`); identifiers still using `wpk-` / `wpkiller` are listed under **Deferred** at the end of this entry.
+The product was renamed from WordPressKiller to Slate. This is a breaking change for any existing local or deployed instance. The renames below are everything that landed across Tasks 1–9 of the rename plan (`docs/superpowers/plans/2026-05-23-slate-rename.md`); identifiers still using `wpk-` / `wpkiller` are listed under **Deferred** at the end of this entry.
 
 #### Authentication
 
@@ -84,9 +84,43 @@ Operator checklist before / after the apply:
 
 - `WordPressKiller.md` → `Slate.md` (file renamed, content updated; cross-references in `README.md`, `ARCHITECTURE.md`, `AUDIT.md`, `CONTRIBUTING.md`, `.dockerignore` likewise).
 
+#### CLI binary
+
+- The CLI binary was renamed from `wpkiller` to `slate`. Invoke the CLI as `slate <command>` (e.g. `slate setup`, `slate login`) — the old `wpkiller` binary no longer exists.
+- The bin shim file moved from `packages/cli/bin/wpkiller.mjs` to `packages/cli/bin/slate.mjs`, and the `bin` entry in `packages/cli/package.json` plus commander's `.name(...)` were updated to match.
+- **Credential file moved.** The CLI now reads and writes `~/.config/slate/credentials.json` instead of `~/.config/wpkiller/credentials.json`. Operators must move the file by hand on each workstation:
+  ```bash
+  mv ~/.config/wpkiller ~/.config/slate
+  ```
+  If the move is skipped, `slate` will prompt for `login` again — the token is otherwise unchanged.
+- User-facing error messages and `slate plugin install` example text were updated to reference the new binary name.
+
+#### Webhook delivery headers (wire-protocol break)
+
+- Outbound webhook HTTP header names changed:
+  - `x-wpk-event` → `x-slate-event`
+  - `x-wpk-timestamp` → `x-slate-timestamp`
+  - `x-wpk-signature` → `x-slate-signature`
+- External webhook receivers that verify the HMAC signature using the old header names **must** update their verifiers before this release deploys, otherwise every delivery will be rejected. The signature algorithm (`HMAC-SHA256` over `t=<ts>,v1=<sig>`) and the body format are unchanged — only the header keys differ.
+
+#### Preview JWT issuer (token break)
+
+- The preview-link JWT issuer claim changed from `wpk-preview` to `slate-preview` (`src/services/pages/preview.ts`).
+- Any preview links issued before the deploy will fail `jwtVerify(...)` and return 401/invalid. Re-share fresh preview links after the deploy; no schema change to `PREVIEW_TOKEN_SECRET` is required.
+
+#### OpenTelemetry service name
+
+- `instrumentation.ts` now sets `[ATTR_SERVICE_NAME] = "slate"` (was `"wpkiller"`); `src/lib/otel.ts` calls `metrics.getMeter("slate")` (was `"wpkiller"`).
+- **Dashboards and alert policies that filtered on `service.name = "wpkiller"` (or `metric.labels.service = "wpkiller"`) must be updated to `"slate"`** or they will go silent after deploy. The Terraform-managed alerts in `monitoring.tf` were already updated to `service_name = "slate"` as part of Task 7.
+
+#### Plugin discovery (npm naming convention)
+
+- The boot-time registry scan in `src/plugins/registry.ts` now matches `node_modules/slate-plugin-*` (was `wpkiller-plugin-*`).
+- Plugins shipped as npm packages must rename their package from `wpkiller-plugin-foo` to `slate-plugin-foo` (and bump version) to be discovered. Local plugins under `<repo>/plugins/*` are unaffected — they are discovered by directory walk, not by name pattern.
+
 ### Deferred — identifiers still using `wpk-` / `wpkiller`
 
-The following surfaces were intentionally left or missed by Tasks 1–8 and are **not** changed in this release. They are documented here so operators are not surprised and so follow-up work has a starting inventory.
+The following surfaces were intentionally left or missed by Tasks 1–9 and are **not** changed in this release. They are documented here so operators are not surprised and so follow-up work has a starting inventory.
 
 **Legacy exception (will not be renamed without a data migration):**
 
@@ -94,13 +128,9 @@ The following surfaces were intentionally left or missed by Tasks 1–8 and are 
 
 **Application-level identifiers still referencing the old brand:**
 
-- OpenTelemetry service name: `instrumentation.ts` sets `[ATTR_SERVICE_NAME]: "wpkiller"`; `src/lib/otel.ts` calls `metrics.getMeter("wpkiller")`.
-- Webhook delivery HTTP header names: `x-wpk-event`, `x-wpk-timestamp`, `x-wpk-signature` (`src/plugins/deliver.ts`) — wire-protocol contract with any deployed plugin receivers.
-- Plugin npm naming convention: `wpkiller-plugin-*` scanned at boot (`src/plugins/registry.ts`); admin UI text in `src/app/admin/plugins/page.tsx` and `src/app/admin/themes/install/page.tsx` still references `wpkiller`.
+- Plugin discovery admin UI text in `src/app/admin/plugins/page.tsx` and `src/app/admin/themes/install/page.tsx` still references `wpkiller` (the npm scan pattern itself is now `slate-plugin-*` — see above).
 - Editor CSS class prefix: `wpk-editor-block`, `wpk-editor-image`, `wpk-editor-gallery`, `wpk-editor-embed`, `wpk-editor-button` (`src/blocks/editor/schema.ts`).
-- Preview JWT issuer: `const ISSUER = "wpk-preview"` (`src/services/pages/preview.ts`).
 - Export object-path prefix: `exports/wpk-<timestamp>.zip` (`src/app/api/export/route.ts`, `src/app/api/cli/exports/route.ts`).
-- CLI bin name and credentials directory: `bin.wpkiller` in `packages/cli/package.json`, `.name("wpkiller")` in `packages/cli/src/index.ts`, `packages/cli/src/credentials.ts` writes to `~/.config/wpkiller/`, plus error-message text in `packages/cli/src/transport.ts` and `packages/cli/src/commands/plugin.ts`.
 - Doc references: `ARCHITECTURE.md`, `AUDIT.md`, `CONTRIBUTING.md`, `docs/security/threat-model.md`, and `Slate.md` (the spec body) still mention `wpkiller` in package/CLI/plugin contexts.
 - Historical implementation-plan documents under `docs/superpowers/plans/2026-05-22-*` and `2026-05-23-*` (other than the rename plan itself) retain the original `wpkiller` / `wpk-*` identifiers; those are historical artifacts and were not retroactively rewritten.
 - Many test fixtures still use legacy strings (e.g., `GCS_BUCKET_MEDIA=wpk-test-bucket`, `Bearer wpk_t` admin-token literals, `wpk-prod` GCP project IDs). These are inert in production but should be normalised in a follow-up sweep.

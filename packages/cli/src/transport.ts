@@ -25,7 +25,7 @@ async function resolveCreds(opts: TransportOpts): Promise<{ url: string; token: 
   const stored = await loadCredentials();
   if (stored) return stored;
   throw new Error(
-    "No remote credentials. Run `wpkiller login --url https://your-install` or set SLATE_URL + SLATE_TOKEN.",
+    "No remote credentials. Run `slate login --url https://your-install` or set SLATE_URL + SLATE_TOKEN.",
   );
 }
 

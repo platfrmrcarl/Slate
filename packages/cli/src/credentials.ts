@@ -12,7 +12,7 @@ function configHome(): string {
 }
 
 export async function credentialsPath(): Promise<string> {
-  return path.join(configHome(), "wpkiller", "credentials.json");
+  return path.join(configHome(), "slate", "credentials.json");
 }
 
 export async function saveCredentials(creds: Credentials): Promise<void> {
