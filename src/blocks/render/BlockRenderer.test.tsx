@@ -1,8 +1,23 @@
 /** @vitest-environment happy-dom */
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { renderToString } from "react-dom/server";
-import { BlockRenderer } from "./BlockRenderer";
 import type { Block } from "@/blocks/types";
+
+vi.mock("@/media/service", () => ({
+  getMediaById: vi.fn(async (id: string) => ({
+    id,
+    altText: `alt-${id}`,
+    width: 1200,
+    height: 800,
+    mimeType: "image/jpeg",
+  })),
+}));
+vi.mock("@/media/url", () => ({
+  imgUrl: (id: string, opts: { width?: number } = {}) =>
+    `https://cdn.test/api/img/${id}?w=${opts.width ?? 0}`,
+}));
+
+const { BlockRenderer } = await import("./BlockRenderer");
 
 async function html(blocks: Block[]): Promise<string> {
   const tree = await BlockRenderer({ blocks });
@@ -66,5 +81,21 @@ describe("BlockRenderer", () => {
     ]);
     expect(out).toContain('href="/x"');
     expect(out).toContain("Click");
+  });
+
+  it("renders an image block via the media service", async () => {
+    const out = await html([{ id: id("i1"), type: "image", mediaId: "m-1", size: "medium" }]);
+    expect(out).toContain("<figure");
+    expect(out).toContain("/api/img/m-1");
+    expect(out).toContain('alt="alt-m-1"');
+  });
+
+  it("renders a gallery block as a section with figures", async () => {
+    const out = await html([
+      { id: id("g1"), type: "gallery", mediaIds: ["m-1", "m-2"], layout: "grid" },
+    ]);
+    expect(out).toContain("<section");
+    expect(out).toContain("/api/img/m-1");
+    expect(out).toContain("/api/img/m-2");
   });
 });

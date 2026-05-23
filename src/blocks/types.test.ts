@@ -69,6 +69,43 @@ describe("Block parsing", () => {
     expect(BlockSchema.parse(b)).toEqual(b);
   });
 
+  it("parses an image with optional alt/caption/size", () => {
+    const b = withId({
+      type: "image",
+      mediaId: "m-1",
+      alt: "A photo",
+      caption: "Caption",
+      size: "medium",
+    });
+    expect(BlockSchema.parse(b)).toEqual(b);
+  });
+
+  it("parses an image with only required fields", () => {
+    const b = withId({ type: "image", mediaId: "m-1" });
+    expect(BlockSchema.parse(b)).toEqual(b);
+  });
+
+  it("rejects an image with invalid size", () => {
+    expect(() =>
+      BlockSchema.parse(withId({ type: "image", mediaId: "m-1", size: "huge" })),
+    ).toThrow();
+  });
+
+  it("parses a gallery with mediaIds and layout", () => {
+    const b = withId({
+      type: "gallery",
+      mediaIds: ["m-1", "m-2"],
+      layout: "grid",
+    });
+    expect(BlockSchema.parse(b)).toEqual(b);
+  });
+
+  it("rejects a gallery with invalid layout", () => {
+    expect(() =>
+      BlockSchema.parse(withId({ type: "gallery", mediaIds: ["m-1"], layout: "rainbow" })),
+    ).toThrow();
+  });
+
   it("rejects unknown block type", () => {
     expect(() => BlockSchema.parse(withId({ type: "mystery" }))).toThrow();
   });

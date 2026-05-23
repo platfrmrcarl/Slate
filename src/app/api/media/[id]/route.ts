@@ -25,8 +25,7 @@ export async function DELETE(
   const media = await getMediaById(id);
   if (!media) return NextResponse.json({ error: "not found" }, { status: 404 });
 
-  const isEditorOrAbove =
-    user.role === "editor" || user.role === "admin" || user.role === "owner";
+  const isEditorOrAbove = user.role === "editor" || user.role === "admin" || user.role === "owner";
   if (!isEditorOrAbove && media.uploadedBy !== user.id) {
     return NextResponse.json({ error: "forbidden" }, { status: 403 });
   }

@@ -64,6 +64,22 @@ const buttonSchema = z.object({
   variant: z.enum(["primary", "secondary", "ghost"]).default("primary"),
 });
 
+const imageSchema = z.object({
+  id,
+  type: z.literal("image"),
+  mediaId: z.string().min(1),
+  alt: z.string().optional(),
+  caption: z.string().optional(),
+  size: z.enum(["small", "medium", "full"]).optional(),
+});
+
+const gallerySchema = z.object({
+  id,
+  type: z.literal("gallery"),
+  mediaIds: z.array(z.string().min(1)),
+  layout: z.enum(["grid", "carousel", "masonry"]),
+});
+
 export const BlockSchema = z.discriminatedUnion("type", [
   headingSchema,
   paragraphSchema,
@@ -73,6 +89,8 @@ export const BlockSchema = z.discriminatedUnion("type", [
   dividerSchema,
   embedSchema,
   buttonSchema,
+  imageSchema,
+  gallerySchema,
 ]);
 
 export type Block = z.infer<typeof BlockSchema>;

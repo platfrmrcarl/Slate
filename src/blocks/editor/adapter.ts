@@ -87,6 +87,26 @@ export function toBlockNote(blocks: Block[]): BNBlock[] {
           type: "button",
           props: { label: b.label, href: b.href, variant: b.variant },
         };
+      case "image":
+        return {
+          id: b.id,
+          type: "image",
+          props: {
+            mediaId: b.mediaId,
+            alt: b.alt ?? "",
+            caption: b.caption ?? "",
+            size: b.size ?? "medium",
+          },
+        };
+      case "gallery":
+        return {
+          id: b.id,
+          type: "gallery",
+          props: {
+            mediaIds: b.mediaIds.join(","),
+            layout: b.layout,
+          },
+        };
     }
   });
 }
@@ -166,6 +186,43 @@ export function fromBlockNote(bn: BNBlock[]): Block[] {
           label: props?.label ?? "",
           href: props?.href ?? "",
           variant: props?.variant ?? "primary",
+        });
+        break;
+      }
+      case "image": {
+        const props = node.props as
+          | {
+              mediaId?: string;
+              alt?: string;
+              caption?: string;
+              size?: "small" | "medium" | "full";
+            }
+          | undefined;
+        const mediaId = props?.mediaId ?? "";
+        if (!mediaId) break;
+        out.push({
+          id,
+          type: "image",
+          mediaId,
+          ...(props?.alt ? { alt: props.alt } : {}),
+          ...(props?.caption ? { caption: props.caption } : {}),
+          ...(props?.size ? { size: props.size } : {}),
+        });
+        break;
+      }
+      case "gallery": {
+        const props = node.props as
+          | { mediaIds?: string; layout?: "grid" | "carousel" | "masonry" }
+          | undefined;
+        const mediaIds = (props?.mediaIds ?? "")
+          .split(",")
+          .map((s) => s.trim())
+          .filter((s) => s.length > 0);
+        out.push({
+          id,
+          type: "gallery",
+          mediaIds,
+          layout: props?.layout ?? "grid",
         });
         break;
       }

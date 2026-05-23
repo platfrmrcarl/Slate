@@ -1,4 +1,4 @@
-import { cloneElement, type ReactElement } from "react";
+import { cloneElement, Fragment, type ReactElement } from "react";
 import type { Block } from "@/blocks/types";
 import { Heading } from "./blocks/Heading";
 import { Paragraph } from "./blocks/Paragraph";
@@ -8,6 +8,8 @@ import { Code } from "./blocks/Code";
 import { Divider } from "./blocks/Divider";
 import { Embed } from "./blocks/Embed";
 import { Button } from "./blocks/Button";
+import { ImageBlock } from "./blocks/Image";
+import { GalleryBlock } from "./blocks/Gallery";
 
 export async function BlockRenderer({ blocks }: { blocks: Block[] }) {
   return <>{await Promise.all(blocks.map((b) => renderOne(b)))}</>;
@@ -34,6 +36,10 @@ async function renderOne(block: Block): Promise<ReactElement> {
       return withKey(Embed({ block }), block.id);
     case "button":
       return withKey(Button({ block }), block.id);
+    case "image":
+      return withKey((await ImageBlock({ block })) ?? <Fragment />, block.id);
+    case "gallery":
+      return withKey((await GalleryBlock({ block })) ?? <Fragment />, block.id);
   }
 }
 
