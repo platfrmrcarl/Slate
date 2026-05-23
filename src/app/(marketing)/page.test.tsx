@@ -27,8 +27,9 @@ describe("MarketingHome", () => {
 
   it("renders the hero when SLATE_MARKETING_HOME=1", () => {
     process.env.SLATE_MARKETING_HOME = "1";
-    const { getByText } = render(<MarketingHome />);
+    const { getByText, getAllByText } = render(<MarketingHome />);
     expect(getByText(/should have been/)).toBeTruthy();
-    expect(getByText("Start free →")).toBeTruthy();
+    // The hero CTA and the bottom sign-up CTA both render "Start free →".
+    expect(getAllByText("Start free →").length).toBeGreaterThan(0);
   });
 });

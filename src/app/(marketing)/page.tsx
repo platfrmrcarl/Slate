@@ -6,6 +6,7 @@ import ProductPeek from "./_components/ProductPeek";
 import AIDemo from "./_components/AIDemo";
 import StackStrip from "./_components/StackStrip";
 import HowItWorks from "./_components/HowItWorks";
+import SignUpCTA from "./_components/SignUpCTA";
 
 export const dynamic = "force-static";
 export const revalidate = false;
@@ -24,6 +25,7 @@ export default function MarketingHome() {
         <AIDemo />
         <StackStrip />
         <HowItWorks />
+        <SignUpCTA />
       </main>
     </>
   );
