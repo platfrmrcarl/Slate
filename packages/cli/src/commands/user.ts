@@ -30,8 +30,11 @@ export function userCommand(opts: TransportOpts): Command {
           console.log(pc.green(`Created user ${id}`));
         } else {
           await localRun(async () => {
-            const { createUser } = await import("../../../../src/auth/users");
-            const u = await createUser(payload as never);
+            const usersPath = "../../../../src/auth/users";
+            const mod = (await import(usersPath)) as {
+              createUser: (input: typeof payload) => Promise<{ id: string }>;
+            };
+            const u = await mod.createUser(payload);
             console.log(pc.green(`Created user ${u.id}`));
           });
         }

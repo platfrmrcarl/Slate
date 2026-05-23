@@ -37,14 +37,15 @@ export async function remoteRequest<T>(
 ): Promise<T> {
   const creds = await resolveCreds(opts);
   const url = creds.url.replace(/\/$/, "") + path;
-  const res = await fetch(url, {
+  const init: RequestInit = {
     method,
     headers: {
       "content-type": "application/json",
       authorization: `Bearer ${creds.token}`,
     },
-    body: body === undefined ? undefined : JSON.stringify(body),
-  });
+  };
+  if (body !== undefined) init.body = JSON.stringify(body);
+  const res = await fetch(url, init);
   if (!res.ok) {
     const text = await res.text();
     throw new Error(`request failed (${res.status}): ${text}`);
