@@ -1,6 +1,8 @@
 "use client";
 
 import { Suspense, useActionState, useEffect } from "react";
+import type { Route } from "next";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { verifyEmailAction } from "@/app/actions/auth";
 
@@ -30,9 +32,9 @@ function VerifyEmailInner() {
       <main className="mx-auto mt-20 max-w-md p-6">
         <h1 className="mb-4 text-2xl font-bold">Email verified</h1>
         <p>You&apos;re all set.</p>
-        <a className="mt-3 inline-block underline" href="/">
+        <Link className="mt-3 inline-block underline" href={"/" as Route}>
           Continue
-        </a>
+        </Link>
       </main>
     );
   }
@@ -41,9 +43,9 @@ function VerifyEmailInner() {
       <main className="mx-auto mt-20 max-w-md p-6">
         <h1 className="mb-4 text-2xl font-bold">Verification failed</h1>
         <p className="text-sm text-red-700">{state.error}</p>
-        <a className="mt-3 inline-block underline" href="/admin/profile">
+        <Link className="mt-3 inline-block underline" href={"/admin/profile" as Route}>
           Resend verification email
-        </a>
+        </Link>
       </main>
     );
   }

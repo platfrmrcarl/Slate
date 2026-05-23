@@ -1,8 +1,14 @@
 import type { Route } from "next";
+import Link from "next/link";
 import { requireUser } from "@/auth/context";
 import { requestEmailVerificationAction } from "@/app/actions/auth";
 
 export const dynamic = "force-dynamic";
+
+async function resendVerificationFormAction(formData: FormData): Promise<void> {
+  "use server";
+  await requestEmailVerificationAction(undefined, formData);
+}
 
 export default async function ProfilePage() {
   const user = await requireUser();
@@ -29,7 +35,7 @@ export default async function ProfilePage() {
         <dd>{user.role}</dd>
       </dl>
       {!user.emailVerifiedAt && (
-        <form action={requestEmailVerificationAction.bind(null, undefined)} className="mt-6">
+        <form action={resendVerificationFormAction} className="mt-6">
           <input type="hidden" name="email" value={user.email} />
           <button className="rounded bg-black px-3 py-1.5 text-sm text-white">
             Send verification email
@@ -37,9 +43,9 @@ export default async function ProfilePage() {
         </form>
       )}
       <p className="mt-8 text-sm">
-        <a className="underline" href={"/forgot-password" as Route}>
+        <Link className="underline" href={"/forgot-password" as Route}>
           Change password
-        </a>
+        </Link>
       </p>
     </main>
   );

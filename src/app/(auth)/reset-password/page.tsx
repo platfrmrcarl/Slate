@@ -1,6 +1,8 @@
 "use client";
 
 import { Suspense, useActionState } from "react";
+import type { Route } from "next";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { resetPasswordAction } from "@/app/actions/auth";
 
@@ -21,9 +23,9 @@ function ResetPasswordForm() {
       <main className="mx-auto mt-20 max-w-md p-6">
         <h1 className="mb-4 text-2xl font-bold">Password updated</h1>
         <p>You can now sign in with your new password.</p>
-        <a className="mt-3 inline-block underline" href="/sign-in">
+        <Link className="mt-3 inline-block underline" href={"/sign-in" as Route}>
           Sign in
-        </a>
+        </Link>
       </main>
     );
   }
