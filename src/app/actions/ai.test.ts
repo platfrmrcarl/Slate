@@ -22,10 +22,18 @@ vi.mock("@/ai/features/translate", () => ({
 vi.mock("@/ai/features/seo-meta", () => ({
   generateSeoMeta: (...a: unknown[]) => generateSeoMeta(...a),
 }));
+const enqueueJob = vi.fn();
+vi.mock("@/jobs/enqueue", () => ({
+  enqueueJob: (...a: unknown[]) => enqueueJob(...a),
+}));
 
-const { generatePageAction, rewriteAction, translateAction, autoSeoAction } = await import(
-  "./ai"
-);
+const {
+  generatePageAction,
+  rewriteAction,
+  translateAction,
+  autoSeoAction,
+  requestMediaAltTextAction,
+} = await import("./ai");
 
 afterEach(() => {
   requireRole.mockReset();
@@ -35,6 +43,7 @@ afterEach(() => {
   rewrite.mockReset();
   translateBlocks.mockReset();
   generateSeoMeta.mockReset();
+  enqueueJob.mockReset();
 });
 
 function fd(o: Record<string, string>) {
@@ -124,5 +133,38 @@ describe("autoSeoAction", () => {
     );
     expect(r.seoTitle).toBe("T");
     expect(r.seoDescription).toBe("D");
+  });
+});
+
+describe("requestMediaAltTextAction", () => {
+  it("rejects unauthenticated users", async () => {
+    requireRole.mockRejectedValue(new (class extends Error {})());
+    const r = await requestMediaAltTextAction("00000000-0000-0000-0000-000000000001");
+    expect(r.error).toBeDefined();
+    expect(enqueueJob).not.toHaveBeenCalled();
+  });
+
+  it("rejects invalid uuid", async () => {
+    requireRole.mockResolvedValue({ id: "u-1" });
+    const r = await requestMediaAltTextAction("not-a-uuid");
+    expect(r.error).toMatch(/invalid/i);
+    expect(enqueueJob).not.toHaveBeenCalled();
+  });
+
+  it("enqueues media-alt-text job and returns queued=true", async () => {
+    requireRole.mockResolvedValue({ id: "u-1" });
+    enqueueJob.mockResolvedValue(undefined);
+    const mediaId = "00000000-0000-0000-0000-000000000001";
+    const r = await requestMediaAltTextAction(mediaId);
+    expect(r.ok).toBe(true);
+    expect(r.queued).toBe(true);
+    expect(enqueueJob).toHaveBeenCalledWith("media-alt-text", { mediaId });
+  });
+
+  it("surfaces enqueue errors as a friendly message", async () => {
+    requireRole.mockResolvedValue({ id: "u-1" });
+    enqueueJob.mockRejectedValue(new Error("boom"));
+    const r = await requestMediaAltTextAction("00000000-0000-0000-0000-000000000001");
+    expect(r.error).toMatch(/enqueue/i);
   });
 });

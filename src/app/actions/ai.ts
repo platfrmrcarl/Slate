@@ -7,6 +7,7 @@ import { generatePage } from "@/ai/features/generate-page";
 import { rewrite } from "@/ai/features/rewrite";
 import { translateBlocks } from "@/ai/features/translate";
 import { generateSeoMeta } from "@/ai/features/seo-meta";
+import { enqueueJob } from "@/jobs/enqueue";
 
 export interface ActionResult {
   ok?: boolean;
@@ -15,6 +16,7 @@ export interface ActionResult {
   result?: string;
   seoTitle?: string;
   seoDescription?: string;
+  queued?: boolean;
 }
 
 type GuardResult = { ok: true; user: { id: string } } | { ok: false; error: string };
@@ -162,4 +164,27 @@ export async function autoSeoAction(
   if (r.kind === "disabled") return { error: "AI is disabled" };
   if (r.kind === "error") return { error: r.message };
   return { ok: true, seoTitle: r.seoTitle, seoDescription: r.seoDescription };
+}
+
+const mediaAltSchema = z.object({ mediaId: z.string().uuid() });
+
+/**
+ * Enqueue the media-alt-text background job for the given media id.
+ * The action returns immediately; the job updates `media.altText` when done.
+ *
+ * Note: we do not pre-check AI configuration here — the job itself reports
+ * "disabled" when ANTHROPIC_API_KEY is missing and simply no-ops. The UI can
+ * still poll/reload to see whether alt text appeared.
+ */
+export async function requestMediaAltTextAction(mediaId: string): Promise<ActionResult> {
+  const g = await guard();
+  if (!g.ok) return { error: g.error };
+  const parsed = mediaAltSchema.safeParse({ mediaId });
+  if (!parsed.success) return { error: "Invalid input" };
+  try {
+    await enqueueJob("media-alt-text", { mediaId: parsed.data.mediaId });
+  } catch {
+    return { error: "Could not enqueue job" };
+  }
+  return { ok: true, queued: true };
 }
