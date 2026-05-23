@@ -39,6 +39,7 @@
     "mime-types": "^3.0.2",
     "nanoid": "5",
     "next": "16.2.6",
+    "parse5": "7",
     "pino": "9",
     "postgres": "3.4",
     "react": "19.2.6",
