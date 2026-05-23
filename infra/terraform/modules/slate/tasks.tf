@@ -1,12 +1,12 @@
 locals {
   queues = [
-    "wpk-revalidate",
-    "wpk-media",
-    "wpk-ai",
-    "wpk-email",
-    "wpk-webhooks",
-    "wpk-imports",
-    "wpk-exports",
+    "slate-revalidate",
+    "slate-media",
+    "slate-ai",
+    "slate-email",
+    "slate-webhooks",
+    "slate-imports",
+    "slate-exports",
   ]
 }
 

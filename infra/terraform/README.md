@@ -18,13 +18,13 @@ One-command provision of every GCP resource the app needs.
 cd infra/terraform
 terraform init \
   -backend-config="bucket=$YOUR_PROJECT-tfstate" \
-  -backend-config="prefix=wpkiller"
+  -backend-config="prefix=slate"
 
 terraform apply \
   -var="project_id=$GCP_PROJECT" \
   -var="domain=$DOMAIN" \
-  -var="app_image=us-central1-docker.pkg.dev/$GCP_PROJECT/wpk/wpk:initial" \
-  -var="migration_image=us-central1-docker.pkg.dev/$GCP_PROJECT/wpk/wpk-migration:initial" \
+  -var="app_image=us-central1-docker.pkg.dev/$GCP_PROJECT/slate/wpk:initial" \
+  -var="migration_image=us-central1-docker.pkg.dev/$GCP_PROJECT/slate/wpk-migration:initial" \
   -var="auth_secret=$(openssl rand -hex 32)" \
   -var="anthropic_api_key=$ANTHROPIC_KEY" \
   -var="resend_api_key=$RESEND_KEY"
@@ -48,8 +48,8 @@ Point your A record at `terraform output lb_ip`. Google-managed SSL takes
 - GCS buckets for media and themes (versioned)
 - Cloud Tasks queues for revalidate / media / ai / email / webhooks / imports / exports
 - Secret Manager secrets for DB URL, auth secret, AI / Resend / OAuth keys
-- Service accounts: `wpk-runtime` (the app) and `wpk-tasks-invoker` (OIDC
+- Service accounts: `slate-runtime` (the app) and `slate-tasks-invoker` (OIDC
   caller of `/api/jobs/*` endpoints)
 - Cloud Monitoring uptime check + alert policies (error rate, p99 latency,
   DB connection saturation)
-- Artifact Registry repo (`wpk`) and Cloud Build trigger on `main`
+- Artifact Registry repo (`slate`) and Cloud Build trigger on `main`

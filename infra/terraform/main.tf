@@ -12,7 +12,7 @@ terraform {
   }
   backend "gcs" {
     # bucket = "your-project-tfstate"
-    # prefix = "wpkiller"
+    # prefix = "slate"
   }
 }
 
@@ -21,8 +21,8 @@ provider "google" {
   region  = var.region
 }
 
-module "wpkiller" {
-  source            = "./modules/wpkiller"
+module "slate" {
+  source            = "./modules/slate"
   project_id        = var.project_id
   region            = var.region
   domain            = var.domain

@@ -1,6 +1,6 @@
-resource "google_artifact_registry_repository" "wpk" {
+resource "google_artifact_registry_repository" "slate" {
   location      = var.region
-  repository_id = "wpk"
+  repository_id = "slate"
   format        = "DOCKER"
 }
 
@@ -11,7 +11,7 @@ resource "google_cloudbuild_trigger" "main" {
 
   trigger_template {
     branch_name = "^main$"
-    repo_name   = "wpkiller"
+    repo_name   = "slate"
   }
 
   substitutions = {

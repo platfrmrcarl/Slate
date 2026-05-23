@@ -30,7 +30,7 @@ landed. When the two diverge, this file is wrong — file a PR.
                      ▲
                      │ enqueue
        ┌─────────────┴──┐
-       │ Cloud Tasks    │   queues: wpk-default, wpk-ai, wpk-exports
+       │ Cloud Tasks    │   queues: slate-default, slate-ai, slate-exports
        └─────────────┬──┘
                      │ HTTPS POST + INTERNAL_JOB_SECRET
                      ▼
@@ -172,7 +172,7 @@ Postgres-backed token bucket (`src/lib/rate-limit.ts`). Applied by
 `cloudbuild.yaml` chains: install → lint+test+next-build (parallel) →
 two Docker builds (runtime + migration) → push → run migration job →
 deploy revision. Cloud Run ingress is owned by Terraform
-(`infra/terraform/modules/wpkiller/cloudrun.tf`); the deploy step
+(`infra/terraform/modules/slate/cloudrun.tf`); the deploy step
 **must not** pass `--allow-unauthenticated` (would silently flip
 ingress to public on every push).
 

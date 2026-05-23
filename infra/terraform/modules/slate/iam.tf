@@ -1,10 +1,10 @@
 resource "google_service_account" "runtime" {
-  account_id   = "wpk-runtime"
+  account_id   = "slate-runtime"
   display_name = "Slate runtime SA"
 }
 
 resource "google_service_account" "tasks_invoker" {
-  account_id   = "wpk-tasks-invoker"
+  account_id   = "slate-tasks-invoker"
   display_name = "Slate Cloud Tasks invoker"
 }
 
