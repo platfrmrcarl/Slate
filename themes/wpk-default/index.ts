@@ -13,7 +13,7 @@ import type { ThemeManifest } from "@/themes/manifest";
 
 export const themeManifest = manifest as unknown as ThemeManifest;
 
-export default {
+const wpkDefault = {
   manifest: themeManifest,
   Layout,
   primitives: { Heading, Paragraph, Button, Hero, Image },
@@ -24,3 +24,5 @@ export default {
     home: HomeTemplate,
   },
 };
+
+export default wpkDefault;

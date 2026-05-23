@@ -29,9 +29,9 @@ export async function getActiveTheme(): Promise<ActiveTheme | null> {
     return null;
   }
   const manifest = themeManifestSchema.parse(theme.manifest);
-  const module = await resolveThemeModule(theme.slug);
+  const themeModule = await resolveThemeModule(theme.slug);
   const tokens = mergeCustomization(manifest, row.customization as CustomizationValues);
-  const value: ActiveTheme = { themeId: theme.id, slug: theme.slug, module, tokens };
+  const value: ActiveTheme = { themeId: theme.id, slug: theme.slug, module: themeModule, tokens };
   cached = { value, expiresAt: Date.now() + TTL_MS };
   return value;
 }
