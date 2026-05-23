@@ -36,6 +36,7 @@ steps:
     name: gcr.io/cloud-builders/docker
     args:
       - build
+      - "--target=runner"
       - "--tag=${_AR_HOST}/${PROJECT_ID}/${_AR_REPO}/wpk:${SHORT_SHA}"
       - "--tag=${_AR_HOST}/${PROJECT_ID}/${_AR_REPO}/wpk:latest"
       - "."
@@ -49,9 +50,63 @@ steps:
       - "${_AR_HOST}/${PROJECT_ID}/${_AR_REPO}/wpk"
     waitFor: ["build-image"]
 
+  - id: build-migration-image
+    name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - "--target=migration"
+      - "--tag=${_AR_HOST}/${PROJECT_ID}/${_AR_REPO}/wpk-migration:${SHORT_SHA}"
+      - "."
+    waitFor: ["lint", "test"]
+
+  - id: push-migration-image
+    name: gcr.io/cloud-builders/docker
+    args:
+      - push
+      - "${_AR_HOST}/${PROJECT_ID}/${_AR_REPO}/wpk-migration:${SHORT_SHA}"
+    waitFor: ["build-migration-image"]
+
+  - id: run-migration
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+    entrypoint: bash
+    args:
+      - -lc
+      - |
+        gcloud run jobs deploy wpk-migrate \
+          --image=${_AR_HOST}/${PROJECT_ID}/${_AR_REPO}/wpk-migration:${SHORT_SHA} \
+          --region=${_REGION} \
+          --set-secrets=DATABASE_URL=DATABASE_URL:latest \
+          --service-account=wpk-runtime@${PROJECT_ID}.iam.gserviceaccount.com \
+          --max-retries=0 \
+          --quiet
+        gcloud run jobs execute wpk-migrate --region=${_REGION} --wait --quiet
+    waitFor: ["push-migration-image", "push-image"]
+
+  - id: deploy
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+    entrypoint: bash
+    args:
+      - -lc
+      - |
+        gcloud run deploy wpk \
+          --image=${_AR_HOST}/${PROJECT_ID}/${_AR_REPO}/wpk:${SHORT_SHA} \
+          --region=${_REGION} \
+          --service-account=wpk-runtime@${PROJECT_ID}.iam.gserviceaccount.com \
+          --min-instances=0 \
+          --max-instances=10 \
+          --cpu=1 \
+          --memory=1Gi \
+          --port=8080 \
+          --allow-unauthenticated \
+          --set-env-vars=NODE_ENV=production,LOG_LEVEL=info,OTEL_ENABLED=true,GCP_PROJECT_ID=${PROJECT_ID},GCP_REGION=${_REGION} \
+          --set-secrets=DATABASE_URL=DATABASE_URL:latest,AUTH_SECRET=AUTH_SECRET:latest,ANTHROPIC_API_KEY=ANTHROPIC_API_KEY:latest,RESEND_API_KEY=RESEND_API_KEY:latest,GOOGLE_OAUTH_CLIENT_ID=GOOGLE_OAUTH_CLIENT_ID:latest,GOOGLE_OAUTH_CLIENT_SECRET=GOOGLE_OAUTH_CLIENT_SECRET:latest,GITHUB_OAUTH_CLIENT_ID=GITHUB_OAUTH_CLIENT_ID:latest,GITHUB_OAUTH_CLIENT_SECRET=GITHUB_OAUTH_CLIENT_SECRET:latest \
+          --quiet
+    waitFor: ["run-migration"]
+
 substitutions:
   _AR_HOST: us-central1-docker.pkg.dev
   _AR_REPO: wpk
+  _REGION: us-central1
 
 options:
   machineType: E2_HIGHCPU_8
