@@ -24,6 +24,15 @@ export function CommentForm({ postId }: { postId: string }): React.ReactElement 
   return (
     <form action={action} className="mt-6 space-y-2">
       <input type="hidden" name="postId" value={postId} />
+      {/* Honeypot: hidden from humans, irresistible to bots. */}
+      <input
+        type="text"
+        name="website"
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden="true"
+        className="absolute left-[-9999px] h-0 w-0 opacity-0"
+      />
       <div className="grid grid-cols-2 gap-2">
         <input
           name="authorName"

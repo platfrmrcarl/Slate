@@ -23,6 +23,8 @@ vi.mock("next/cache", () => ({ revalidatePath: (...a: unknown[]) => revalidatePa
 vi.mock("next/headers", () => ({
   headers: async () => new Map<string, string>(),
 }));
+const take = vi.fn().mockResolvedValue({ ok: true, remaining: 19 });
+vi.mock("@/lib/rate-limit", () => ({ take: (...a: unknown[]) => take(...a) }));
 
 const { submitCommentAction, approveCommentAction } = await import("./comments");
 
@@ -34,6 +36,8 @@ afterEach(() => {
   deleteComment.mockReset();
   enqueueJob.mockReset();
   revalidatePath.mockReset();
+  take.mockReset();
+  take.mockResolvedValue({ ok: true, remaining: 19 });
 });
 
 function fd(o: Record<string, string>) {
@@ -86,6 +90,38 @@ describe("submitCommentAction", () => {
       }),
     );
     expect(r.error).toBeDefined();
+  });
+
+  it("drops honeypot submissions silently and never creates a comment", async () => {
+    const r = await submitCommentAction(
+      undefined,
+      fd({
+        postId: "11111111-1111-1111-1111-111111111111",
+        authorName: "A",
+        authorEmail: "a@e.com",
+        body: "hi",
+        website: "http://spam.example",
+      }),
+    );
+    expect(r.ok).toBe(true);
+    expect(createComment).not.toHaveBeenCalled();
+    expect(take).not.toHaveBeenCalled();
+  });
+
+  it("returns a throttle error when the rate-limit bucket is empty", async () => {
+    getOptionalUser.mockResolvedValue(null);
+    take.mockResolvedValue({ ok: false, remaining: 0 });
+    const r = await submitCommentAction(
+      undefined,
+      fd({
+        postId: "11111111-1111-1111-1111-111111111111",
+        authorName: "A",
+        authorEmail: "a@e.com",
+        body: "hi",
+      }),
+    );
+    expect(r.error).toMatch(/too many|slow down/i);
+    expect(createComment).not.toHaveBeenCalled();
   });
 });
 
