@@ -36,6 +36,7 @@
     "feed": "4",
     "file-type": "^22.0.1",
     "jose": "5",
+    "mdast-util-to-markdown": "2",
     "mime-types": "^3.0.2",
     "nanoid": "5",
     "next": "16.2.6",
