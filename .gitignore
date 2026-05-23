@@ -33,6 +33,9 @@ pnpm-debug.log*
 coverage
 .vitest
 
+# TypeScript incremental build info
+*.tsbuildinfo
+
 # Drizzle
 src/db/migrations/meta
 
