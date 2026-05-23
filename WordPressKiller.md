@@ -32,7 +32,7 @@ WordPressKiller is a from-scratch reimplementation of that compounding triad on 
 
 ### 1.4 Non-Goals
 
-- **No PHP compatibility.** Existing WordPress themes and plugins will not run. Migration is for *content*, not code.
+- **No PHP compatibility.** Existing WordPress themes and plugins will not run. Migration is for _content_, not code.
 - **No drop-in WordPress replacement.** Custom URL structures, post types, and integrations require porting work.
 - **No hosted SaaS in v1.** Self-host only. v2 adds the SaaS layer.
 - **No visual page builder in v1.** Blocks have structured layouts; freeform drag-and-drop is v2+.
@@ -41,36 +41,36 @@ WordPressKiller is a from-scratch reimplementation of that compounding triad on 
 
 ## 2. Phased Roadmap
 
-| Phase | Scope | Audience |
-|---|---|---|
-| **v1.0 — Self-hosted** | Single-site, single-tenant Cloud Run deployment. All sections of this spec marked "v1" are in scope. | Developers, agencies running client sites, technical bloggers. |
-| **v1.x — Polish** | Performance hardening, more themes, more importers (Notion, Medium, Substack), better AI prompts, plugin manifest extensions. | Same as v1. |
-| **v2.0 — Multi-tenant SaaS** | One install hosts many sites. Tenant routing by domain. Per-tenant billing via Stripe. Control plane separates from data plane. | Hosters, platform companies. |
-| **v2.x — Marketplace** | Plugin marketplace with sandboxed runtime install. Theme marketplace. Revenue share. | Plugin/theme developers. |
+| Phase                        | Scope                                                                                                                           | Audience                                                       |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| **v1.0 — Self-hosted**       | Single-site, single-tenant Cloud Run deployment. All sections of this spec marked "v1" are in scope.                            | Developers, agencies running client sites, technical bloggers. |
+| **v1.x — Polish**            | Performance hardening, more themes, more importers (Notion, Medium, Substack), better AI prompts, plugin manifest extensions.   | Same as v1.                                                    |
+| **v2.0 — Multi-tenant SaaS** | One install hosts many sites. Tenant routing by domain. Per-tenant billing via Stripe. Control plane separates from data plane. | Hosters, platform companies.                                   |
+| **v2.x — Marketplace**       | Plugin marketplace with sandboxed runtime install. Theme marketplace. Revenue share.                                            | Plugin/theme developers.                                       |
 
 ---
 
 ## 3. Technology Stack
 
-| Layer | Choice | Rationale |
-|---|---|---|
-| **Framework** | Next.js 16 (App Router) | Server Components reduce bundle size; Server Actions simplify forms; ISR + on-demand revalidation match CMS publishing patterns; Cloud Run friendly. |
-| **Language** | TypeScript 5.x | End-to-end type safety from DB schema to React components. |
-| **ORM** | Drizzle ORM | Type-safe SQL, zero runtime overhead, first-class Postgres, no decorators, migrations as plain SQL files. |
-| **Database** | PostgreSQL 16 (Cloud SQL) | Mature, `jsonb` for block storage, `tsvector` for full-text search, row-level security for v2 multi-tenancy. |
-| **Editor** | BlockNote | Block-first React editor, Notion-like UX, native JSON schema, markdown round-trip support, extensible block types. |
-| **Auth** | Lucia v3 | Sessions in Postgres, no opaque magic, works with Drizzle adapter, supports OAuth via Arctic. |
-| **AI** | Anthropic Claude API | Claude Sonnet 4.6 for general use, Claude Opus 4.7 for full-page generation. Structured output (tool use) for block generation. Prompt caching for theme/schema context. |
-| **Styling (admin)** | Tailwind CSS + shadcn/ui | Standard 2026 admin-UI stack; component primitives we own. |
-| **Styling (public)** | Theme-provided | Themes ship their own Tailwind config + components. |
-| **Email** | Resend | Simple API, good deliverability, React Email templates. |
-| **Background jobs** | Cloud Tasks → Cloud Run job endpoints | No always-on worker needed; auth via OIDC; pay-per-execution. |
-| **Image processing** | `sharp` at request-time behind Cloud CDN | No pre-generated derivative explosion; CDN caches transformed variants. |
-| **Search** | Postgres `tsvector` + `pg_trgm` (v1); plugin slot for Algolia/Typesense (v2) | Good-enough out of the box, room to upgrade. |
-| **Observability** | OpenTelemetry → Cloud Trace + Cloud Logging + Cloud Monitoring | GCP-native, no third-party vendor required. |
-| **Runtime** | Node 22 LTS in distroless container | Reproducible, small attack surface. |
-| **Build & CI/CD** | Cloud Build + Artifact Registry | GitHub trigger → Docker build → push → deploy to Cloud Run. |
-| **IaC** | Terraform | One module provisions all GCP resources for a fresh install. |
+| Layer                | Choice                                                                       | Rationale                                                                                                                                                                |
+| -------------------- | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Framework**        | Next.js 16 (App Router)                                                      | Server Components reduce bundle size; Server Actions simplify forms; ISR + on-demand revalidation match CMS publishing patterns; Cloud Run friendly.                     |
+| **Language**         | TypeScript 5.x                                                               | End-to-end type safety from DB schema to React components.                                                                                                               |
+| **ORM**              | Drizzle ORM                                                                  | Type-safe SQL, zero runtime overhead, first-class Postgres, no decorators, migrations as plain SQL files.                                                                |
+| **Database**         | PostgreSQL 16 (Cloud SQL)                                                    | Mature, `jsonb` for block storage, `tsvector` for full-text search, row-level security for v2 multi-tenancy.                                                             |
+| **Editor**           | BlockNote                                                                    | Block-first React editor, Notion-like UX, native JSON schema, markdown round-trip support, extensible block types.                                                       |
+| **Auth**             | Lucia v3                                                                     | Sessions in Postgres, no opaque magic, works with Drizzle adapter, supports OAuth via Arctic.                                                                            |
+| **AI**               | Anthropic Claude API                                                         | Claude Sonnet 4.6 for general use, Claude Opus 4.7 for full-page generation. Structured output (tool use) for block generation. Prompt caching for theme/schema context. |
+| **Styling (admin)**  | Tailwind CSS + shadcn/ui                                                     | Standard 2026 admin-UI stack; component primitives we own.                                                                                                               |
+| **Styling (public)** | Theme-provided                                                               | Themes ship their own Tailwind config + components.                                                                                                                      |
+| **Email**            | Resend                                                                       | Simple API, good deliverability, React Email templates.                                                                                                                  |
+| **Background jobs**  | Cloud Tasks → Cloud Run job endpoints                                        | No always-on worker needed; auth via OIDC; pay-per-execution.                                                                                                            |
+| **Image processing** | `sharp` at request-time behind Cloud CDN                                     | No pre-generated derivative explosion; CDN caches transformed variants.                                                                                                  |
+| **Search**           | Postgres `tsvector` + `pg_trgm` (v1); plugin slot for Algolia/Typesense (v2) | Good-enough out of the box, room to upgrade.                                                                                                                             |
+| **Observability**    | OpenTelemetry → Cloud Trace + Cloud Logging + Cloud Monitoring               | GCP-native, no third-party vendor required.                                                                                                                              |
+| **Runtime**          | Node 22 LTS in distroless container                                          | Reproducible, small attack surface.                                                                                                                                      |
+| **Build & CI/CD**    | Cloud Build + Artifact Registry                                              | GitHub trigger → Docker build → push → deploy to Cloud Run.                                                                                                              |
+| **IaC**              | Terraform                                                                    | One module provisions all GCP resources for a fresh install.                                                                                                             |
 
 ---
 
@@ -144,15 +144,39 @@ Schema lives in `src/db/schema.ts` and is the canonical source. Drizzle migratio
 
 ```ts
 // src/db/schema.ts (abridged)
-import { pgTable, text, timestamp, uuid, jsonb, boolean, integer, index, uniqueIndex, pgEnum } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  text,
+  timestamp,
+  uuid,
+  jsonb,
+  boolean,
+  integer,
+  index,
+  uniqueIndex,
+  pgEnum,
+} from "drizzle-orm/pg-core";
 
-export const userRole = pgEnum("user_role", ["owner", "admin", "editor", "author", "contributor", "subscriber"]);
-export const postStatus = pgEnum("post_status", ["draft", "scheduled", "published", "archived", "trash"]);
+export const userRole = pgEnum("user_role", [
+  "owner",
+  "admin",
+  "editor",
+  "author",
+  "contributor",
+  "subscriber",
+]);
+export const postStatus = pgEnum("post_status", [
+  "draft",
+  "scheduled",
+  "published",
+  "archived",
+  "trash",
+]);
 
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
   email: text("email").notNull().unique(),
-  passwordHash: text("password_hash"),               // null for OAuth-only users
+  passwordHash: text("password_hash"), // null for OAuth-only users
   displayName: text("display_name").notNull(),
   avatarUrl: text("avatar_url"),
   role: userRole("role").notNull().default("subscriber"),
@@ -161,68 +185,96 @@ export const users = pgTable("users", {
 });
 
 export const sessions = pgTable("sessions", {
-  id: text("id").primaryKey(),                       // Lucia session id
-  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  id: text("id").primaryKey(), // Lucia session id
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
   expiresAt: timestamp("expires_at").notNull(),
 });
 
-export const oauthAccounts = pgTable("oauth_accounts", {
-  provider: text("provider").notNull(),              // 'google' | 'github'
-  providerAccountId: text("provider_account_id").notNull(),
-  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
-}, t => ({ pk: uniqueIndex("oauth_pk").on(t.provider, t.providerAccountId) }));
+export const oauthAccounts = pgTable(
+  "oauth_accounts",
+  {
+    provider: text("provider").notNull(), // 'google' | 'github'
+    providerAccountId: text("provider_account_id").notNull(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+  },
+  (t) => ({ pk: uniqueIndex("oauth_pk").on(t.provider, t.providerAccountId) }),
+);
 
 export const settings = pgTable("settings", {
   key: text("key").primaryKey(),
   value: jsonb("value").notNull(),
 });
 
-export const pages = pgTable("pages", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  slug: text("slug").notNull(),
-  title: text("title").notNull(),
-  excerpt: text("excerpt"),
-  blocks: jsonb("blocks").$type<Block[]>().notNull().default([]),
-  status: postStatus("status").notNull().default("draft"),
-  publishedAt: timestamp("published_at"),
-  scheduledAt: timestamp("scheduled_at"),
-  locale: text("locale").notNull().default("en"),
-  translationOf: uuid("translation_of"),             // self-FK to canonical
-  authorId: uuid("author_id").notNull().references(() => users.id),
-  seoTitle: text("seo_title"),
-  seoDescription: text("seo_description"),
-  ogImageId: uuid("og_image_id").references(() => media.id),
-  searchVector: text("search_vector"),               // tsvector via generated column
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
-}, t => ({
-  slugLocale: uniqueIndex("pages_slug_locale").on(t.slug, t.locale),
-  publishedIdx: index("pages_published_idx").on(t.publishedAt, t.status),
-  searchIdx: index("pages_search_idx").using("gin", t.searchVector),
-}));
+export const pages = pgTable(
+  "pages",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    slug: text("slug").notNull(),
+    title: text("title").notNull(),
+    excerpt: text("excerpt"),
+    blocks: jsonb("blocks").$type<Block[]>().notNull().default([]),
+    status: postStatus("status").notNull().default("draft"),
+    publishedAt: timestamp("published_at"),
+    scheduledAt: timestamp("scheduled_at"),
+    locale: text("locale").notNull().default("en"),
+    translationOf: uuid("translation_of"), // self-FK to canonical
+    authorId: uuid("author_id")
+      .notNull()
+      .references(() => users.id),
+    seoTitle: text("seo_title"),
+    seoDescription: text("seo_description"),
+    ogImageId: uuid("og_image_id").references(() => media.id),
+    searchVector: text("search_vector"), // tsvector via generated column
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (t) => ({
+    slugLocale: uniqueIndex("pages_slug_locale").on(t.slug, t.locale),
+    publishedIdx: index("pages_published_idx").on(t.publishedAt, t.status),
+    searchIdx: index("pages_search_idx").using("gin", t.searchVector),
+  }),
+);
 
 export const pageRevisions = pgTable("page_revisions", {
   id: uuid("id").primaryKey().defaultRandom(),
-  pageId: uuid("page_id").notNull().references(() => pages.id, { onDelete: "cascade" }),
+  pageId: uuid("page_id")
+    .notNull()
+    .references(() => pages.id, { onDelete: "cascade" }),
   blocks: jsonb("blocks").$type<Block[]>().notNull(),
-  authorId: uuid("author_id").notNull().references(() => users.id),
+  authorId: uuid("author_id")
+    .notNull()
+    .references(() => users.id),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
-export const posts = pgTable("posts", { /* same shape as pages, plus categories/tags */ });
+export const posts = pgTable("posts", {
+  /* same shape as pages, plus categories/tags */
+});
 
 export const taxonomies = pgTable("taxonomies", {
   id: uuid("id").primaryKey().defaultRandom(),
-  type: text("type").notNull(),                      // 'category' | 'tag' | custom
+  type: text("type").notNull(), // 'category' | 'tag' | custom
   slug: text("slug").notNull(),
   name: text("name").notNull(),
   parentId: uuid("parent_id"),
 });
 
-export const postTaxonomies = pgTable("post_taxonomies", {
-  postId: uuid("post_id").notNull().references(() => posts.id, { onDelete: "cascade" }),
-  taxonomyId: uuid("taxonomy_id").notNull().references(() => taxonomies.id, { onDelete: "cascade" }),
-}, t => ({ pk: uniqueIndex("post_tax_pk").on(t.postId, t.taxonomyId) }));
+export const postTaxonomies = pgTable(
+  "post_taxonomies",
+  {
+    postId: uuid("post_id")
+      .notNull()
+      .references(() => posts.id, { onDelete: "cascade" }),
+    taxonomyId: uuid("taxonomy_id")
+      .notNull()
+      .references(() => taxonomies.id, { onDelete: "cascade" }),
+  },
+  (t) => ({ pk: uniqueIndex("post_tax_pk").on(t.postId, t.taxonomyId) }),
+);
 
 export const media = pgTable("media", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -234,7 +286,9 @@ export const media = pgTable("media", {
   sizeBytes: integer("size_bytes").notNull(),
   altText: text("alt_text"),
   caption: text("caption"),
-  uploadedBy: uuid("uploaded_by").notNull().references(() => users.id),
+  uploadedBy: uuid("uploaded_by")
+    .notNull()
+    .references(() => users.id),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
@@ -243,14 +297,16 @@ export const themes = pgTable("themes", {
   slug: text("slug").notNull().unique(),
   name: text("name").notNull(),
   version: text("version").notNull(),
-  sourceUrl: text("source_url").notNull(),           // git URL or zip URL
+  sourceUrl: text("source_url").notNull(), // git URL or zip URL
   manifest: jsonb("manifest").$type<ThemeManifest>().notNull(),
   installedAt: timestamp("installed_at").notNull().defaultNow(),
 });
 
 export const activeTheme = pgTable("active_theme", {
-  id: integer("id").primaryKey().default(1),         // singleton row (v1)
-  themeId: uuid("theme_id").notNull().references(() => themes.id),
+  id: integer("id").primaryKey().default(1), // singleton row (v1)
+  themeId: uuid("theme_id")
+    .notNull()
+    .references(() => themes.id),
   customization: jsonb("customization").notNull().default({}),
 });
 
@@ -268,7 +324,7 @@ export const plugins = pgTable("plugins", {
 export const webhooks = pgTable("webhooks", {
   id: uuid("id").primaryKey().defaultRandom(),
   pluginId: uuid("plugin_id").references(() => plugins.id, { onDelete: "cascade" }),
-  events: text("events").array().notNull(),          // ['post.published', ...]
+  events: text("events").array().notNull(), // ['post.published', ...]
   url: text("url").notNull(),
   secret: text("secret").notNull(),
   active: boolean("active").notNull().default(true),
@@ -276,7 +332,7 @@ export const webhooks = pgTable("webhooks", {
 
 export const jobs = pgTable("jobs", {
   id: uuid("id").primaryKey().defaultRandom(),
-  type: text("type").notNull(),                      // 'revalidate' | 'ai-generate' | 'email' | ...
+  type: text("type").notNull(), // 'revalidate' | 'ai-generate' | 'email' | ...
   payload: jsonb("payload").notNull(),
   status: text("status").notNull().default("pending"),
   attempts: integer("attempts").notNull().default(0),
@@ -288,7 +344,7 @@ export const jobs = pgTable("jobs", {
 export const aiUsage = pgTable("ai_usage", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: uuid("user_id").references(() => users.id),
-  feature: text("feature").notNull(),                // 'generate-page' | 'rewrite' | 'translate' | 'chat'
+  feature: text("feature").notNull(), // 'generate-page' | 'rewrite' | 'translate' | 'chat'
   model: text("model").notNull(),
   inputTokens: integer("input_tokens").notNull(),
   outputTokens: integer("output_tokens").notNull(),
@@ -302,20 +358,55 @@ export const aiUsage = pgTable("ai_usage", {
 ```ts
 // src/blocks/types.ts
 export type Block =
-  | { id: string; type: "heading"; level: 1 | 2 | 3 | 4 | 5 | 6; text: string /* markdown inline */ }
+  | {
+      id: string;
+      type: "heading";
+      level: 1 | 2 | 3 | 4 | 5 | 6;
+      text: string; /* markdown inline */
+    }
   | { id: string; type: "paragraph"; markdown: string }
-  | { id: string; type: "image"; mediaId: string; alt?: string; caption?: string; size?: "small" | "medium" | "full" }
+  | {
+      id: string;
+      type: "image";
+      mediaId: string;
+      alt?: string;
+      caption?: string;
+      size?: "small" | "medium" | "full";
+    }
   | { id: string; type: "list"; ordered: boolean; items: string[] /* markdown inline */ }
   | { id: string; type: "quote"; markdown: string; attribution?: string }
   | { id: string; type: "code"; language: string; source: string }
-  | { id: string; type: "embed"; provider: "youtube" | "vimeo" | "twitter" | "spotify" | "generic"; url: string; html?: string }
-  | { id: string; type: "button"; label: string; href: string; variant: "primary" | "secondary" | "ghost" }
+  | {
+      id: string;
+      type: "embed";
+      provider: "youtube" | "vimeo" | "twitter" | "spotify" | "generic";
+      url: string;
+      html?: string;
+    }
+  | {
+      id: string;
+      type: "button";
+      label: string;
+      href: string;
+      variant: "primary" | "secondary" | "ghost";
+    }
   | { id: string; type: "columns"; columns: { width: number; blocks: Block[] }[] }
-  | { id: string; type: "hero"; headline: string; subheadline?: string; cta?: { label: string; href: string }; bgMediaId?: string }
+  | {
+      id: string;
+      type: "hero";
+      headline: string;
+      subheadline?: string;
+      cta?: { label: string; href: string };
+      bgMediaId?: string;
+    }
   | { id: string; type: "gallery"; mediaIds: string[]; layout: "grid" | "carousel" | "masonry" }
   | { id: string; type: "divider" }
   | { id: string; type: "html"; html: string /* sanitized */ }
-  | { id: string; type: `custom:${string}`; data: unknown /* validated by registered Zod schema */ };
+  | {
+      id: string;
+      type: `custom:${string}`;
+      data: unknown; /* validated by registered Zod schema */
+    };
 ```
 
 Text-bearing blocks (`paragraph`, `quote`, `list`, `heading`) store **markdown inline** rather than HTML. Rationale: portability for export, AI generation simplicity, and clean diffing across revisions.
@@ -344,16 +435,21 @@ import { z } from "zod";
 export default defineBlock({
   type: "custom:pricing",
   schema: z.object({
-    tiers: z.array(z.object({
-      name: z.string(),
-      price: z.string(),
-      features: z.array(z.string()),
-      ctaLabel: z.string(),
-      ctaHref: z.string(),
-    })).min(1).max(4),
+    tiers: z
+      .array(
+        z.object({
+          name: z.string(),
+          price: z.string(),
+          features: z.array(z.string()),
+          ctaLabel: z.string(),
+          ctaHref: z.string(),
+        }),
+      )
+      .min(1)
+      .max(4),
   }),
-  editor: PricingEditor,        // BlockNote custom block component
-  render: PricingRender,        // Server Component used by public renderer
+  editor: PricingEditor, // BlockNote custom block component
+  render: PricingRender, // Server Component used by public renderer
   ai: {
     description: "Three-tier or four-tier pricing comparison table",
     examplePrompts: ["pricing for a SaaS startup", "agency package pricing"],
@@ -374,17 +470,29 @@ import { Markdown } from "./Markdown";
 import { Image } from "next/image";
 
 export function BlockRenderer({ block, theme }: { block: Block; theme: ThemeContext }) {
-  return match(block)
-    .with({ type: "heading" }, b => <theme.Heading level={b.level}><Markdown inline source={b.text}/></theme.Heading>)
-    .with({ type: "paragraph" }, b => <theme.Paragraph><Markdown source={b.markdown}/></theme.Paragraph>)
-    .with({ type: "image" }, b => <theme.Image media={b.mediaId} alt={b.alt} caption={b.caption} size={b.size}/>)
-    // ...
-    .with({ type: P.string.startsWith("custom:") }, b => {
-      const def = blockRegistry.get(b.type);
-      if (!def) return null;
-      return <def.render data={def.schema.parse(b.data)} theme={theme}/>;
-    })
-    .exhaustive();
+  return (
+    match(block)
+      .with({ type: "heading" }, (b) => (
+        <theme.Heading level={b.level}>
+          <Markdown inline source={b.text} />
+        </theme.Heading>
+      ))
+      .with({ type: "paragraph" }, (b) => (
+        <theme.Paragraph>
+          <Markdown source={b.markdown} />
+        </theme.Paragraph>
+      ))
+      .with({ type: "image" }, (b) => (
+        <theme.Image media={b.mediaId} alt={b.alt} caption={b.caption} size={b.size} />
+      ))
+      // ...
+      .with({ type: P.string.startsWith("custom:") }, (b) => {
+        const def = blockRegistry.get(b.type);
+        if (!def) return null;
+        return <def.render data={def.schema.parse(b.data)} theme={theme} />;
+      })
+      .exhaustive()
+  );
 }
 ```
 
@@ -449,7 +557,7 @@ my-theme/
 1. Admin → Themes → "Install theme" → paste git URL or upload zip.
 2. Server downloads, validates `manifest.json` against schema, scans for forbidden imports (`fs`, `child_process`, network outside whitelisted host allowlist).
 3. Stored in Cloud Storage under `themes/<slug>/<version>/`.
-4. **v1 caveat:** themes are loaded into the Cloud Run container at boot via a startup hook that pulls active theme from Cloud Storage. Activating a new theme triggers a Cloud Run revision-or-revalidation. *This is the honest tradeoff: full runtime theme code execution without a redeploy requires either WASM sandboxing or a separate per-tenant runtime — both deferred to v2.* In v1, "install without redeploy" works for theme **data** (templates as JSON-described layouts, token customization, component variants exposed by a baseline theme) but adding genuinely new React components requires a deploy.
+4. **v1 caveat:** themes are loaded into the Cloud Run container at boot via a startup hook that pulls active theme from Cloud Storage. Activating a new theme triggers a Cloud Run revision-or-revalidation. _This is the honest tradeoff: full runtime theme code execution without a redeploy requires either WASM sandboxing or a separate per-tenant runtime — both deferred to v2._ In v1, "install without redeploy" works for theme **data** (templates as JSON-described layouts, token customization, component variants exposed by a baseline theme) but adding genuinely new React components requires a deploy.
 5. **v1 mitigation:** ship a powerful baseline theme with rich customization tokens and template variants, plus a "compose-time" theme path where developers add themes to `themes/` in the repo and deploy. This covers ~80% of WordPress's theme-switching value.
 6. **v2 plan:** WASM-sandboxed theme execution or Cloud Functions for theme component rendering, enabling true runtime install without code review.
 
@@ -511,19 +619,19 @@ Plugins are installed by running `pnpm add wpkiller-plugin-mailchimp` and commit
 
 ### 8.2 Webhook events (v1)
 
-| Event | Payload |
-|---|---|
-| `page.created` | `{ pageId, slug, authorId }` |
-| `page.updated` | `{ pageId, slug, changedFields }` |
-| `page.published` | `{ pageId, slug, url, publishedAt }` |
-| `page.unpublished` | `{ pageId }` |
-| `post.created` / `post.updated` / `post.published` / `post.unpublished` | Same shape as page events |
-| `media.uploaded` | `{ mediaId, mimeType, sizeBytes, uploadedBy }` |
-| `comment.added` | `{ commentId, postId, authorEmail }` |
-| `comment.approved` | `{ commentId, postId }` |
-| `user.created` | `{ userId, email, role }` |
-| `user.roleChanged` | `{ userId, oldRole, newRole }` |
-| `theme.activated` | `{ themeId, slug }` |
+| Event                                                                   | Payload                                        |
+| ----------------------------------------------------------------------- | ---------------------------------------------- |
+| `page.created`                                                          | `{ pageId, slug, authorId }`                   |
+| `page.updated`                                                          | `{ pageId, slug, changedFields }`              |
+| `page.published`                                                        | `{ pageId, slug, url, publishedAt }`           |
+| `page.unpublished`                                                      | `{ pageId }`                                   |
+| `post.created` / `post.updated` / `post.published` / `post.unpublished` | Same shape as page events                      |
+| `media.uploaded`                                                        | `{ mediaId, mimeType, sizeBytes, uploadedBy }` |
+| `comment.added`                                                         | `{ commentId, postId, authorEmail }`           |
+| `comment.approved`                                                      | `{ commentId, postId }`                        |
+| `user.created`                                                          | `{ userId, email, role }`                      |
+| `user.roleChanged`                                                      | `{ userId, oldRole, newRole }`                 |
+| `theme.activated`                                                       | `{ themeId, slug }`                            |
 
 Webhook delivery is queued via Cloud Tasks, signed with HMAC-SHA256, retried with exponential backoff up to 24 hours.
 
@@ -541,13 +649,13 @@ Webhook delivery is queued via Cloud Tasks, signed with HMAC-SHA256, retried wit
 
 All AI features use the Anthropic Claude API. Model selection is configurable per feature in settings; defaults:
 
-| Feature | Default model | Why |
-|---|---|---|
-| Generate full page | `claude-opus-4-7` | Highest quality structured output for complex multi-block compositions. |
-| Inline assists (rewrite/expand/shorten) | `claude-haiku-4-5` | Fast, cheap, latency-sensitive. |
-| Auto alt text + SEO meta | `claude-haiku-4-5` | Single short generation, background task. |
-| Translate page | `claude-sonnet-4-6` | Strong multilingual quality without Opus cost. |
-| Admin sidebar chat | `claude-sonnet-4-6` | Balanced for conversational use. |
+| Feature                                 | Default model       | Why                                                                     |
+| --------------------------------------- | ------------------- | ----------------------------------------------------------------------- |
+| Generate full page                      | `claude-opus-4-7`   | Highest quality structured output for complex multi-block compositions. |
+| Inline assists (rewrite/expand/shorten) | `claude-haiku-4-5`  | Fast, cheap, latency-sensitive.                                         |
+| Auto alt text + SEO meta                | `claude-haiku-4-5`  | Single short generation, background task.                               |
+| Translate page                          | `claude-sonnet-4-6` | Strong multilingual quality without Opus cost.                          |
+| Admin sidebar chat                      | `claude-sonnet-4-6` | Balanced for conversational use.                                        |
 
 ### 9.1 Prompt caching
 
@@ -573,34 +681,40 @@ export async function generatePage(opts: {
     max_tokens: 8000,
     system: [
       { type: "text", text: SYSTEM_PROMPT_PAGE_GEN, cache_control: { type: "ephemeral" } },
-      { type: "text", text: JSON.stringify({ availableBlocks, themeTokens: theme.tokens }), cache_control: { type: "ephemeral" } },
-    ],
-    tools: [{
-      name: "emit_page",
-      description: "Emit the generated page as a Block[] array",
-      input_schema: {
-        type: "object",
-        properties: { blocks: { type: "array", items: blockUnionJsonSchema } },
-        required: ["blocks"],
+      {
+        type: "text",
+        text: JSON.stringify({ availableBlocks, themeTokens: theme.tokens }),
+        cache_control: { type: "ephemeral" },
       },
-    }],
+    ],
+    tools: [
+      {
+        name: "emit_page",
+        description: "Emit the generated page as a Block[] array",
+        input_schema: {
+          type: "object",
+          properties: { blocks: { type: "array", items: blockUnionJsonSchema } },
+          required: ["blocks"],
+        },
+      },
+    ],
     tool_choice: { type: "tool", name: "emit_page" },
     messages: [{ role: "user", content: `Page type: ${opts.pageType}\nPrompt: ${opts.prompt}` }],
   });
 
-  const tool = response.content.find(c => c.type === "tool_use");
+  const tool = response.content.find((c) => c.type === "tool_use");
   return tool.input.blocks as Block[];
 }
 ```
 
 ### 9.3 Inline assists
 
-| Action | Behavior |
-|---|---|
-| **Rewrite** | Replace selected text with an alternative. User selects tone (neutral / persuasive / casual / formal). |
-| **Expand** | Extend selected text into a longer version. |
-| **Shorten** | Compress while preserving meaning. |
-| **Auto alt text** | On media upload, async job generates alt text from vision input. User can edit. |
+| Action            | Behavior                                                                                               |
+| ----------------- | ------------------------------------------------------------------------------------------------------ |
+| **Rewrite**       | Replace selected text with an alternative. User selects tone (neutral / persuasive / casual / formal). |
+| **Expand**        | Extend selected text into a longer version.                                                            |
+| **Shorten**       | Compress while preserving meaning.                                                                     |
+| **Auto alt text** | On media upload, async job generates alt text from vision input. User can edit.                        |
 | **Auto SEO meta** | On page save (if SEO fields empty), generate `seoTitle` (≤60 chars) and `seoDescription` (≤155 chars). |
 
 ### 9.4 Translation
@@ -640,19 +754,21 @@ Lucia v3 with Drizzle adapter. Sessions stored in Postgres `sessions` table. Ses
 
 ### 10.3 Roles and permissions
 
-| Role | Capabilities |
-|---|---|
-| **Owner** | All. Cannot be deleted. Exactly one per install. |
-| **Admin** | Manage users, themes, plugins, settings; full content access. |
-| **Editor** | Create/edit/publish any content; manage taxonomies; moderate comments. |
-| **Author** | Create/edit/publish their own content; upload media. |
-| **Contributor** | Create/edit their own content; cannot publish (submit for review). |
-| **Subscriber** | Read-only on protected content; comment if allowed. |
+| Role            | Capabilities                                                           |
+| --------------- | ---------------------------------------------------------------------- |
+| **Owner**       | All. Cannot be deleted. Exactly one per install.                       |
+| **Admin**       | Manage users, themes, plugins, settings; full content access.          |
+| **Editor**      | Create/edit/publish any content; manage taxonomies; moderate comments. |
+| **Author**      | Create/edit/publish their own content; upload media.                   |
+| **Contributor** | Create/edit their own content; cannot publish (submit for review).     |
+| **Subscriber**  | Read-only on protected content; comment if allowed.                    |
 
 Permission checks live in `src/auth/permissions.ts` as pure functions:
 
 ```ts
-export function can(user: User, action: Action, resource?: Resource): boolean { /* matrix */ }
+export function can(user: User, action: Action, resource?: Resource): boolean {
+  /* matrix */
+}
 ```
 
 Server Actions and Route Handlers call `can()` at the top of every mutation.
@@ -667,26 +783,27 @@ On a fresh install, `/setup` is reachable until the first user is created. The s
 
 ### 11.1 Routing
 
-| Route | Purpose | Caching |
-|---|---|---|
-| `/` | Home (uses theme's `home.tsx` template) | ISR 60s, revalidate-on-publish |
-| `/[...slug]` | Pages by slug | ISR 60s, revalidate-on-publish |
-| `/blog` | Blog index | ISR 60s |
-| `/blog/[slug]` | Single post | ISR 60s, revalidate-on-publish |
-| `/blog/category/[slug]` | Category archive | ISR 300s |
-| `/blog/tag/[slug]` | Tag archive | ISR 300s |
-| `/blog/author/[id]` | Author archive | ISR 300s |
-| `/sitemap.xml` | Sitemap | ISR 3600s |
-| `/robots.txt` | Robots | Static |
-| `/rss.xml` | RSS feed | ISR 600s |
-| `/api/img/[...path]` | Image transforms | Cloud CDN `public, max-age=31536000, immutable` |
-| `/api/preview/[token]` | Preview mode for unpublished content | No cache |
-| `/admin/*` | Admin UI | No cache, auth required |
-| `/api/*` | Internal APIs | No cache |
+| Route                   | Purpose                                 | Caching                                         |
+| ----------------------- | --------------------------------------- | ----------------------------------------------- |
+| `/`                     | Home (uses theme's `home.tsx` template) | ISR 60s, revalidate-on-publish                  |
+| `/[...slug]`            | Pages by slug                           | ISR 60s, revalidate-on-publish                  |
+| `/blog`                 | Blog index                              | ISR 60s                                         |
+| `/blog/[slug]`          | Single post                             | ISR 60s, revalidate-on-publish                  |
+| `/blog/category/[slug]` | Category archive                        | ISR 300s                                        |
+| `/blog/tag/[slug]`      | Tag archive                             | ISR 300s                                        |
+| `/blog/author/[id]`     | Author archive                          | ISR 300s                                        |
+| `/sitemap.xml`          | Sitemap                                 | ISR 3600s                                       |
+| `/robots.txt`           | Robots                                  | Static                                          |
+| `/rss.xml`              | RSS feed                                | ISR 600s                                        |
+| `/api/img/[...path]`    | Image transforms                        | Cloud CDN `public, max-age=31536000, immutable` |
+| `/api/preview/[token]`  | Preview mode for unpublished content    | No cache                                        |
+| `/admin/*`              | Admin UI                                | No cache, auth required                         |
+| `/api/*`                | Internal APIs                           | No cache                                        |
 
 ### 11.2 Caching strategy
 
 Three layers:
+
 1. **Cloud CDN** caches HTML responses based on `Cache-Control: s-maxage` and `Vary: Cookie, Accept-Language`. Logged-in users (with session cookie) bypass cache.
 2. **Next.js fetch cache** for outbound API calls (e.g., embed oEmbed lookups, OG image fetches).
 3. **Drizzle query results** cached in-memory per request (request-scoped); no cross-request memo in v1.
@@ -727,6 +844,7 @@ Cloud Storage bucket per install. Object key convention: `media/<year>/<month>/<
 ### 12.3 Image transformations
 
 `GET /api/img/<media-id>?w=800&h=600&q=80&fit=cover&fmt=auto`:
+
 - Validate parameters.
 - Fetch original from Cloud Storage.
 - Transform with `sharp` (resize, crop, format conversion to AVIF/WebP based on `Accept`).
@@ -769,13 +887,13 @@ Per-page "Translate to..." dropdown invokes AI translation (§9.4) or starts a b
 
 ### 14.1 Importers (v1)
 
-| Source | Notes |
-|---|---|
+| Source                  | Notes                                                                                                                                                                                                                                                       |
+| ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **WordPress XML (WXR)** | Parse posts, pages, taxonomies, media references. Transform Gutenberg block markup → our `Block[]`. Classic editor HTML → blocks via `html-to-blocks` heuristics (paragraphs, headings, images, lists). Comments imported with `pending` status by default. |
-| **Ghost JSON export** | Posts, tags, authors, settings. Mobiledoc → blocks. |
-| **Markdown folder** | Each `.md` file = a page or post (determined by YAML frontmatter `type:`). Frontmatter → page fields. Body markdown → blocks via markdown-to-blocks parser. Media references resolved relative to a `media/` subfolder. |
-| **Notion export** | HTML or markdown export both supported; same path as Ghost or Markdown importer. |
-| **CSV** | Bulk import of posts with one row per item (title, slug, body, status, publishedAt, author). |
+| **Ghost JSON export**   | Posts, tags, authors, settings. Mobiledoc → blocks.                                                                                                                                                                                                         |
+| **Markdown folder**     | Each `.md` file = a page or post (determined by YAML frontmatter `type:`). Frontmatter → page fields. Body markdown → blocks via markdown-to-blocks parser. Media references resolved relative to a `media/` subfolder.                                     |
+| **Notion export**       | HTML or markdown export both supported; same path as Ghost or Markdown importer.                                                                                                                                                                            |
+| **CSV**                 | Bulk import of posts with one row per item (title, slug, body, status, publishedAt, author).                                                                                                                                                                |
 
 Importer endpoint: `POST /api/import/<source>` with multipart upload. Runs as a Cloud Task because large imports exceed Cloud Run request timeouts. Progress tracked in `jobs` table, surfaced in admin.
 
@@ -803,12 +921,14 @@ export/
 ```
 
 Markdown serialization uses a custom block-to-markdown writer that:
+
 - Round-trips text-bearing blocks (their content is already markdown).
 - Serializes non-text blocks as fenced code blocks with `block:<type>` info string and JSON body. Reimport reverses this losslessly.
 
 ### 14.3 Migrating to other clouds
 
 The exporter ZIP is the portability primitive. To move to AWS / Azure / Fly / a bare VM:
+
 1. Provision Postgres + S3-compatible object store + a Node container host.
 2. Run `npx wpkiller migrate-import <export.zip> --target=<connection-string>` against the new database.
 3. Update DNS, deploy the Docker image to the new host.
@@ -844,8 +964,8 @@ export const comments = pgTable("comments", {
   authorUserId: uuid("author_user_id").references(() => users.id),
   authorName: text("author_name"),
   authorEmail: text("author_email"),
-  body: text("body").notNull(),                     // markdown
-  status: text("status").notNull().default("pending"),  // 'pending' | 'approved' | 'spam' | 'trash'
+  body: text("body").notNull(), // markdown
+  status: text("status").notNull().default("pending"), // 'pending' | 'approved' | 'spam' | 'trash'
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 ```
@@ -878,20 +998,20 @@ module "wpkiller" {
 
 The module provisions:
 
-| Resource | Purpose |
-|---|---|
-| `google_sql_database_instance` | Postgres 16, private IP, in VPC, automated backups |
-| `google_sql_database` + `google_sql_user` | App database + service account user (IAM auth) |
-| `google_storage_bucket` (×2) | Media bucket (versioning on), themes/plugins bucket |
-| `google_cloud_run_v2_service` | Main app service |
-| `google_compute_global_address` + `google_compute_managed_ssl_certificate` + `google_compute_url_map` + `google_compute_backend_service` + `google_compute_target_https_proxy` + `google_compute_global_forwarding_rule` | Global HTTPS LB with managed cert |
-| `google_compute_backend_bucket` + Cloud CDN on backend service | CDN |
-| `google_secret_manager_secret` (×N) | DATABASE_URL, ANTHROPIC_API_KEY, RESEND_API_KEY, AUTH_SECRET, OAuth credentials |
-| `google_cloud_tasks_queue` (×N) | revalidate, ai-jobs, email, webhook-delivery |
-| `google_service_account` + IAM bindings | Cloud Run runtime SA with `roles/cloudsql.client`, `roles/storage.objectAdmin` on relevant buckets, `roles/secretmanager.secretAccessor`, `roles/cloudtasks.enqueuer` |
-| `google_artifact_registry_repository` | Docker images |
-| `google_cloudbuild_trigger` | GitHub push → build → push image → deploy revision |
-| `google_monitoring_alert_policy` (×N) | Error rate, p99 latency, DB connection saturation, Cloud Run instance count |
+| Resource                                                                                                                                                                                                                 | Purpose                                                                                                                                                               |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `google_sql_database_instance`                                                                                                                                                                                           | Postgres 16, private IP, in VPC, automated backups                                                                                                                    |
+| `google_sql_database` + `google_sql_user`                                                                                                                                                                                | App database + service account user (IAM auth)                                                                                                                        |
+| `google_storage_bucket` (×2)                                                                                                                                                                                             | Media bucket (versioning on), themes/plugins bucket                                                                                                                   |
+| `google_cloud_run_v2_service`                                                                                                                                                                                            | Main app service                                                                                                                                                      |
+| `google_compute_global_address` + `google_compute_managed_ssl_certificate` + `google_compute_url_map` + `google_compute_backend_service` + `google_compute_target_https_proxy` + `google_compute_global_forwarding_rule` | Global HTTPS LB with managed cert                                                                                                                                     |
+| `google_compute_backend_bucket` + Cloud CDN on backend service                                                                                                                                                           | CDN                                                                                                                                                                   |
+| `google_secret_manager_secret` (×N)                                                                                                                                                                                      | DATABASE_URL, ANTHROPIC_API_KEY, RESEND_API_KEY, AUTH_SECRET, OAuth credentials                                                                                       |
+| `google_cloud_tasks_queue` (×N)                                                                                                                                                                                          | revalidate, ai-jobs, email, webhook-delivery                                                                                                                          |
+| `google_service_account` + IAM bindings                                                                                                                                                                                  | Cloud Run runtime SA with `roles/cloudsql.client`, `roles/storage.objectAdmin` on relevant buckets, `roles/secretmanager.secretAccessor`, `roles/cloudtasks.enqueuer` |
+| `google_artifact_registry_repository`                                                                                                                                                                                    | Docker images                                                                                                                                                         |
+| `google_cloudbuild_trigger`                                                                                                                                                                                              | GitHub push → build → push image → deploy revision                                                                                                                    |
+| `google_monitoring_alert_policy` (×N)                                                                                                                                                                                    | Error rate, p99 latency, DB connection saturation, Cloud Run instance count                                                                                           |
 
 ### 16.2 Container
 
@@ -947,16 +1067,16 @@ Cloud Build deploys the new revision only if migrations succeed.
 
 ### 16.6 Cost rough order-of-magnitude (single-site, low traffic)
 
-| Item | Monthly USD (estimate) |
-|---|---|
-| Cloud Run (autoscale to 0, ~50k requests, ~5h CPU) | $3-8 |
-| Cloud SQL (db-custom-2-7680, 50 GB SSD) | ~$80 |
-| Cloud Storage (10 GB media, low egress) | ~$0.50 |
-| Cloud CDN (10 GB delivered) | ~$1 |
-| Cloud Load Balancer | ~$18 |
-| Cloud Tasks, Secret Manager, Logging | <$1 |
-| Anthropic API (light AI use, ~1M tokens/mo) | ~$5-15 |
-| **Total** | **~$110-125/mo** |
+| Item                                               | Monthly USD (estimate) |
+| -------------------------------------------------- | ---------------------- |
+| Cloud Run (autoscale to 0, ~50k requests, ~5h CPU) | $3-8                   |
+| Cloud SQL (db-custom-2-7680, 50 GB SSD)            | ~$80                   |
+| Cloud Storage (10 GB media, low egress)            | ~$0.50                 |
+| Cloud CDN (10 GB delivered)                        | ~$1                    |
+| Cloud Load Balancer                                | ~$18                   |
+| Cloud Tasks, Secret Manager, Logging               | <$1                    |
+| Anthropic API (light AI use, ~1M tokens/mo)        | ~$5-15                 |
+| **Total**                                          | **~$110-125/mo**       |
 
 Cost-reduction lever: replace Cloud SQL with self-managed Postgres on a small Compute Engine instance (~$15/mo) for the cost-sensitive segment. Documented but not the default.
 
@@ -979,6 +1099,7 @@ npx create-wordpresskiller@latest my-site
 ```
 
 The `create-wordpresskiller` CLI:
+
 1. Asks for GCP project, region, optional custom domain.
 2. Authenticates via `gcloud auth application-default login` if no creds.
 3. Runs `terraform init && terraform apply` from a pinned module version.
@@ -988,6 +1109,7 @@ The `create-wordpresskiller` CLI:
 ### 17.2 Setup wizard
 
 `/setup` collects:
+
 - Site name, tagline, default locale.
 - Owner email + password (or Google/GitHub OAuth — links the OAuth account as owner).
 - Sample content opt-in (creates a homepage, an about page, and a hello-world post using the default theme).
@@ -1019,36 +1141,36 @@ CLI talks to the running instance via internal admin API with a token issued at 
 
 ## 18. Security
 
-| Concern | Mitigation |
-|---|---|
-| **SQL injection** | Drizzle parameterizes all queries; no raw string concatenation. |
-| **XSS** | React escapes by default; markdown rendered through `remark` + `rehype-sanitize` with a strict allowlist; `html` block sanitized via `DOMPurify` on render. |
-| **CSRF** | Server Actions ship with Next.js built-in origin checks; magic-link tokens are single-use, scoped, signed. |
-| **Password storage** | Argon2id with sane params (`m_cost=19456, t_cost=2, p_cost=1`). |
-| **Session security** | HttpOnly, Secure, SameSite=Lax cookies; rotated on privilege escalation; idle timeout 7 days, absolute 30 days. |
-| **Rate limiting** | Per-IP and per-user on auth endpoints (5/min), AI endpoints (configurable), comment submission (3/min). Implemented via Cloud Memorystore Redis or a Postgres-backed token bucket if Memorystore is too expensive for tiny installs. |
-| **File upload** | Mime sniffed server-side (don't trust client); size capped; images re-encoded through `sharp` to strip EXIF + malicious payloads. |
-| **Webhook signing** | HMAC-SHA256 over body with per-webhook secret; receivers must verify. |
-| **CSP** | Default-deny CSP with theme-declared exceptions in manifest. |
-| **Secrets** | Secret Manager only; never in code, never in env files committed to git; rotated via Terraform. |
-| **Dependency audit** | Renovate bot for npm; Cloud Build runs `pnpm audit --prod --audit-level=high` blocking on findings. |
-| **OWASP top 10** | Reviewed during implementation; threat model document at `docs/security/threat-model.md`. |
+| Concern              | Mitigation                                                                                                                                                                                                                           |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **SQL injection**    | Drizzle parameterizes all queries; no raw string concatenation.                                                                                                                                                                      |
+| **XSS**              | React escapes by default; markdown rendered through `remark` + `rehype-sanitize` with a strict allowlist; `html` block sanitized via `DOMPurify` on render.                                                                          |
+| **CSRF**             | Server Actions ship with Next.js built-in origin checks; magic-link tokens are single-use, scoped, signed.                                                                                                                           |
+| **Password storage** | Argon2id with sane params (`m_cost=19456, t_cost=2, p_cost=1`).                                                                                                                                                                      |
+| **Session security** | HttpOnly, Secure, SameSite=Lax cookies; rotated on privilege escalation; idle timeout 7 days, absolute 30 days.                                                                                                                      |
+| **Rate limiting**    | Per-IP and per-user on auth endpoints (5/min), AI endpoints (configurable), comment submission (3/min). Implemented via Cloud Memorystore Redis or a Postgres-backed token bucket if Memorystore is too expensive for tiny installs. |
+| **File upload**      | Mime sniffed server-side (don't trust client); size capped; images re-encoded through `sharp` to strip EXIF + malicious payloads.                                                                                                    |
+| **Webhook signing**  | HMAC-SHA256 over body with per-webhook secret; receivers must verify.                                                                                                                                                                |
+| **CSP**              | Default-deny CSP with theme-declared exceptions in manifest.                                                                                                                                                                         |
+| **Secrets**          | Secret Manager only; never in code, never in env files committed to git; rotated via Terraform.                                                                                                                                      |
+| **Dependency audit** | Renovate bot for npm; Cloud Build runs `pnpm audit --prod --audit-level=high` blocking on findings.                                                                                                                                  |
+| **OWASP top 10**     | Reviewed during implementation; threat model document at `docs/security/threat-model.md`.                                                                                                                                            |
 
 ---
 
 ## 19. Performance Targets (v1)
 
-| Metric | Target |
-|---|---|
-| Cold start (Cloud Run) | < 2s |
-| Public page TTFB (CDN hit) | < 50ms |
-| Public page TTFB (CDN miss, warm container) | < 250ms |
-| Admin dashboard initial load | < 1.5s |
-| Block editor input latency | < 16ms |
-| AI page generation end-to-end | < 30s p50 |
-| AI inline rewrite | < 3s p50 |
-| Image transform (cold) | < 800ms |
-| Image transform (CDN hit) | < 50ms |
+| Metric                                      | Target    |
+| ------------------------------------------- | --------- |
+| Cold start (Cloud Run)                      | < 2s      |
+| Public page TTFB (CDN hit)                  | < 50ms    |
+| Public page TTFB (CDN miss, warm container) | < 250ms   |
+| Admin dashboard initial load                | < 1.5s    |
+| Block editor input latency                  | < 16ms    |
+| AI page generation end-to-end               | < 30s p50 |
+| AI inline rewrite                           | < 3s p50  |
+| Image transform (cold)                      | < 800ms   |
+| Image transform (CDN hit)                   | < 50ms    |
 
 ---
 
@@ -1091,16 +1213,16 @@ CLI talks to the running instance via internal admin API with a token issued at 
 
 ## 21. Open Questions and Known Risks
 
-| Topic | Question / Risk | Resolution path |
-|---|---|---|
-| **Theme runtime install (v1)** | Cloud Run cannot load arbitrary React components without a redeploy. Mitigated by powerful baseline theme + customization tokens; full runtime install deferred to v2. | Ship baseline theme + 2-3 compose-time theme variants in v1; design WASM path for v2. |
-| **Plugin runtime install (v1)** | Same constraint as themes. | v1 = compose-time npm plugins; v2 = sandboxed runtime. |
-| **AI cost runaway** | A user with the page-generation prompt running on Opus could spike Anthropic spend. | Per-user monthly token budget (configurable); admin alert at 80% of monthly cap; graceful degradation to Haiku above threshold. |
-| **Multi-tenancy isolation (v2)** | Row-level security vs schema-per-tenant vs db-per-tenant tradeoff. | Defer; v2 design doc will evaluate. Lean toward RLS for cost efficiency at small/medium scale. |
-| **Spam classifier accuracy** | Claude Haiku spam classification untested at scale. | Ship with manual moderation queue as backstop; track false-positive/negative rate; consider Akismet integration as a plugin if needed. |
-| **Image transform cost** | Per-request `sharp` is CPU-heavy on Cloud Run. | Mitigated by aggressive CDN caching with `immutable`; revisit if origin CPU becomes hot. |
-| **WordPress importer fidelity** | Custom WP plugins produce arbitrary HTML/shortcodes; cannot guarantee 100% conversion. | Import logs unconvertible content as `html` blocks with a note for manual review; provide a post-import audit screen. |
-| **Cloud SQL cost floor** | ~$80/mo minimum is steep for hobbyist sites. | Document the "Compute Engine + self-managed Postgres" alternative as a supported path; provide a Terraform variant module. |
+| Topic                            | Question / Risk                                                                                                                                                        | Resolution path                                                                                                                        |
+| -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| **Theme runtime install (v1)**   | Cloud Run cannot load arbitrary React components without a redeploy. Mitigated by powerful baseline theme + customization tokens; full runtime install deferred to v2. | Ship baseline theme + 2-3 compose-time theme variants in v1; design WASM path for v2.                                                  |
+| **Plugin runtime install (v1)**  | Same constraint as themes.                                                                                                                                             | v1 = compose-time npm plugins; v2 = sandboxed runtime.                                                                                 |
+| **AI cost runaway**              | A user with the page-generation prompt running on Opus could spike Anthropic spend.                                                                                    | Per-user monthly token budget (configurable); admin alert at 80% of monthly cap; graceful degradation to Haiku above threshold.        |
+| **Multi-tenancy isolation (v2)** | Row-level security vs schema-per-tenant vs db-per-tenant tradeoff.                                                                                                     | Defer; v2 design doc will evaluate. Lean toward RLS for cost efficiency at small/medium scale.                                         |
+| **Spam classifier accuracy**     | Claude Haiku spam classification untested at scale.                                                                                                                    | Ship with manual moderation queue as backstop; track false-positive/negative rate; consider Akismet integration as a plugin if needed. |
+| **Image transform cost**         | Per-request `sharp` is CPU-heavy on Cloud Run.                                                                                                                         | Mitigated by aggressive CDN caching with `immutable`; revisit if origin CPU becomes hot.                                               |
+| **WordPress importer fidelity**  | Custom WP plugins produce arbitrary HTML/shortcodes; cannot guarantee 100% conversion.                                                                                 | Import logs unconvertible content as `html` blocks with a note for manual review; provide a post-import audit screen.                  |
+| **Cloud SQL cost floor**         | ~$80/mo minimum is steep for hobbyist sites.                                                                                                                           | Document the "Compute Engine + self-managed Postgres" alternative as a supported path; provide a Terraform variant module.             |
 
 ---
 
@@ -1126,4 +1248,4 @@ CLI talks to the running instance via internal admin API with a token issued at 
 
 ---
 
-*End of design specification.*
+_End of design specification._

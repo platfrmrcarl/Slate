@@ -16,58 +16,59 @@
 
 ## File Map
 
-| Path | Purpose |
-|---|---|
-| `src/env.ts` | **MODIFY** — add `GCS_BUCKET_MEDIA`, `GCS_EMULATOR_HOST`, `MEDIA_PUBLIC_URL` |
-| `src/env.test.ts` | **MODIFY** — extend tests for new env keys |
-| `src/db/schema.ts` | **MODIFY** — add `media` table |
-| `src/db/migrations/0003_media.sql` | Generated migration |
-| `src/auth/permissions.ts` | **MODIFY** — already has `upload:media`; add `manage:media` |
-| `src/auth/permissions.test.ts` | **MODIFY** — new cases for `manage:media` |
-| `src/media/storage.ts` | Storage adapter: signed URL, head, delete, stream |
-| `src/media/storage.test.ts` | Integration tests against `fake-gcs-server` |
-| `src/media/keys.ts` | Object-key naming utility |
-| `src/media/keys.test.ts` | Tests |
-| `src/media/mime.ts` | Allowlist + extension/mime mapping |
-| `src/media/mime.test.ts` | Tests |
-| `src/media/service.ts` | createMediaRecord, listMedia, getMedia, deleteMedia |
-| `src/media/service.test.ts` | Integration tests |
-| `src/media/transform.ts` | `sharp` pipeline (resize, crop, format, quality) |
-| `src/media/transform.test.ts` | Tests using a checked-in fixture image |
-| `src/media/probe.ts` | Background-job handler: dimensions + size on uploaded image |
-| `src/media/probe.test.ts` | Tests |
-| `src/media/url.ts` | Public URL builder for transform endpoint |
-| `src/media/url.test.ts` | Tests |
-| `src/app/api/media/upload-url/route.ts` | Signed-URL minting |
-| `src/app/api/media/upload-url/route.test.ts` | Tests |
-| `src/app/api/media/route.ts` | POST: register media; GET: list (admin only) |
-| `src/app/api/media/route.test.ts` | Tests |
-| `src/app/api/media/[id]/route.ts` | DELETE handler |
-| `src/app/api/media/[id]/route.test.ts` | Tests |
-| `src/app/api/img/[id]/route.ts` | `sharp` transform endpoint with CDN headers |
-| `src/app/api/img/[id]/route.test.ts` | Tests |
-| `src/app/api/jobs/media-probe/route.ts` | Cloud Tasks handler for probe job |
-| `src/app/api/jobs/media-probe/route.test.ts` | Tests |
-| `src/jobs/enqueue.ts` | Cloud Tasks adapter (real client + in-memory fake for dev/test) |
-| `src/jobs/enqueue.test.ts` | Tests |
-| `src/app/admin/media/page.tsx` | Server Component: list + filters |
-| `src/app/admin/media/MediaBrowserClient.tsx` | Client island: upload + select |
-| `src/app/admin/media/actions.ts` | Server Actions for delete + alt-text edit |
-| `src/app/admin/media/actions.test.ts` | Tests |
-| `src/render/blocks/Image.tsx` | Public image-block render component |
-| `src/render/blocks/Image.test.tsx` | Tests |
-| `src/render/blocks/Gallery.tsx` | Public gallery-block render component |
-| `src/render/blocks/Gallery.test.tsx` | Tests |
-| `docker-compose.yml` | **MODIFY** — add `fake-gcs-server` service |
-| `src/test/fixtures/sample.jpg` | 1200×800 JPEG fixture for transform tests |
-| `src/test/fixtures/sample.png` | 400×400 PNG fixture |
-| `.env.example` | **MODIFY** — uncomment media env vars |
+| Path                                         | Purpose                                                                      |
+| -------------------------------------------- | ---------------------------------------------------------------------------- |
+| `src/env.ts`                                 | **MODIFY** — add `GCS_BUCKET_MEDIA`, `GCS_EMULATOR_HOST`, `MEDIA_PUBLIC_URL` |
+| `src/env.test.ts`                            | **MODIFY** — extend tests for new env keys                                   |
+| `src/db/schema.ts`                           | **MODIFY** — add `media` table                                               |
+| `src/db/migrations/0003_media.sql`           | Generated migration                                                          |
+| `src/auth/permissions.ts`                    | **MODIFY** — already has `upload:media`; add `manage:media`                  |
+| `src/auth/permissions.test.ts`               | **MODIFY** — new cases for `manage:media`                                    |
+| `src/media/storage.ts`                       | Storage adapter: signed URL, head, delete, stream                            |
+| `src/media/storage.test.ts`                  | Integration tests against `fake-gcs-server`                                  |
+| `src/media/keys.ts`                          | Object-key naming utility                                                    |
+| `src/media/keys.test.ts`                     | Tests                                                                        |
+| `src/media/mime.ts`                          | Allowlist + extension/mime mapping                                           |
+| `src/media/mime.test.ts`                     | Tests                                                                        |
+| `src/media/service.ts`                       | createMediaRecord, listMedia, getMedia, deleteMedia                          |
+| `src/media/service.test.ts`                  | Integration tests                                                            |
+| `src/media/transform.ts`                     | `sharp` pipeline (resize, crop, format, quality)                             |
+| `src/media/transform.test.ts`                | Tests using a checked-in fixture image                                       |
+| `src/media/probe.ts`                         | Background-job handler: dimensions + size on uploaded image                  |
+| `src/media/probe.test.ts`                    | Tests                                                                        |
+| `src/media/url.ts`                           | Public URL builder for transform endpoint                                    |
+| `src/media/url.test.ts`                      | Tests                                                                        |
+| `src/app/api/media/upload-url/route.ts`      | Signed-URL minting                                                           |
+| `src/app/api/media/upload-url/route.test.ts` | Tests                                                                        |
+| `src/app/api/media/route.ts`                 | POST: register media; GET: list (admin only)                                 |
+| `src/app/api/media/route.test.ts`            | Tests                                                                        |
+| `src/app/api/media/[id]/route.ts`            | DELETE handler                                                               |
+| `src/app/api/media/[id]/route.test.ts`       | Tests                                                                        |
+| `src/app/api/img/[id]/route.ts`              | `sharp` transform endpoint with CDN headers                                  |
+| `src/app/api/img/[id]/route.test.ts`         | Tests                                                                        |
+| `src/app/api/jobs/media-probe/route.ts`      | Cloud Tasks handler for probe job                                            |
+| `src/app/api/jobs/media-probe/route.test.ts` | Tests                                                                        |
+| `src/jobs/enqueue.ts`                        | Cloud Tasks adapter (real client + in-memory fake for dev/test)              |
+| `src/jobs/enqueue.test.ts`                   | Tests                                                                        |
+| `src/app/admin/media/page.tsx`               | Server Component: list + filters                                             |
+| `src/app/admin/media/MediaBrowserClient.tsx` | Client island: upload + select                                               |
+| `src/app/admin/media/actions.ts`             | Server Actions for delete + alt-text edit                                    |
+| `src/app/admin/media/actions.test.ts`        | Tests                                                                        |
+| `src/render/blocks/Image.tsx`                | Public image-block render component                                          |
+| `src/render/blocks/Image.test.tsx`           | Tests                                                                        |
+| `src/render/blocks/Gallery.tsx`              | Public gallery-block render component                                        |
+| `src/render/blocks/Gallery.test.tsx`         | Tests                                                                        |
+| `docker-compose.yml`                         | **MODIFY** — add `fake-gcs-server` service                                   |
+| `src/test/fixtures/sample.jpg`               | 1200×800 JPEG fixture for transform tests                                    |
+| `src/test/fixtures/sample.png`               | 400×400 PNG fixture                                                          |
+| `.env.example`                               | **MODIFY** — uncomment media env vars                                        |
 
 ---
 
 ## Task 1: Extend env + add media table
 
 **Files:**
+
 - Modify: `src/env.ts`
 - Modify: `src/env.test.ts`
 - Modify: `src/db/schema.ts`
@@ -247,6 +248,7 @@ git commit -m "feat(media): env + media table"
 ## Task 2: Object-key naming (TDD)
 
 **Files:**
+
 - Create: `src/media/keys.ts`
 - Create: `src/media/keys.test.ts`
 
@@ -375,6 +377,7 @@ git commit -m "feat(media): object-key + filename sanitizer"
 ## Task 3: Mime allowlist (TDD)
 
 **Files:**
+
 - Create: `src/media/mime.ts`
 - Create: `src/media/mime.test.ts`
 
@@ -388,7 +391,14 @@ import { isAllowedMime, extensionFor, isImageMime, MEDIA_MAX_BYTES } from "./mim
 
 describe("isAllowedMime", () => {
   it("allows the documented image mime types", () => {
-    for (const m of ["image/jpeg", "image/png", "image/webp", "image/avif", "image/gif", "image/svg+xml"]) {
+    for (const m of [
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+      "image/avif",
+      "image/gif",
+      "image/svg+xml",
+    ]) {
       expect(isAllowedMime(m)).toBe(true);
     }
   });
@@ -499,6 +509,7 @@ git commit -m "feat(media): mime allowlist + transformable check"
 ## Task 4: Storage adapter against fake-gcs-server (TDD)
 
 **Files:**
+
 - Modify: `docker-compose.yml` (add `fake-gcs-server`)
 - Create: `src/media/storage.ts`
 - Create: `src/media/storage.test.ts`
@@ -508,20 +519,30 @@ git commit -m "feat(media): mime allowlist + transformable check"
 Add to the `services:` map:
 
 ```yaml
-  fake-gcs:
-    image: fsouza/fake-gcs-server:1.50
-    restart: unless-stopped
-    command: ["-scheme", "http", "-port", "4443", "-public-host", "localhost:4443", "-external-url", "http://localhost:4443"]
-    ports:
-      - "4443:4443"
-    volumes:
-      - fake-gcs-data:/storage
+fake-gcs:
+  image: fsouza/fake-gcs-server:1.50
+  restart: unless-stopped
+  command:
+    [
+      "-scheme",
+      "http",
+      "-port",
+      "4443",
+      "-public-host",
+      "localhost:4443",
+      "-external-url",
+      "http://localhost:4443",
+    ]
+  ports:
+    - "4443:4443"
+  volumes:
+    - fake-gcs-data:/storage
 ```
 
 Add to the `volumes:` map:
 
 ```yaml
-  fake-gcs-data:
+fake-gcs-data:
 ```
 
 - [ ] **Step 2: Start the emulator**
@@ -689,8 +710,7 @@ export async function getObjectStream(key: string): Promise<Readable> {
 }
 
 export async function deleteObject(key: string): Promise<void> {
-  await file(key)
-    .delete({ ignoreNotFound: true });
+  await file(key).delete({ ignoreNotFound: true });
 }
 
 export async function createSignedUploadUrl(
@@ -729,6 +749,7 @@ git commit -m "feat(media): GCS storage adapter + fake-gcs-server local emulator
 ## Task 5: Cloud Tasks adapter with in-memory fake (TDD)
 
 **Files:**
+
 - Create: `src/jobs/enqueue.ts`
 - Create: `src/jobs/enqueue.test.ts`
 
@@ -793,9 +814,7 @@ describe("enqueueJob", () => {
     expect(fetchMock).not.toHaveBeenCalled();
     const callArgs = createTask.mock.calls[0]![0];
     expect(callArgs.parent).toContain("projects/wpk-prod/locations/us-central1/queues/");
-    expect(callArgs.task.httpRequest.url).toBe(
-      "https://app.example.com/api/jobs/media-probe",
-    );
+    expect(callArgs.task.httpRequest.url).toBe("https://app.example.com/api/jobs/media-probe");
     expect(callArgs.task.httpRequest.oidcToken.serviceAccountEmail).toBe(
       "tasks-invoker@wpk-prod.iam.gserviceaccount.com",
     );
@@ -942,6 +961,7 @@ git commit -m "feat(jobs): Cloud Tasks enqueue adapter with dev fetch fallback"
 ## Task 6: Media service (TDD)
 
 **Files:**
+
 - Create: `src/media/service.ts`
 - Create: `src/media/service.test.ts`
 
@@ -968,8 +988,14 @@ const cleanupMedia: string[] = [];
 
 afterAll(async () => {
   if (!HAS_DB) return;
-  for (const id of cleanupMedia) await db().delete(media).where(sql`${media.id} = ${id}`);
-  for (const id of cleanupUsers) await db().delete(users).where(sql`${users.id} = ${id}`);
+  for (const id of cleanupMedia)
+    await db()
+      .delete(media)
+      .where(sql`${media.id} = ${id}`);
+  for (const id of cleanupUsers)
+    await db()
+      .delete(users)
+      .where(sql`${users.id} = ${id}`);
   await closeDb();
 });
 
@@ -1110,7 +1136,8 @@ export async function listMedia(input: ListMediaInput): Promise<ListMediaResult>
     .limit(input.limit + 1);
 
   const items = rows.slice(0, input.limit);
-  const nextCursor = rows.length > input.limit ? rows[input.limit - 1]!.createdAt.toISOString() : null;
+  const nextCursor =
+    rows.length > input.limit ? rows[input.limit - 1]!.createdAt.toISOString() : null;
   return { items, nextCursor };
 }
 
@@ -1181,6 +1208,7 @@ git commit -m "feat(media): media service (create/list/probe/delete)"
 ## Task 7: Signed-upload-URL route (TDD)
 
 **Files:**
+
 - Create: `src/app/api/media/upload-url/route.ts`
 - Create: `src/app/api/media/upload-url/route.test.ts`
 
@@ -1228,13 +1256,17 @@ function req(body: unknown): Request {
 describe("POST /api/media/upload-url", () => {
   it("returns 400 for invalid mime", async () => {
     requireRole.mockResolvedValue({ id: "u-1" });
-    const res = await POST(req({ filename: "x.exe", mimeType: "application/x-msdownload", sizeBytes: 100 }));
+    const res = await POST(
+      req({ filename: "x.exe", mimeType: "application/x-msdownload", sizeBytes: 100 }),
+    );
     expect(res.status).toBe(400);
   });
 
   it("returns 400 for too-large file", async () => {
     requireRole.mockResolvedValue({ id: "u-1" });
-    const res = await POST(req({ filename: "x.jpg", mimeType: "image/jpeg", sizeBytes: 999_999_999 }));
+    const res = await POST(
+      req({ filename: "x.jpg", mimeType: "image/jpeg", sizeBytes: 999_999_999 }),
+    );
     expect(res.status).toBe(400);
   });
 
@@ -1292,8 +1324,10 @@ export async function POST(req: Request): Promise<Response> {
   try {
     user = await requireRole("author");
   } catch (err) {
-    if (err instanceof AuthRequiredError) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
-    if (err instanceof PermissionDeniedError) return NextResponse.json({ error: "forbidden" }, { status: 403 });
+    if (err instanceof AuthRequiredError)
+      return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
+    if (err instanceof PermissionDeniedError)
+      return NextResponse.json({ error: "forbidden" }, { status: 403 });
     return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
   }
 
@@ -1305,10 +1339,16 @@ export async function POST(req: Request): Promise<Response> {
   }
   const parsed = schema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: "invalid input", issues: parsed.error.issues }, { status: 400 });
+    return NextResponse.json(
+      { error: "invalid input", issues: parsed.error.issues },
+      { status: 400 },
+    );
   }
   if (!isAllowedMime(parsed.data.mimeType)) {
-    return NextResponse.json({ error: `mime not allowed: ${parsed.data.mimeType}` }, { status: 400 });
+    return NextResponse.json(
+      { error: `mime not allowed: ${parsed.data.mimeType}` },
+      { status: 400 },
+    );
   }
   if (parsed.data.sizeBytes > MEDIA_MAX_BYTES) {
     return NextResponse.json({ error: `file exceeds ${MEDIA_MAX_BYTES} bytes` }, { status: 400 });
@@ -1344,6 +1384,7 @@ git commit -m "feat(media): signed upload-URL route"
 ## Task 8: Register media + list route (TDD)
 
 **Files:**
+
 - Create: `src/app/api/media/route.ts`
 - Create: `src/app/api/media/route.test.ts`
 
@@ -1398,7 +1439,12 @@ function postReq(body: unknown): Request {
 describe("POST /api/media", () => {
   it("verifies object exists in storage, creates row, enqueues probe", async () => {
     requireRole.mockResolvedValue({ id: "u-1" });
-    headObject.mockResolvedValue({ size: 5555, contentType: "image/jpeg", updatedAt: new Date(), etag: "x" });
+    headObject.mockResolvedValue({
+      size: 5555,
+      contentType: "image/jpeg",
+      updatedAt: new Date(),
+      etag: "x",
+    });
     createMediaRecord.mockResolvedValue({ id: "m-1" });
     const res = await postReq({
       objectPath: "media/2026/05/uuid-x.jpg",
@@ -1416,14 +1462,23 @@ describe("POST /api/media", () => {
   it("returns 400 when object is missing in storage", async () => {
     requireRole.mockResolvedValue({ id: "u-1" });
     headObject.mockRejectedValue(new Error("not found"));
-    const r = await POST(postReq({ objectPath: "x", mimeType: "image/jpeg", originalFilename: "x.jpg" }));
+    const r = await POST(
+      postReq({ objectPath: "x", mimeType: "image/jpeg", originalFilename: "x.jpg" }),
+    );
     expect(r.status).toBe(400);
   });
 
   it("returns 400 for storage/client mime mismatch", async () => {
     requireRole.mockResolvedValue({ id: "u-1" });
-    headObject.mockResolvedValue({ size: 5555, contentType: "image/png", updatedAt: new Date(), etag: "x" });
-    const r = await POST(postReq({ objectPath: "x", mimeType: "image/jpeg", originalFilename: "x.jpg" }));
+    headObject.mockResolvedValue({
+      size: 5555,
+      contentType: "image/png",
+      updatedAt: new Date(),
+      etag: "x",
+    });
+    const r = await POST(
+      postReq({ objectPath: "x", mimeType: "image/jpeg", originalFilename: "x.jpg" }),
+    );
     expect(r.status).toBe(400);
   });
 });
@@ -1477,8 +1532,10 @@ export async function POST(req: Request): Promise<Response> {
   try {
     user = await requireRole("author");
   } catch (err) {
-    if (err instanceof AuthRequiredError) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
-    if (err instanceof PermissionDeniedError) return NextResponse.json({ error: "forbidden" }, { status: 403 });
+    if (err instanceof AuthRequiredError)
+      return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
+    if (err instanceof PermissionDeniedError)
+      return NextResponse.json({ error: "forbidden" }, { status: 403 });
     return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
   }
 
@@ -1490,7 +1547,8 @@ export async function POST(req: Request): Promise<Response> {
   }
   const parsed = postSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: "invalid input" }, { status: 400 });
-  if (!isAllowedMime(parsed.data.mimeType)) return NextResponse.json({ error: "mime not allowed" }, { status: 400 });
+  if (!isAllowedMime(parsed.data.mimeType))
+    return NextResponse.json({ error: "mime not allowed" }, { status: 400 });
 
   let head;
   try {
@@ -1557,6 +1615,7 @@ git commit -m "feat(media): register + list endpoint"
 ## Task 9: Image-transform pipeline + endpoint (TDD)
 
 **Files:**
+
 - Create: `src/media/transform.ts`
 - Create: `src/media/transform.test.ts`
 - Create: `src/media/url.ts`
@@ -1900,7 +1959,11 @@ describe("GET /api/img/[id]", () => {
   });
 
   it("returns transformed bytes with immutable cache header", async () => {
-    getMediaById.mockResolvedValue({ id: "m-1", mimeType: "image/jpeg", objectPath: "src/test/fixtures/sample.jpg" });
+    getMediaById.mockResolvedValue({
+      id: "m-1",
+      mimeType: "image/jpeg",
+      objectPath: "src/test/fixtures/sample.jpg",
+    });
     const buf = await fs.readFile("src/test/fixtures/sample.jpg");
     getObjectStream.mockResolvedValue(Readable.from(buf));
     const res = await GET(
@@ -1967,7 +2030,8 @@ export async function GET(
   try {
     stream = await getObjectStream(media.objectPath);
   } catch (err) {
-    if (err instanceof NotFoundError) return NextResponse.json({ error: "object missing" }, { status: 404 });
+    if (err instanceof NotFoundError)
+      return NextResponse.json({ error: "object missing" }, { status: 404 });
     throw err;
   }
   const original = await streamToBuffer(stream);
@@ -2008,6 +2072,7 @@ git commit -m "feat(media): sharp transform pipeline + /api/img endpoint"
 ## Task 10: Probe job (TDD)
 
 **Files:**
+
 - Create: `src/media/probe.ts`
 - Create: `src/media/probe.test.ts`
 - Create: `src/app/api/jobs/media-probe/route.ts`
@@ -2048,8 +2113,15 @@ afterEach(() => {
 
 describe("runProbeJob", () => {
   it("reads dimensions, writes them to db, enqueues alt-text job", async () => {
-    getMediaById.mockResolvedValue({ id: "m-1", mimeType: "image/jpeg", objectPath: "x", altText: null });
-    getObjectStream.mockResolvedValue(Readable.from(await fs.readFile("src/test/fixtures/sample.jpg")));
+    getMediaById.mockResolvedValue({
+      id: "m-1",
+      mimeType: "image/jpeg",
+      objectPath: "x",
+      altText: null,
+    });
+    getObjectStream.mockResolvedValue(
+      Readable.from(await fs.readFile("src/test/fixtures/sample.jpg")),
+    );
     await runProbeJob("m-1");
     expect(setProbeResult).toHaveBeenCalledWith(
       "m-1",
@@ -2059,14 +2131,26 @@ describe("runProbeJob", () => {
   });
 
   it("does not enqueue alt-text when media has alt already", async () => {
-    getMediaById.mockResolvedValue({ id: "m-1", mimeType: "image/jpeg", objectPath: "x", altText: "set" });
-    getObjectStream.mockResolvedValue(Readable.from(await fs.readFile("src/test/fixtures/sample.jpg")));
+    getMediaById.mockResolvedValue({
+      id: "m-1",
+      mimeType: "image/jpeg",
+      objectPath: "x",
+      altText: "set",
+    });
+    getObjectStream.mockResolvedValue(
+      Readable.from(await fs.readFile("src/test/fixtures/sample.jpg")),
+    );
     await runProbeJob("m-1");
     expect(enqueueJob).not.toHaveBeenCalled();
   });
 
   it("marks probe failed and does not throw", async () => {
-    getMediaById.mockResolvedValue({ id: "m-1", mimeType: "image/jpeg", objectPath: "x", altText: null });
+    getMediaById.mockResolvedValue({
+      id: "m-1",
+      mimeType: "image/jpeg",
+      objectPath: "x",
+      altText: null,
+    });
     getObjectStream.mockResolvedValue(Readable.from(Buffer.from("not an image")));
     await runProbeJob("m-1");
     expect(setProbeFailed).toHaveBeenCalled();
@@ -2271,6 +2355,7 @@ git commit -m "feat(media): probe job + Cloud Tasks OIDC verification"
 ## Task 11: Media DELETE endpoint (TDD)
 
 **Files:**
+
 - Create: `src/app/api/media/[id]/route.ts`
 - Create: `src/app/api/media/[id]/route.test.ts`
 
@@ -2313,7 +2398,10 @@ describe("DELETE /api/media/[id]", () => {
   it("returns 404 when missing", async () => {
     requireRole.mockResolvedValue({ id: "u-1", role: "editor" });
     getMediaById.mockResolvedValue(null);
-    const res = await DELETE(new Request("https://e.com/api/media/x", { method: "DELETE" }), ctx("x"));
+    const res = await DELETE(
+      new Request("https://e.com/api/media/x", { method: "DELETE" }),
+      ctx("x"),
+    );
     expect(res.status).toBe(404);
   });
 
@@ -2321,7 +2409,10 @@ describe("DELETE /api/media/[id]", () => {
     requireRole.mockResolvedValue({ id: "u-2", role: "editor" });
     getMediaById.mockResolvedValue({ id: "m-1", objectPath: "x", uploadedBy: "u-1" });
     deleteMediaRecord.mockResolvedValue(true);
-    const res = await DELETE(new Request("https://e.com/api/media/m-1", { method: "DELETE" }), ctx("m-1"));
+    const res = await DELETE(
+      new Request("https://e.com/api/media/m-1", { method: "DELETE" }),
+      ctx("m-1"),
+    );
     expect(res.status).toBe(200);
     expect(deleteObject).toHaveBeenCalledWith("x");
   });
@@ -2329,7 +2420,10 @@ describe("DELETE /api/media/[id]", () => {
   it("authors can only delete their own", async () => {
     requireRole.mockResolvedValue({ id: "u-1", role: "author" });
     getMediaById.mockResolvedValue({ id: "m-2", objectPath: "x", uploadedBy: "u-other" });
-    const res = await DELETE(new Request("https://e.com/api/media/m-2", { method: "DELETE" }), ctx("m-2"));
+    const res = await DELETE(
+      new Request("https://e.com/api/media/m-2", { method: "DELETE" }),
+      ctx("m-2"),
+    );
     expect(res.status).toBe(403);
   });
 });
@@ -2364,8 +2458,10 @@ export async function DELETE(
   try {
     user = await requireRole("author");
   } catch (err) {
-    if (err instanceof AuthRequiredError) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
-    if (err instanceof PermissionDeniedError) return NextResponse.json({ error: "forbidden" }, { status: 403 });
+    if (err instanceof AuthRequiredError)
+      return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
+    if (err instanceof PermissionDeniedError)
+      return NextResponse.json({ error: "forbidden" }, { status: 403 });
     throw err;
   }
   const { id } = await ctx.params;
@@ -2403,6 +2499,7 @@ git commit -m "feat(media): DELETE /api/media/[id] with ownership check"
 ## Task 12: Admin media browser UI
 
 **Files:**
+
 - Create: `src/app/admin/media/page.tsx`
 - Create: `src/app/admin/media/MediaBrowserClient.tsx`
 - Create: `src/app/admin/media/actions.ts`
@@ -2554,10 +2651,21 @@ export default async function MediaPage({
       </header>
 
       <nav className="mb-4 flex gap-2 text-sm">
-        <Link href="/admin/media" className="underline-offset-2 hover:underline">All</Link>
-        <Link href="/admin/media?mime=image/" className="underline-offset-2 hover:underline">Images</Link>
-        <Link href="/admin/media?mime=video/" className="underline-offset-2 hover:underline">Video</Link>
-        <Link href="/admin/media?mime=application/pdf" className="underline-offset-2 hover:underline">PDFs</Link>
+        <Link href="/admin/media" className="underline-offset-2 hover:underline">
+          All
+        </Link>
+        <Link href="/admin/media?mime=image/" className="underline-offset-2 hover:underline">
+          Images
+        </Link>
+        <Link href="/admin/media?mime=video/" className="underline-offset-2 hover:underline">
+          Video
+        </Link>
+        <Link
+          href="/admin/media?mime=application/pdf"
+          className="underline-offset-2 hover:underline"
+        >
+          PDFs
+        </Link>
       </nav>
 
       <ul className="grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-6">
@@ -2671,7 +2779,14 @@ export function MediaBrowserClient() {
   return (
     <div className="flex items-center gap-2">
       {error && <span className="text-sm text-red-600">{error}</span>}
-      <input ref={fileRef} type="file" multiple onChange={onChange} disabled={pending} className="text-sm" />
+      <input
+        ref={fileRef}
+        type="file"
+        multiple
+        onChange={onChange}
+        disabled={pending}
+        className="text-sm"
+      />
     </div>
   );
 }
@@ -2693,6 +2808,7 @@ git commit -m "feat(media): admin media browser + client uploader"
 ## Task 13: Image + Gallery block render components (TDD)
 
 **Files:**
+
 - Create: `src/render/blocks/Image.tsx`
 - Create: `src/render/blocks/Image.test.tsx`
 - Create: `src/render/blocks/Gallery.tsx`
@@ -2716,14 +2832,17 @@ vi.mock("@/media/service", () => ({
   ),
 }));
 vi.mock("@/media/url", () => ({
-  imgUrl: (id: string, opts: { width?: number }) => `https://cdn.test/api/img/${id}?w=${opts.width ?? 0}`,
+  imgUrl: (id: string, opts: { width?: number }) =>
+    `https://cdn.test/api/img/${id}?w=${opts.width ?? 0}`,
 }));
 
 const { ImageBlock } = await import("./Image");
 
 describe("ImageBlock", () => {
   it("renders a figure with width-aware src", async () => {
-    const ui = await ImageBlock({ block: { id: "b-1", type: "image", mediaId: "m-1", size: "medium" } });
+    const ui = await ImageBlock({
+      block: { id: "b-1", type: "image", mediaId: "m-1", size: "medium" },
+    });
     const { container } = render(ui);
     const img = container.querySelector("img");
     expect(img?.getAttribute("src")).toContain("/api/img/m-1?w=");
@@ -2732,13 +2851,17 @@ describe("ImageBlock", () => {
   });
 
   it("uses block.alt override when present", async () => {
-    const ui = await ImageBlock({ block: { id: "b-2", type: "image", mediaId: "m-1", alt: "Override" } });
+    const ui = await ImageBlock({
+      block: { id: "b-2", type: "image", mediaId: "m-1", alt: "Override" },
+    });
     const { container } = render(ui);
     expect(container.querySelector("img")?.getAttribute("alt")).toBe("Override");
   });
 
   it("renders a caption when provided", async () => {
-    const ui = await ImageBlock({ block: { id: "b-3", type: "image", mediaId: "m-1", caption: "Hi" } });
+    const ui = await ImageBlock({
+      block: { id: "b-3", type: "image", mediaId: "m-1", caption: "Hi" },
+    });
     const { container } = render(ui);
     expect(container.querySelector("figcaption")?.textContent).toBe("Hi");
   });
@@ -2803,7 +2926,9 @@ export async function ImageBlock({ block }: { block: ImageBlockInput }): Promise
         decoding="async"
         className="h-auto w-full rounded"
       />
-      {block.caption && <figcaption className="mt-2 text-sm text-gray-600">{block.caption}</figcaption>}
+      {block.caption && (
+        <figcaption className="mt-2 text-sm text-gray-600">{block.caption}</figcaption>
+      )}
     </figure>
   );
 }
@@ -2858,7 +2983,9 @@ describe("GalleryBlock", () => {
   });
 
   it("renders null when mediaIds is empty", async () => {
-    const ui = await GalleryBlock({ block: { id: "g-2", type: "gallery", mediaIds: [], layout: "grid" } });
+    const ui = await GalleryBlock({
+      block: { id: "g-2", type: "gallery", mediaIds: [], layout: "grid" },
+    });
     expect(ui).toBeNull();
   });
 });
@@ -2987,14 +3114,14 @@ Open `http://localhost:3000/admin/media`. The uploaded image should appear with 
 
 ## Out of Scope (handled by sibling sub-plans)
 
-| Sub-plan | What it adds on top of media-library |
-|---|---|
-| **ai-features** | Implements the `media-alt-text` job handler (Claude Haiku vision) and `auto SEO og:image` selection. |
-| **block-editor-core** | Registers `ImageBlock` and `GalleryBlock` in the block renderer; adds a media picker to the BlockNote editor. |
-| **deployment-hardening** | Provisions the production GCS bucket, Cloud CDN, IAM bindings, and the `wpk-media` Cloud Tasks queue. |
-| **plugin-system** | Wires the `media.uploaded` webhook event. |
-| **exporter-backups** | Streams media bytes into the export ZIP and the media-manifest. |
+| Sub-plan                 | What it adds on top of media-library                                                                          |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------- |
+| **ai-features**          | Implements the `media-alt-text` job handler (Claude Haiku vision) and `auto SEO og:image` selection.          |
+| **block-editor-core**    | Registers `ImageBlock` and `GalleryBlock` in the block renderer; adds a media picker to the BlockNote editor. |
+| **deployment-hardening** | Provisions the production GCS bucket, Cloud CDN, IAM bindings, and the `wpk-media` Cloud Tasks queue.         |
+| **plugin-system**        | Wires the `media.uploaded` webhook event.                                                                     |
+| **exporter-backups**     | Streams media bytes into the export ZIP and the media-manifest.                                               |
 
 ---
 
-*End of media-library plan.*
+_End of media-library plan._

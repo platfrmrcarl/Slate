@@ -16,50 +16,51 @@
 
 Files this plan creates or modifies:
 
-| Path | Purpose |
-|---|---|
-| `package.json` | Dependencies, scripts |
-| `pnpm-workspace.yaml` | Marks this as a pnpm-managed repo (single package for now) |
-| `.nvmrc` | Pins Node version for contributors |
-| `.gitignore` | Updated with Node/Next.js entries |
-| `.gitattributes` | LF line endings, binary annotations |
-| `.dockerignore` | Excludes from Docker context |
-| `.env.example` | Template for required env vars |
-| `tsconfig.json` | TypeScript compiler options |
-| `next.config.ts` | Next.js config (standalone output, strict mode) |
-| `eslint.config.mjs` | Flat ESLint config |
-| `.prettierrc.json` | Prettier config |
-| `vitest.config.ts` | Vitest config (Node + jsdom envs) |
-| `tailwind.config.ts` | Tailwind 4 config |
-| `postcss.config.mjs` | PostCSS config for Tailwind |
-| `drizzle.config.ts` | drizzle-kit config |
-| `docker-compose.yml` | Local Postgres 16 |
-| `Dockerfile` | Multi-stage build → distroless |
-| `cloudbuild.yaml` | Cloud Build pipeline (lint → test → build → push) |
-| `README.md` | Bootstrap, commands, conventions (replaces stub) |
-| `src/app/layout.tsx` | Root layout |
-| `src/app/page.tsx` | Stub home page |
-| `src/app/globals.css` | Tailwind directives |
-| `src/app/api/healthz/route.ts` | Liveness probe |
-| `src/app/api/readyz/route.ts` | Readiness probe (DB-aware) |
-| `src/env.ts` | Validated environment |
-| `src/lib/logger.ts` | Pino logger singleton |
-| `src/db/index.ts` | Drizzle DB client |
-| `src/db/schema.ts` | Initial schema (settings table only) |
-| `src/db/migrate.ts` | Migration runner script |
-| `src/db/migrations/0000_initial.sql` | First migration (generated) |
-| `src/test/setup.ts` | Vitest setup |
-| `src/env.test.ts` | Env validation tests |
-| `src/lib/logger.test.ts` | Logger tests |
-| `src/app/api/healthz/route.test.ts` | Healthz tests |
-| `src/app/api/readyz/route.test.ts` | Readyz tests |
-| `src/db/index.test.ts` | DB client smoke test |
+| Path                                 | Purpose                                                    |
+| ------------------------------------ | ---------------------------------------------------------- |
+| `package.json`                       | Dependencies, scripts                                      |
+| `pnpm-workspace.yaml`                | Marks this as a pnpm-managed repo (single package for now) |
+| `.nvmrc`                             | Pins Node version for contributors                         |
+| `.gitignore`                         | Updated with Node/Next.js entries                          |
+| `.gitattributes`                     | LF line endings, binary annotations                        |
+| `.dockerignore`                      | Excludes from Docker context                               |
+| `.env.example`                       | Template for required env vars                             |
+| `tsconfig.json`                      | TypeScript compiler options                                |
+| `next.config.ts`                     | Next.js config (standalone output, strict mode)            |
+| `eslint.config.mjs`                  | Flat ESLint config                                         |
+| `.prettierrc.json`                   | Prettier config                                            |
+| `vitest.config.ts`                   | Vitest config (Node + jsdom envs)                          |
+| `tailwind.config.ts`                 | Tailwind 4 config                                          |
+| `postcss.config.mjs`                 | PostCSS config for Tailwind                                |
+| `drizzle.config.ts`                  | drizzle-kit config                                         |
+| `docker-compose.yml`                 | Local Postgres 16                                          |
+| `Dockerfile`                         | Multi-stage build → distroless                             |
+| `cloudbuild.yaml`                    | Cloud Build pipeline (lint → test → build → push)          |
+| `README.md`                          | Bootstrap, commands, conventions (replaces stub)           |
+| `src/app/layout.tsx`                 | Root layout                                                |
+| `src/app/page.tsx`                   | Stub home page                                             |
+| `src/app/globals.css`                | Tailwind directives                                        |
+| `src/app/api/healthz/route.ts`       | Liveness probe                                             |
+| `src/app/api/readyz/route.ts`        | Readiness probe (DB-aware)                                 |
+| `src/env.ts`                         | Validated environment                                      |
+| `src/lib/logger.ts`                  | Pino logger singleton                                      |
+| `src/db/index.ts`                    | Drizzle DB client                                          |
+| `src/db/schema.ts`                   | Initial schema (settings table only)                       |
+| `src/db/migrate.ts`                  | Migration runner script                                    |
+| `src/db/migrations/0000_initial.sql` | First migration (generated)                                |
+| `src/test/setup.ts`                  | Vitest setup                                               |
+| `src/env.test.ts`                    | Env validation tests                                       |
+| `src/lib/logger.test.ts`             | Logger tests                                               |
+| `src/app/api/healthz/route.test.ts`  | Healthz tests                                              |
+| `src/app/api/readyz/route.test.ts`   | Readyz tests                                               |
+| `src/db/index.test.ts`               | DB client smoke test                                       |
 
 ---
 
 ## Task 1: Initialize pnpm + TypeScript + Next.js 16 scaffold
 
 **Files:**
+
 - Create: `package.json`
 - Create: `pnpm-workspace.yaml`
 - Create: `.nvmrc`
@@ -282,6 +283,7 @@ git commit -m "feat(foundation): initialize Next.js 16 + TypeScript scaffold"
 ## Task 2: ESLint flat config + Prettier
 
 **Files:**
+
 - Create: `eslint.config.mjs`
 - Create: `.prettierrc.json`
 - Create: `.prettierignore`
@@ -309,7 +311,10 @@ export default tseslint.config(
   prettier,
   {
     rules: {
-      "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }],
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
+      ],
       "@typescript-eslint/consistent-type-imports": "error",
       "react-hooks/exhaustive-deps": "error",
     },
@@ -392,6 +397,7 @@ git commit -m "feat(foundation): add ESLint flat config + Prettier"
 ## Task 3: Vitest setup
 
 **Files:**
+
 - Create: `vitest.config.ts`
 - Create: `src/test/setup.ts`
 - Create: `src/test/smoke.test.ts`
@@ -474,6 +480,7 @@ git commit -m "feat(foundation): add Vitest with jsdom/happy-dom matchers"
 ## Task 4: Tailwind CSS 4
 
 **Files:**
+
 - Create: `postcss.config.mjs`
 - Create: `tailwind.config.ts`
 - Modify: `src/app/globals.css`
@@ -536,6 +543,7 @@ git commit -m "feat(foundation): wire up Tailwind CSS 4"
 ## Task 5: Validated environment with Zod (TDD)
 
 **Files:**
+
 - Create: `src/env.ts`
 - Create: `src/env.test.ts`
 - Create: `.env.example`
@@ -637,7 +645,9 @@ import { z } from "zod";
 
 const schema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]),
-  DATABASE_URL: z.string().regex(/^postgres(ql)?:\/\//, "DATABASE_URL must be a postgres:// connection string"),
+  DATABASE_URL: z
+    .string()
+    .regex(/^postgres(ql)?:\/\//, "DATABASE_URL must be a postgres:// connection string"),
   LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace", "silent"]).default("info"),
   PORT: z.coerce.number().int().positive().default(3000),
 });
@@ -710,6 +720,7 @@ git commit -m "feat(foundation): validated env with Zod"
 ## Task 6: Pino logger (TDD)
 
 **Files:**
+
 - Create: `src/lib/logger.ts`
 - Create: `src/lib/logger.test.ts`
 - Modify: `package.json` (add dep)
@@ -839,6 +850,7 @@ git commit -m "feat(foundation): structured pino logger"
 ## Task 7: Drizzle setup + initial schema
 
 **Files:**
+
 - Create: `drizzle.config.ts`
 - Create: `src/db/index.ts`
 - Create: `src/db/schema.ts`
@@ -948,6 +960,7 @@ git commit -m "feat(foundation): Drizzle ORM + initial settings schema"
 ## Task 8: Local Postgres via docker-compose
 
 **Files:**
+
 - Create: `docker-compose.yml`
 
 - [ ] **Step 1: Create `docker-compose.yml`**
@@ -1012,6 +1025,7 @@ git commit -m "feat(foundation): docker-compose for local Postgres 16"
 ## Task 9: Generate and apply the initial migration
 
 **Files:**
+
 - Create: `src/db/migrations/0000_initial.sql` (generated)
 - Create: `src/db/migrations/meta/_journal.json` (generated, gitignored — see Task 1 step 9)
 - Create: `src/db/index.test.ts`
@@ -1083,11 +1097,18 @@ describe.runIf(HAS_DB)("db client", () => {
 
   it("can write and read a settings row", async () => {
     const key = `test:${Date.now()}`;
-    await db().insert(settings).values({ key, value: { hello: "world" } });
-    const rows = await db().select().from(settings).where(sql`${settings.key} = ${key}`);
+    await db()
+      .insert(settings)
+      .values({ key, value: { hello: "world" } });
+    const rows = await db()
+      .select()
+      .from(settings)
+      .where(sql`${settings.key} = ${key}`);
     expect(rows).toHaveLength(1);
     expect(rows[0]!.value).toEqual({ hello: "world" });
-    await db().delete(settings).where(sql`${settings.key} = ${key}`);
+    await db()
+      .delete(settings)
+      .where(sql`${settings.key} = ${key}`);
   });
 });
 ```
@@ -1113,6 +1134,7 @@ git commit -m "feat(foundation): initial Drizzle migration + integration test"
 ## Task 10: `/api/healthz` liveness endpoint (TDD)
 
 **Files:**
+
 - Create: `src/app/api/healthz/route.ts`
 - Create: `src/app/api/healthz/route.test.ts`
 
@@ -1193,6 +1215,7 @@ git commit -m "feat(foundation): /api/healthz liveness probe"
 ## Task 11: `/api/readyz` readiness endpoint (TDD)
 
 **Files:**
+
 - Create: `src/app/api/readyz/route.ts`
 - Create: `src/app/api/readyz/route.test.ts`
 
@@ -1307,6 +1330,7 @@ git commit -m "feat(foundation): /api/readyz readiness probe"
 ## Task 12: Production Dockerfile + .dockerignore
 
 **Files:**
+
 - Create: `Dockerfile`
 - Create: `.dockerignore`
 
@@ -1422,6 +1446,7 @@ git commit -m "feat(foundation): multistage Dockerfile → distroless runtime"
 ## Task 13: Cloud Build pipeline (lint → test → build → push)
 
 **Files:**
+
 - Create: `cloudbuild.yaml`
 
 > The full deployment trigger (push to Cloud Run, run migrations job) lives in the **deployment-hardening** sub-plan. Foundation only builds and pushes the image.
@@ -1494,6 +1519,7 @@ timeout: 1800s
 - [ ] **Step 2: (Documentation step — no execution required here)**
 
 Note in the README that to actually run this pipeline you must:
+
 1. Create an Artifact Registry repo: `gcloud artifacts repositories create wpk --repository-format=docker --location=us-central1`.
 2. Create a Cloud Build trigger pointing at this repo with `cloudbuild.yaml`.
 3. Grant the Cloud Build SA `roles/artifactregistry.writer` on the project.
@@ -1512,11 +1538,12 @@ git commit -m "feat(foundation): Cloud Build pipeline (lint, test, build, push)"
 ## Task 14: README + dev-loop documentation
 
 **Files:**
+
 - Modify: `README.md` (replaces the existing stub)
 
 - [ ] **Step 1: Overwrite `README.md`**
 
-```markdown
+````markdown
 # WordPressKiller
 
 An AI-native, block-based CMS built on Next.js 16 + Drizzle + PostgreSQL, deployable to Google Cloud Run.
@@ -1551,6 +1578,7 @@ pnpm db:migrate
 # 5. Start the dev server
 pnpm dev
 ```
+````
 
 Open <http://localhost:3000>. Probe endpoints:
 
@@ -1561,18 +1589,18 @@ curl -s http://localhost:3000/api/readyz  | jq
 
 ## Common commands
 
-| Command | What it does |
-|---|---|
-| `pnpm dev` | Next.js dev server with HMR |
-| `pnpm build` | Production build (standalone output) |
-| `pnpm start` | Run the production build |
-| `pnpm lint` | ESLint |
-| `pnpm format` / `pnpm format:check` | Prettier |
-| `pnpm typecheck` | TypeScript |
-| `pnpm test` / `pnpm test:watch` | Vitest |
-| `pnpm db:generate` | Generate a new Drizzle migration from schema changes |
-| `pnpm db:migrate` | Apply pending migrations |
-| `pnpm db:studio` | Open drizzle-kit Studio |
+| Command                             | What it does                                         |
+| ----------------------------------- | ---------------------------------------------------- |
+| `pnpm dev`                          | Next.js dev server with HMR                          |
+| `pnpm build`                        | Production build (standalone output)                 |
+| `pnpm start`                        | Run the production build                             |
+| `pnpm lint`                         | ESLint                                               |
+| `pnpm format` / `pnpm format:check` | Prettier                                             |
+| `pnpm typecheck`                    | TypeScript                                           |
+| `pnpm test` / `pnpm test:watch`     | Vitest                                               |
+| `pnpm db:generate`                  | Generate a new Drizzle migration from schema changes |
+| `pnpm db:migrate`                   | Apply pending migrations                             |
+| `pnpm db:studio`                    | Open drizzle-kit Studio                              |
 
 ## Project layout
 
@@ -1604,14 +1632,15 @@ Cloud Build (`cloudbuild.yaml`) handles lint → test → image build → push t
 - **Tests**: live next to the file they test (`foo.ts` ↔ `foo.test.ts`), not in a parallel `tests/` tree. Integration tests that need a database use `describe.runIf(process.env.DATABASE_URL)`.
 - **Commits**: conventional commits (`feat(scope): …`, `fix(scope): …`, `chore: …`). Each implementation-plan task ends in a commit.
 - **Migrations**: never edit a migration once it's been committed. Make a new one.
-```
+
+````
 
 - [ ] **Step 2: Commit**
 
 ```bash
 git add README.md
 git commit -m "docs(foundation): bootstrap, dev loop, conventions"
-```
+````
 
 ---
 
@@ -1677,21 +1706,21 @@ Verify the following invariants now hold for downstream sub-plans:
 
 ## Out of Scope (Handled by Sibling Sub-Plans)
 
-| Sub-plan | What it adds |
-|---|---|
-| **auth-and-users** | Lucia, `users` / `sessions` / `oauth_accounts` tables, email-password + OAuth + magic link, role/permission matrix, `/setup` wizard |
-| **block-editor-core** | `pages` / `page_revisions` tables, BlockNote integration, block discriminated union + Zod validators, server-side renderer, admin shell, pages CRUD |
+| Sub-plan                      | What it adds                                                                                                                                                    |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **auth-and-users**            | Lucia, `users` / `sessions` / `oauth_accounts` tables, email-password + OAuth + magic link, role/permission matrix, `/setup` wizard                             |
+| **block-editor-core**         | `pages` / `page_revisions` tables, BlockNote integration, block discriminated union + Zod validators, server-side renderer, admin shell, pages CRUD             |
 | **posts-taxonomies-comments** | `posts` / `taxonomies` / `comments` tables, categories + tags UI, threaded comments, moderation queue, Claude Haiku spam classifier, Postgres `tsvector` search |
-| **media-library** | `media` table, Cloud Storage upload via signed URLs, `/api/img/[...path]` sharp transforms, media browser admin UI |
-| **themes** | `themes` + `active_theme` tables, manifest schema, default theme, customization tokens UI |
-| **ai-features** | Claude API client with prompt caching, generate-page tool, inline rewrite/expand/shorten, auto alt + SEO, translate, sidebar chat, `ai_usage` table |
-| **multilingual** | `locale` + `translationOf` on `pages` / `posts`, language switcher, hreflang, AI-translate flow |
-| **plugin-system** | `plugins` + `webhooks` tables, plugin manifest schema, webhook delivery worker, admin menu extension, hook registration |
-| **importers** | WordPress XML, Ghost JSON, markdown folder, CSV importers as Cloud Tasks jobs |
-| **exporter-backups** | ZIP export endpoint, markdown serializer for blocks, db dump, restore CLI |
-| **deployment-hardening** | Terraform module for all GCP resources, full Cloud Build deploy step, migration Cloud Run job, OpenTelemetry, alerts |
-| **cli** | `wpkiller` CLI — user, theme, plugin, import, export, backup, migrate, shell |
+| **media-library**             | `media` table, Cloud Storage upload via signed URLs, `/api/img/[...path]` sharp transforms, media browser admin UI                                              |
+| **themes**                    | `themes` + `active_theme` tables, manifest schema, default theme, customization tokens UI                                                                       |
+| **ai-features**               | Claude API client with prompt caching, generate-page tool, inline rewrite/expand/shorten, auto alt + SEO, translate, sidebar chat, `ai_usage` table             |
+| **multilingual**              | `locale` + `translationOf` on `pages` / `posts`, language switcher, hreflang, AI-translate flow                                                                 |
+| **plugin-system**             | `plugins` + `webhooks` tables, plugin manifest schema, webhook delivery worker, admin menu extension, hook registration                                         |
+| **importers**                 | WordPress XML, Ghost JSON, markdown folder, CSV importers as Cloud Tasks jobs                                                                                   |
+| **exporter-backups**          | ZIP export endpoint, markdown serializer for blocks, db dump, restore CLI                                                                                       |
+| **deployment-hardening**      | Terraform module for all GCP resources, full Cloud Build deploy step, migration Cloud Run job, OpenTelemetry, alerts                                            |
+| **cli**                       | `wpkiller` CLI — user, theme, plugin, import, export, backup, migrate, shell                                                                                    |
 
 ---
 
-*End of foundation plan.*
+_End of foundation plan._

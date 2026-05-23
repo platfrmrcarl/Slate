@@ -18,58 +18,59 @@
 
 ## File Map
 
-| Path | Purpose |
-|---|---|
-| `src/blocks/types.ts` | `Block` discriminated union (canonical format) + Zod schema |
-| `src/blocks/types.test.ts` | Parse + round-trip tests for each block type |
-| `src/blocks/ids.ts` | Stable block ID generator |
-| `src/blocks/extract-text.ts` | Plain-text extractor used by search-vector |
-| `src/blocks/extract-text.test.ts` | Tests |
-| `src/blocks/markdown.ts` | Sanitized markdown → JSX |
-| `src/blocks/markdown.test.ts` | Tests for safe rendering, link handling, raw-html stripping |
-| `src/blocks/render/BlockRenderer.tsx` | Server Component, type-discriminated renderer |
-| `src/blocks/render/blocks/*.tsx` | One Server Component per built-in block type |
-| `src/blocks/render/BlockRenderer.test.tsx` | Render snapshot per block type |
-| `src/blocks/editor/adapter.ts` | `toBlockNote(blocks): bn[]` / `fromBlockNote(bn[]): Block[]` |
-| `src/blocks/editor/adapter.test.ts` | Round-trip tests |
-| `src/blocks/editor/Editor.tsx` | Client component wrapping BlockNote with our schema |
-| `src/blocks/editor/schema.ts` | BlockNote custom-block schema for our 8 types |
-| `src/db/schema.ts` | **MODIFY** — add `pageStatus` enum + `pages` and `page_revisions` tables |
-| `src/db/migrations/0002_pages.sql` | Generated migration |
-| `src/lib/slug.ts` | `slugify`, `ensureUniqueSlug` |
-| `src/lib/slug.test.ts` | Tests |
-| `src/pages/service.ts` | Pure DB ops: createPage / getPage / getPageBySlug / listPages / updatePage / deletePage |
-| `src/pages/service.test.ts` | Integration tests |
-| `src/pages/revisions.ts` | `addRevision`, `listRevisions`, `getRevision` |
-| `src/pages/revisions.test.ts` | Integration tests |
-| `src/pages/publish.ts` | `publishPage` / `unpublishPage` — handles revalidation + jobs |
-| `src/pages/publish.test.ts` | Tests with mocked revalidate |
-| `src/pages/preview.ts` | Issue + verify preview JWT |
-| `src/pages/preview.test.ts` | Tests |
-| `src/app/admin/layout.tsx` | Protected admin shell |
-| `src/app/admin/page.tsx` | Admin dashboard stub |
-| `src/app/admin/_components/Sidebar.tsx` | Nav |
-| `src/app/admin/_components/UserMenu.tsx` | User dropdown with sign-out |
-| `src/app/admin/pages/page.tsx` | Page list |
-| `src/app/admin/pages/new/page.tsx` | Server-side: create blank draft, redirect to edit |
-| `src/app/admin/pages/[id]/page.tsx` | Page edit (loads page, hosts the editor) |
-| `src/app/admin/pages/[id]/actions.ts` | Server Actions: saveDraft, publish, unpublish, deletePage |
-| `src/app/admin/pages/[id]/actions.test.ts` | Tests |
-| `src/app/admin/pages/[id]/revisions/page.tsx` | Revision list |
-| `src/app/[...slug]/page.tsx` | Public render |
-| `src/app/[...slug]/page.test.tsx` | Tests |
-| `src/app/api/preview/[token]/route.ts` | Enters draft mode for a token |
-| `src/app/api/preview/[token]/route.test.ts` | Tests |
-| `src/app/api/jobs/revalidate/route.ts` | Internal-auth handler called by Cloud Tasks (deployment-hardening wires the actual Cloud Task) |
-| `src/app/api/jobs/revalidate/route.test.ts` | Tests |
-| `src/middleware.ts` | **MODIFY** — block public access to `/admin/*` for unauthenticated users at the edge |
-| `.env.example` | **MODIFY** — add `PREVIEW_TOKEN_SECRET`, `INTERNAL_JOB_SECRET` |
+| Path                                          | Purpose                                                                                        |
+| --------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `src/blocks/types.ts`                         | `Block` discriminated union (canonical format) + Zod schema                                    |
+| `src/blocks/types.test.ts`                    | Parse + round-trip tests for each block type                                                   |
+| `src/blocks/ids.ts`                           | Stable block ID generator                                                                      |
+| `src/blocks/extract-text.ts`                  | Plain-text extractor used by search-vector                                                     |
+| `src/blocks/extract-text.test.ts`             | Tests                                                                                          |
+| `src/blocks/markdown.ts`                      | Sanitized markdown → JSX                                                                       |
+| `src/blocks/markdown.test.ts`                 | Tests for safe rendering, link handling, raw-html stripping                                    |
+| `src/blocks/render/BlockRenderer.tsx`         | Server Component, type-discriminated renderer                                                  |
+| `src/blocks/render/blocks/*.tsx`              | One Server Component per built-in block type                                                   |
+| `src/blocks/render/BlockRenderer.test.tsx`    | Render snapshot per block type                                                                 |
+| `src/blocks/editor/adapter.ts`                | `toBlockNote(blocks): bn[]` / `fromBlockNote(bn[]): Block[]`                                   |
+| `src/blocks/editor/adapter.test.ts`           | Round-trip tests                                                                               |
+| `src/blocks/editor/Editor.tsx`                | Client component wrapping BlockNote with our schema                                            |
+| `src/blocks/editor/schema.ts`                 | BlockNote custom-block schema for our 8 types                                                  |
+| `src/db/schema.ts`                            | **MODIFY** — add `pageStatus` enum + `pages` and `page_revisions` tables                       |
+| `src/db/migrations/0002_pages.sql`            | Generated migration                                                                            |
+| `src/lib/slug.ts`                             | `slugify`, `ensureUniqueSlug`                                                                  |
+| `src/lib/slug.test.ts`                        | Tests                                                                                          |
+| `src/pages/service.ts`                        | Pure DB ops: createPage / getPage / getPageBySlug / listPages / updatePage / deletePage        |
+| `src/pages/service.test.ts`                   | Integration tests                                                                              |
+| `src/pages/revisions.ts`                      | `addRevision`, `listRevisions`, `getRevision`                                                  |
+| `src/pages/revisions.test.ts`                 | Integration tests                                                                              |
+| `src/pages/publish.ts`                        | `publishPage` / `unpublishPage` — handles revalidation + jobs                                  |
+| `src/pages/publish.test.ts`                   | Tests with mocked revalidate                                                                   |
+| `src/pages/preview.ts`                        | Issue + verify preview JWT                                                                     |
+| `src/pages/preview.test.ts`                   | Tests                                                                                          |
+| `src/app/admin/layout.tsx`                    | Protected admin shell                                                                          |
+| `src/app/admin/page.tsx`                      | Admin dashboard stub                                                                           |
+| `src/app/admin/_components/Sidebar.tsx`       | Nav                                                                                            |
+| `src/app/admin/_components/UserMenu.tsx`      | User dropdown with sign-out                                                                    |
+| `src/app/admin/pages/page.tsx`                | Page list                                                                                      |
+| `src/app/admin/pages/new/page.tsx`            | Server-side: create blank draft, redirect to edit                                              |
+| `src/app/admin/pages/[id]/page.tsx`           | Page edit (loads page, hosts the editor)                                                       |
+| `src/app/admin/pages/[id]/actions.ts`         | Server Actions: saveDraft, publish, unpublish, deletePage                                      |
+| `src/app/admin/pages/[id]/actions.test.ts`    | Tests                                                                                          |
+| `src/app/admin/pages/[id]/revisions/page.tsx` | Revision list                                                                                  |
+| `src/app/[...slug]/page.tsx`                  | Public render                                                                                  |
+| `src/app/[...slug]/page.test.tsx`             | Tests                                                                                          |
+| `src/app/api/preview/[token]/route.ts`        | Enters draft mode for a token                                                                  |
+| `src/app/api/preview/[token]/route.test.ts`   | Tests                                                                                          |
+| `src/app/api/jobs/revalidate/route.ts`        | Internal-auth handler called by Cloud Tasks (deployment-hardening wires the actual Cloud Task) |
+| `src/app/api/jobs/revalidate/route.test.ts`   | Tests                                                                                          |
+| `src/middleware.ts`                           | **MODIFY** — block public access to `/admin/*` for unauthenticated users at the edge           |
+| `.env.example`                                | **MODIFY** — add `PREVIEW_TOKEN_SECRET`, `INTERNAL_JOB_SECRET`                                 |
 
 ---
 
 ## Task 1: Block types + Zod validators (TDD)
 
 **Files:**
+
 - Create: `src/blocks/types.ts`
 - Create: `src/blocks/types.test.ts`
 - Create: `src/blocks/ids.ts`
@@ -216,7 +217,14 @@ const id = z.string().min(8).max(64);
 const headingSchema = z.object({
   id,
   type: z.literal("heading"),
-  level: z.union([z.literal(1), z.literal(2), z.literal(3), z.literal(4), z.literal(5), z.literal(6)]),
+  level: z.union([
+    z.literal(1),
+    z.literal(2),
+    z.literal(3),
+    z.literal(4),
+    z.literal(5),
+    z.literal(6),
+  ]),
   text: z.string(),
 });
 
@@ -315,6 +323,7 @@ git commit -m "feat(blocks): canonical discriminated-union Block type + Zod vali
 ## Task 2: Pages schema + migration
 
 **Files:**
+
 - Modify: `src/db/schema.ts`
 - Create: `src/db/migrations/0002_pages.sql` (generated)
 
@@ -425,6 +434,7 @@ git commit -m "feat(pages): pages + page_revisions tables with tsvector search"
 ## Task 3: Slug utilities (TDD)
 
 **Files:**
+
 - Create: `src/lib/slug.ts`
 - Create: `src/lib/slug.test.ts`
 
@@ -543,6 +553,7 @@ git commit -m "feat(pages): slugify + ensureUniqueSlug helpers"
 ## Task 4: Pages CRUD service (TDD)
 
 **Files:**
+
 - Create: `src/pages/service.ts`
 - Create: `src/pages/service.test.ts`
 
@@ -555,14 +566,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { closeDb, db } from "@/db";
 import { pages, users } from "@/db/schema";
 import { sql } from "drizzle-orm";
-import {
-  createPage,
-  getPage,
-  getPageBySlug,
-  listPages,
-  updatePage,
-  deletePage,
-} from "./service";
+import { createPage, getPage, getPageBySlug, listPages, updatePage, deletePage } from "./service";
 import { generateBlockId } from "@/blocks/ids";
 
 const HAS_DB = !!process.env.DATABASE_URL;
@@ -585,9 +589,13 @@ beforeAll(async () => {
 afterAll(async () => {
   if (!HAS_DB) return;
   for (const id of pageIds) {
-    await db().delete(pages).where(sql`${pages.id} = ${id}`);
+    await db()
+      .delete(pages)
+      .where(sql`${pages.id} = ${id}`);
   }
-  await db().delete(users).where(sql`${users.id} = ${authorId}`);
+  await db()
+    .delete(users)
+    .where(sql`${users.id} = ${authorId}`);
   await closeDb();
 });
 
@@ -652,8 +660,7 @@ describe.runIf(HAS_DB)("pages service", () => {
     const b = await createPage({ title: "Newer", authorId, blocks: [] });
     pageIds.push(b.id);
     const drafts = await listPages({ status: "draft", limit: 50 });
-    const found = drafts.findIndex((p) => p.id === b.id) <
-      drafts.findIndex((p) => p.id === a.id);
+    const found = drafts.findIndex((p) => p.id === b.id) < drafts.findIndex((p) => p.id === a.id);
     expect(found).toBe(true);
   });
 
@@ -823,7 +830,10 @@ export async function listPages(opts: ListPagesOptions = {}): Promise<Page[]> {
 
 export async function deletePage(id: string, opts: { soft: boolean }): Promise<void> {
   if (opts.soft) {
-    await db().update(pages).set({ status: "trash", updatedAt: sql`now()` }).where(eq(pages.id, id));
+    await db()
+      .update(pages)
+      .set({ status: "trash", updatedAt: sql`now()` })
+      .where(eq(pages.id, id));
   } else {
     await db().delete(pages).where(eq(pages.id, id));
   }
@@ -852,6 +862,7 @@ git commit -m "feat(pages): CRUD service with slug uniqueness + block validation
 ## Task 5: Page revisions (TDD)
 
 **Files:**
+
 - Create: `src/pages/revisions.ts`
 - Create: `src/pages/revisions.test.ts`
 
@@ -888,8 +899,12 @@ beforeAll(async () => {
 
 afterAll(async () => {
   if (!HAS_DB) return;
-  await db().delete(pages).where(sql`${pages.id} = ${pageId}`);
-  await db().delete(users).where(sql`${users.id} = ${authorId}`);
+  await db()
+    .delete(pages)
+    .where(sql`${pages.id} = ${pageId}`);
+  await db()
+    .delete(users)
+    .where(sql`${users.id} = ${authorId}`);
   await closeDb();
 });
 
@@ -1003,6 +1018,7 @@ git commit -m "feat(pages): page revisions service"
 ## Task 6: Plain-text extractor (TDD)
 
 **Files:**
+
 - Create: `src/blocks/extract-text.ts`
 - Create: `src/blocks/extract-text.test.ts`
 
@@ -1017,13 +1033,18 @@ import { describe, expect, it } from "vitest";
 import { extractPlainText } from "./extract-text";
 import type { Block } from "./types";
 
-function b<T extends Block["type"]>(type: T, rest: Omit<Extract<Block, { type: T }>, "id" | "type">): Block {
+function b<T extends Block["type"]>(
+  type: T,
+  rest: Omit<Extract<Block, { type: T }>, "id" | "type">,
+): Block {
   return { id: `id-${type}`, type, ...rest } as Block;
 }
 
 describe("extractPlainText", () => {
   it("heading text only", () => {
-    expect(extractPlainText([b("heading", { level: 1, text: "Hello *world*" })])).toBe("Hello world");
+    expect(extractPlainText([b("heading", { level: 1, text: "Hello *world*" })])).toBe(
+      "Hello world",
+    );
   });
 
   it("paragraph strips markdown emphasis but keeps words", () => {
@@ -1140,6 +1161,7 @@ git commit -m "feat(blocks): plain-text extractor for search + SEO meta"
 ## Task 7: Sanitized markdown renderer (TDD)
 
 **Files:**
+
 - Create: `src/blocks/markdown.ts`
 - Create: `src/blocks/markdown.test.ts`
 
@@ -1153,7 +1175,7 @@ pnpm add remark-parse@11 remark-gfm@4 remark-rehype@11 rehype-sanitize@6 rehype-
 
 `src/blocks/markdown.test.ts`:
 
-```ts
+````ts
 import { describe, expect, it } from "vitest";
 import { renderMarkdownToHtml } from "./markdown";
 
@@ -1196,7 +1218,7 @@ describe("renderMarkdownToHtml", () => {
     expect(await renderMarkdownToHtml("")).toBe("");
   });
 });
-```
+````
 
 - [ ] **Step 3: Run — expect failure**
 
@@ -1219,11 +1241,7 @@ const schema = {
   attributes: {
     ...defaultSchema.attributes,
     code: [...(defaultSchema.attributes?.code ?? []), ["className", /^language-[\w-]+$/]],
-    a: [
-      ...(defaultSchema.attributes?.a ?? []),
-      ["rel"],
-      ["target"],
-    ],
+    a: [...(defaultSchema.attributes?.a ?? []), ["rel"], ["target"]],
   },
 };
 
@@ -1259,6 +1277,7 @@ git commit -m "feat(blocks): sanitized markdown → HTML renderer"
 ## Task 8: Server-side block renderer
 
 **Files:**
+
 - Create: `src/blocks/render/blocks/Heading.tsx`
 - Create: `src/blocks/render/blocks/Paragraph.tsx`
 - Create: `src/blocks/render/blocks/List.tsx`
@@ -1400,11 +1419,7 @@ export function Embed({ block }: { block: Extract<Block, { type: "embed" }> }) {
   }
   // twitter + generic: render a fallback link; full oEmbed lookup arrives with deployment-hardening
   return (
-    <a
-      href={block.url}
-      rel="noopener nofollow"
-      className="my-4 block text-blue-700 underline"
-    >
+    <a href={block.url} rel="noopener nofollow" className="my-4 block text-blue-700 underline">
       {block.url}
     </a>
   );
@@ -1463,11 +1478,7 @@ import { Embed } from "./blocks/Embed";
 import { Button } from "./blocks/Button";
 
 export async function BlockRenderer({ blocks }: { blocks: Block[] }) {
-  return (
-    <>
-      {await Promise.all(blocks.map((b) => renderOne(b)))}
-    </>
-  );
+  return <>{await Promise.all(blocks.map((b) => renderOne(b)))}</>;
 }
 
 async function renderOne(block: Block): Promise<JSX.Element> {
@@ -1518,9 +1529,7 @@ describe("BlockRenderer", () => {
   });
 
   it("renders a paragraph with markdown", async () => {
-    const out = await html([
-      { id: id("p1"), type: "paragraph", markdown: "**bold** text" },
-    ]);
+    const out = await html([{ id: id("p1"), type: "paragraph", markdown: "**bold** text" }]);
     expect(out).toContain("<strong>bold</strong>");
   });
 
@@ -1589,6 +1598,7 @@ git commit -m "feat(blocks): server-side renderer + 8 built-in block components"
 ## Task 9: Admin shell layout
 
 **Files:**
+
 - Create: `src/app/admin/layout.tsx`
 - Create: `src/app/admin/page.tsx`
 - Create: `src/app/admin/_components/Sidebar.tsx`
@@ -1686,11 +1696,7 @@ export function UserMenu({ user }: { user: User }) {
         {user.displayName} · <span className="text-xs text-gray-500">{user.role}</span>
       </span>
       <form action={() => start(() => signOutAction())}>
-        <button
-          type="submit"
-          disabled={pending}
-          className="rounded border px-3 py-1 text-sm"
-        >
+        <button type="submit" disabled={pending} className="rounded border px-3 py-1 text-sm">
           {pending ? "…" : "Sign out"}
         </button>
       </form>
@@ -1755,6 +1761,7 @@ git commit -m "feat(admin): protected /admin shell with sidebar + user menu"
 ## Task 10: BlockNote adapter + Editor wrapper (TDD)
 
 **Files:**
+
 - Create: `src/blocks/editor/schema.ts`
 - Create: `src/blocks/editor/adapter.ts`
 - Create: `src/blocks/editor/adapter.test.ts`
@@ -1835,9 +1842,7 @@ describe("adapter round-trip", () => {
   });
 
   it("quote round-trip preserves markdown + attribution", () => {
-    const src: Block[] = [
-      { id: id("q1"), type: "quote", markdown: "wisdom", attribution: "Sage" },
-    ];
+    const src: Block[] = [{ id: id("q1"), type: "quote", markdown: "wisdom", attribution: "Sage" }];
     expect(fromBlockNote(toBlockNote(src))).toEqual(src);
   });
 
@@ -1995,7 +2000,9 @@ export function fromBlockNote(bn: BNBlock[]): Block[] {
       case "bulletListItem":
       case "numberedListItem": {
         const ordered = node.type === "numberedListItem";
-        const items = textOf(node.content).split("\n").filter((s) => s.length > 0);
+        const items = textOf(node.content)
+          .split("\n")
+          .filter((s) => s.length > 0);
         if (items.length === 0) items.push("");
         out.push({ id, type: "list", ordered, items });
         break;
@@ -2027,7 +2034,13 @@ export function fromBlockNote(bn: BNBlock[]): Block[] {
           | "spotify"
           | "generic";
         const url = props?.url ?? "";
-        out.push({ id, type: "embed", provider, url, ...(props?.html ? { html: props.html } : {}) });
+        out.push({
+          id,
+          type: "embed",
+          provider,
+          url,
+          ...(props?.html ? { html: props.html } : {}),
+        });
         break;
       }
       case "button": {
@@ -2116,6 +2129,7 @@ git commit -m "feat(editor): BlockNote integration with canonical-Block adapter"
 ## Task 11: Page edit screen + Server Actions
 
 **Files:**
+
 - Create: `src/app/admin/pages/[id]/page.tsx`
 - Create: `src/app/admin/pages/[id]/actions.ts`
 - Create: `src/app/admin/pages/[id]/actions.test.ts`
@@ -2329,13 +2343,14 @@ import { db } from "@/db";
 import { pages } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
-export async function publishPage(
-  pageId: string,
-  _opts: { actorId: string },
-): Promise<void> {
+export async function publishPage(pageId: string, _opts: { actorId: string }): Promise<void> {
   const [row] = await db()
     .update(pages)
-    .set({ status: "published", publishedAt: sql`coalesce(${pages.publishedAt}, now())`, updatedAt: sql`now()` })
+    .set({
+      status: "published",
+      publishedAt: sql`coalesce(${pages.publishedAt}, now())`,
+      updatedAt: sql`now()`,
+    })
     .where(eq(pages.id, pageId))
     .returning();
   if (!row) return;
@@ -2343,10 +2358,7 @@ export async function publishPage(
   revalidatePath("/sitemap.xml");
 }
 
-export async function unpublishPage(
-  pageId: string,
-  _opts: { actorId: string },
-): Promise<void> {
+export async function unpublishPage(pageId: string, _opts: { actorId: string }): Promise<void> {
   const [row] = await db()
     .update(pages)
     .set({ status: "draft", updatedAt: sql`now()` })
@@ -2369,11 +2381,7 @@ import { can } from "@/auth/permissions";
 import { getPage } from "@/pages/service";
 import { EditorClient } from "./EditorClient";
 
-export default async function EditPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default async function EditPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const user = await requireUser();
   const page = await getPage(id);
@@ -2413,12 +2421,7 @@ export default async function EditPage({
 import { useState, useTransition } from "react";
 import { Editor } from "@/blocks/editor/Editor";
 import type { Block } from "@/blocks/types";
-import {
-  publishAction,
-  saveDraftAction,
-  unpublishAction,
-  deletePageAction,
-} from "./actions";
+import { publishAction, saveDraftAction, unpublishAction, deletePageAction } from "./actions";
 
 interface Props {
   pageId: string;
@@ -2480,26 +2483,34 @@ export function EditorClient(props: Props) {
       <div className="grid gap-2 rounded border bg-white p-4">
         <label className="grid gap-1 text-sm">
           <span className="text-gray-600">Title</span>
-          <input value={title} onChange={(e) => setTitle(e.target.value)} className="rounded border p-2" />
+          <input
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="rounded border p-2"
+          />
         </label>
         <label className="grid gap-1 text-sm">
           <span className="text-gray-600">Slug</span>
-          <input value={slug} onChange={(e) => setSlug(e.target.value)} className="rounded border p-2" />
+          <input
+            value={slug}
+            onChange={(e) => setSlug(e.target.value)}
+            className="rounded border p-2"
+          />
         </label>
         <label className="grid gap-1 text-sm">
           <span className="text-gray-600">Excerpt</span>
-          <input value={excerpt} onChange={(e) => setExcerpt(e.target.value)} className="rounded border p-2" />
+          <input
+            value={excerpt}
+            onChange={(e) => setExcerpt(e.target.value)}
+            className="rounded border p-2"
+          />
         </label>
       </div>
 
       <Editor initialBlocks={blocks} onChange={setBlocks} />
 
       <div className="flex items-center gap-2">
-        <button
-          onClick={save}
-          disabled={pending}
-          className="rounded border px-4 py-2"
-        >
+        <button onClick={save} disabled={pending} className="rounded border px-4 py-2">
           Save draft
         </button>
         {status !== "published" ? (
@@ -2511,11 +2522,7 @@ export function EditorClient(props: Props) {
             Publish
           </button>
         ) : (
-          <button
-            onClick={unpublish}
-            disabled={pending}
-            className="rounded border px-4 py-2"
-          >
+          <button onClick={unpublish} disabled={pending} className="rounded border px-4 py-2">
             Unpublish
           </button>
         )}
@@ -2551,6 +2558,7 @@ git commit -m "feat(admin): page edit screen + Server Actions + publish service"
 ## Task 12: Page list + new screens
 
 **Files:**
+
 - Create: `src/app/admin/pages/page.tsx`
 - Create: `src/app/admin/pages/new/page.tsx`
 
@@ -2577,10 +2585,7 @@ export default async function PagesIndex() {
     <section>
       <header className="mb-4 flex items-center justify-between">
         <h1 className="text-xl font-semibold">Pages</h1>
-        <Link
-          href="/admin/pages/new"
-          className="rounded bg-black px-4 py-2 text-sm text-white"
-        >
+        <Link href="/admin/pages/new" className="rounded bg-black px-4 py-2 text-sm text-white">
           New page
         </Link>
       </header>
@@ -2657,6 +2662,7 @@ git commit -m "feat(admin): page list + new-page redirect"
 ## Task 13: Public page route + minimal layout
 
 **Files:**
+
 - Create: `src/app/[...slug]/page.tsx`
 - Modify: `src/app/layout.tsx` (passthrough for now; theme sub-plan replaces this)
 
@@ -2686,11 +2692,7 @@ export async function generateMetadata({
   };
 }
 
-export default async function PublicPage({
-  params,
-}: {
-  params: Promise<{ slug: string[] }>;
-}) {
+export default async function PublicPage({ params }: { params: Promise<{ slug: string[] }> }) {
   const { slug: parts } = await params;
   const slug = parts.join("/");
   const dm = await draftMode();
@@ -2724,6 +2726,7 @@ git commit -m "feat(pages): public catch-all route with ISR + metadata"
 ## Task 14: Preview mode + on-demand revalidation route
 
 **Files:**
+
 - Create: `src/pages/preview.ts`
 - Create: `src/pages/preview.test.ts`
 - Create: `src/app/api/preview/[token]/route.ts`
@@ -3033,8 +3036,7 @@ export async function POST(req: Request): Promise<Response> {
   const user = await requireUser();
   const page = await getPage(pageId);
   if (!page) return new Response("not found", { status: 404 });
-  const ok =
-    can(user, "edit:any-post") || can(user, "edit:own-post", { authorId: page.authorId });
+  const ok = can(user, "edit:any-post") || can(user, "edit:own-post", { authorId: page.authorId });
   if (!ok) return new Response("forbidden", { status: 403 });
   const token = await issuePreviewToken(pageId);
   return Response.json({ url: `/api/preview/${token}` });
@@ -3133,18 +3135,18 @@ git tag -a v0.3.0-editor -m "Block editor core complete: pages, 8 built-in block
 
 ## Out of Scope (Handled by Sibling Sub-Plans)
 
-| Sub-plan | What it adds on top of editor core |
-|---|---|
-| **media-library** | `image` + `gallery` blocks; uploads + transforms; replaces image-URL inputs in editor with a media picker. |
-| **posts-taxonomies-comments** | `posts` table mirroring `pages`, plus categories/tags/comments. Reuses block editor verbatim. |
-| **themes** | Replaces hard-coded styling in block renderers with theme-provided primitives (`theme.Heading`, `theme.Paragraph`, etc.). Layout sub-plan wraps `/[...slug]/page.tsx` with theme Layout. |
-| **ai-features** | `generate-page` Server Action that emits a `Block[]` via Claude structured output; inline rewrite for paragraph block; `seoTitle` / `seoDescription` auto-fill on save. |
-| **multilingual** | Surfaces locale selector in admin; populates `locale` on create; wires hreflang into the public route's `<head>`. |
-| **plugin-system** | Extends `Block` union via custom block registration; webhook events for `page.created / .updated / .published / .unpublished`. |
-| **importers** | WordPress XML / Ghost / Markdown → `Block[]` via the canonical shape; uses `parseBlocks` and `createPage`. |
-| **exporter-backups** | Serializes `Block[]` to markdown files with frontmatter for non-text blocks. |
-| **deployment-hardening** | Wires the `revalidate` Cloud Task; pre-warms ISR on publish; rate-limits `/api/preview/*`. |
-| **cli** | `wpkiller page list/show/publish` calls into `src/pages/service.ts` directly. |
+| Sub-plan                      | What it adds on top of editor core                                                                                                                                                       |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **media-library**             | `image` + `gallery` blocks; uploads + transforms; replaces image-URL inputs in editor with a media picker.                                                                               |
+| **posts-taxonomies-comments** | `posts` table mirroring `pages`, plus categories/tags/comments. Reuses block editor verbatim.                                                                                            |
+| **themes**                    | Replaces hard-coded styling in block renderers with theme-provided primitives (`theme.Heading`, `theme.Paragraph`, etc.). Layout sub-plan wraps `/[...slug]/page.tsx` with theme Layout. |
+| **ai-features**               | `generate-page` Server Action that emits a `Block[]` via Claude structured output; inline rewrite for paragraph block; `seoTitle` / `seoDescription` auto-fill on save.                  |
+| **multilingual**              | Surfaces locale selector in admin; populates `locale` on create; wires hreflang into the public route's `<head>`.                                                                        |
+| **plugin-system**             | Extends `Block` union via custom block registration; webhook events for `page.created / .updated / .published / .unpublished`.                                                           |
+| **importers**                 | WordPress XML / Ghost / Markdown → `Block[]` via the canonical shape; uses `parseBlocks` and `createPage`.                                                                               |
+| **exporter-backups**          | Serializes `Block[]` to markdown files with frontmatter for non-text blocks.                                                                                                             |
+| **deployment-hardening**      | Wires the `revalidate` Cloud Task; pre-warms ISR on publish; rate-limits `/api/preview/*`.                                                                                               |
+| **cli**                       | `wpkiller page list/show/publish` calls into `src/pages/service.ts` directly.                                                                                                            |
 
 ---
 
@@ -3158,4 +3160,4 @@ git tag -a v0.3.0-editor -m "Block editor core complete: pages, 8 built-in block
 
 ---
 
-*End of block-editor-core plan.*
+_End of block-editor-core plan._

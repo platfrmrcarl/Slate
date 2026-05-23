@@ -16,55 +16,56 @@
 
 ## File Map
 
-| Path | Purpose |
-|---|---|
-| `src/env.ts` | **MODIFY** — add `AUTH_SECRET`, OAuth credentials, `RESEND_API_KEY`, `APP_URL` |
-| `src/env.test.ts` | **MODIFY** — extend tests for new env keys |
-| `src/db/schema.ts` | **MODIFY** — add `userRole` enum + `users`, `sessions`, `oauthAccounts`, `magicLinkTokens`, `passwordResetTokens` tables |
-| `src/db/migrations/0001_auth.sql` | Generated migration |
-| `src/auth/passwords.ts` | Argon2id hash + verify |
-| `src/auth/passwords.test.ts` | Tests for above |
-| `src/auth/tokens.ts` | Session token + random-token primitives (oslojs) |
-| `src/auth/tokens.test.ts` | Tests for above |
-| `src/auth/cookies.ts` | Cookie set/clear helpers |
-| `src/auth/cookies.test.ts` | Tests for above |
-| `src/auth/sessions.ts` | createSession / validateSessionToken / invalidateSession |
-| `src/auth/sessions.test.ts` | Integration tests (DB required) |
-| `src/auth/permissions.ts` | Pure-function `can(user, action, resource?)` matrix |
-| `src/auth/permissions.test.ts` | Tests covering every role × action |
-| `src/auth/context.ts` | `getOptionalUser`, `requireUser`, `requireRole` for Server Components/Actions |
-| `src/auth/context.test.ts` | Tests |
-| `src/auth/email.ts` | Minimal Resend wrapper; logs to stdout in dev/test |
-| `src/auth/email.test.ts` | Tests |
-| `src/auth/users.ts` | `createUser`, `findUserByEmail`, `verifyPassword` orchestration |
-| `src/auth/users.test.ts` | Tests |
-| `src/auth/oauth/index.ts` | Shared OAuth handler scaffolding |
-| `src/auth/oauth/google.ts` | Google provider config + helpers |
-| `src/auth/oauth/github.ts` | GitHub provider config + helpers |
-| `src/auth/oauth/oauth.test.ts` | Tests |
-| `src/app/actions/auth.ts` | Server Actions: signUp, signIn, signOut, requestMagicLink |
-| `src/app/actions/auth.test.ts` | Tests for Server Actions |
-| `src/app/api/auth/magic-link/verify/route.ts` | GET handler for magic-link confirmation links |
-| `src/app/api/auth/magic-link/verify/route.test.ts` | Tests |
-| `src/app/api/auth/oauth/[provider]/start/route.ts` | OAuth initiation |
-| `src/app/api/auth/oauth/[provider]/callback/route.ts` | OAuth callback |
-| `src/app/api/auth/oauth/oauth.route.test.ts` | Tests |
-| `src/app/(auth)/layout.tsx` | Public auth shell |
-| `src/app/(auth)/sign-in/page.tsx` | Sign-in UI |
-| `src/app/(auth)/sign-up/page.tsx` | Sign-up UI |
-| `src/app/(auth)/magic-link/page.tsx` | Request-magic-link UI |
-| `src/app/(auth)/magic-link/sent/page.tsx` | Confirmation page |
-| `src/app/setup/page.tsx` | First-run wizard |
-| `src/app/setup/actions.ts` | Server Actions for wizard |
-| `src/app/setup/actions.test.ts` | Tests |
-| `src/middleware.ts` | Redirect to `/setup` if no owner exists |
-| `.env.example` | **MODIFY** — uncomment auth env vars + add `APP_URL` |
+| Path                                                  | Purpose                                                                                                                  |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `src/env.ts`                                          | **MODIFY** — add `AUTH_SECRET`, OAuth credentials, `RESEND_API_KEY`, `APP_URL`                                           |
+| `src/env.test.ts`                                     | **MODIFY** — extend tests for new env keys                                                                               |
+| `src/db/schema.ts`                                    | **MODIFY** — add `userRole` enum + `users`, `sessions`, `oauthAccounts`, `magicLinkTokens`, `passwordResetTokens` tables |
+| `src/db/migrations/0001_auth.sql`                     | Generated migration                                                                                                      |
+| `src/auth/passwords.ts`                               | Argon2id hash + verify                                                                                                   |
+| `src/auth/passwords.test.ts`                          | Tests for above                                                                                                          |
+| `src/auth/tokens.ts`                                  | Session token + random-token primitives (oslojs)                                                                         |
+| `src/auth/tokens.test.ts`                             | Tests for above                                                                                                          |
+| `src/auth/cookies.ts`                                 | Cookie set/clear helpers                                                                                                 |
+| `src/auth/cookies.test.ts`                            | Tests for above                                                                                                          |
+| `src/auth/sessions.ts`                                | createSession / validateSessionToken / invalidateSession                                                                 |
+| `src/auth/sessions.test.ts`                           | Integration tests (DB required)                                                                                          |
+| `src/auth/permissions.ts`                             | Pure-function `can(user, action, resource?)` matrix                                                                      |
+| `src/auth/permissions.test.ts`                        | Tests covering every role × action                                                                                       |
+| `src/auth/context.ts`                                 | `getOptionalUser`, `requireUser`, `requireRole` for Server Components/Actions                                            |
+| `src/auth/context.test.ts`                            | Tests                                                                                                                    |
+| `src/auth/email.ts`                                   | Minimal Resend wrapper; logs to stdout in dev/test                                                                       |
+| `src/auth/email.test.ts`                              | Tests                                                                                                                    |
+| `src/auth/users.ts`                                   | `createUser`, `findUserByEmail`, `verifyPassword` orchestration                                                          |
+| `src/auth/users.test.ts`                              | Tests                                                                                                                    |
+| `src/auth/oauth/index.ts`                             | Shared OAuth handler scaffolding                                                                                         |
+| `src/auth/oauth/google.ts`                            | Google provider config + helpers                                                                                         |
+| `src/auth/oauth/github.ts`                            | GitHub provider config + helpers                                                                                         |
+| `src/auth/oauth/oauth.test.ts`                        | Tests                                                                                                                    |
+| `src/app/actions/auth.ts`                             | Server Actions: signUp, signIn, signOut, requestMagicLink                                                                |
+| `src/app/actions/auth.test.ts`                        | Tests for Server Actions                                                                                                 |
+| `src/app/api/auth/magic-link/verify/route.ts`         | GET handler for magic-link confirmation links                                                                            |
+| `src/app/api/auth/magic-link/verify/route.test.ts`    | Tests                                                                                                                    |
+| `src/app/api/auth/oauth/[provider]/start/route.ts`    | OAuth initiation                                                                                                         |
+| `src/app/api/auth/oauth/[provider]/callback/route.ts` | OAuth callback                                                                                                           |
+| `src/app/api/auth/oauth/oauth.route.test.ts`          | Tests                                                                                                                    |
+| `src/app/(auth)/layout.tsx`                           | Public auth shell                                                                                                        |
+| `src/app/(auth)/sign-in/page.tsx`                     | Sign-in UI                                                                                                               |
+| `src/app/(auth)/sign-up/page.tsx`                     | Sign-up UI                                                                                                               |
+| `src/app/(auth)/magic-link/page.tsx`                  | Request-magic-link UI                                                                                                    |
+| `src/app/(auth)/magic-link/sent/page.tsx`             | Confirmation page                                                                                                        |
+| `src/app/setup/page.tsx`                              | First-run wizard                                                                                                         |
+| `src/app/setup/actions.ts`                            | Server Actions for wizard                                                                                                |
+| `src/app/setup/actions.test.ts`                       | Tests                                                                                                                    |
+| `src/middleware.ts`                                   | Redirect to `/setup` if no owner exists                                                                                  |
+| `.env.example`                                        | **MODIFY** — uncomment auth env vars + add `APP_URL`                                                                     |
 
 ---
 
 ## Task 1: Extend env + auth schema + migration
 
 **Files:**
+
 - Modify: `src/env.ts`
 - Modify: `src/env.test.ts`
 - Modify: `src/db/schema.ts`
@@ -112,9 +113,9 @@ describe("parseEnv (auth additions)", () => {
   });
 
   it("OAuth credentials require client_id + client_secret together", () => {
-    expect(() =>
-      parseEnv({ ...base, GOOGLE_OAUTH_CLIENT_ID: "id-only" }),
-    ).toThrow(/GOOGLE_OAUTH_CLIENT_SECRET/);
+    expect(() => parseEnv({ ...base, GOOGLE_OAUTH_CLIENT_ID: "id-only" })).toThrow(
+      /GOOGLE_OAUTH_CLIENT_SECRET/,
+    );
   });
 });
 ```
@@ -137,7 +138,9 @@ import { z } from "zod";
 const schema = z
   .object({
     NODE_ENV: z.enum(["development", "test", "production"]),
-    DATABASE_URL: z.string().regex(/^postgres(ql)?:\/\//, "DATABASE_URL must be a postgres:// connection string"),
+    DATABASE_URL: z
+      .string()
+      .regex(/^postgres(ql)?:\/\//, "DATABASE_URL must be a postgres:// connection string"),
     LOG_LEVEL: z
       .enum(["fatal", "error", "warn", "info", "debug", "trace", "silent"])
       .default("info"),
@@ -378,6 +381,7 @@ git commit -m "feat(auth): extend env + auth tables (users/sessions/oauth/tokens
 ## Task 2: Argon2id password hashing (TDD)
 
 **Files:**
+
 - Create: `src/auth/passwords.ts`
 - Create: `src/auth/passwords.test.ts`
 
@@ -489,6 +493,7 @@ git commit -m "feat(auth): Argon2id password hashing"
 ## Task 3: Session token primitives (TDD)
 
 **Files:**
+
 - Create: `src/auth/tokens.ts`
 - Create: `src/auth/tokens.test.ts`
 
@@ -571,10 +576,7 @@ Expected: module-not-found failure.
 
 ```ts
 import { sha256 } from "@oslojs/crypto/sha2";
-import {
-  encodeBase32LowerCaseNoPadding,
-  encodeHexLowerCase,
-} from "@oslojs/encoding";
+import { encodeBase32LowerCaseNoPadding, encodeHexLowerCase } from "@oslojs/encoding";
 
 const SESSION_TOKEN_BYTES = 20; // 20 raw bytes → 32 base32 chars
 const RANDOM_TOKEN_BYTES = 25; // 25 raw bytes → 40 base32 chars
@@ -629,6 +631,7 @@ git commit -m "feat(auth): session + opaque token primitives via @oslojs"
 ## Task 4: Cookie helpers (TDD)
 
 **Files:**
+
 - Create: `src/auth/cookies.ts`
 - Create: `src/auth/cookies.test.ts`
 
@@ -749,6 +752,7 @@ git commit -m "feat(auth): session cookie helpers"
 ## Task 5: Session service (TDD)
 
 **Files:**
+
 - Create: `src/auth/sessions.ts`
 - Create: `src/auth/sessions.test.ts`
 
@@ -788,7 +792,9 @@ beforeAll(async () => {
 
 afterAll(async () => {
   if (!HAS_DB) return;
-  await db().delete(users).where(sql`${users.id} = ${userId}`);
+  await db()
+    .delete(users)
+    .where(sql`${users.id} = ${userId}`);
   await closeDb();
 });
 
@@ -963,6 +969,7 @@ git commit -m "feat(auth): session create/validate/invalidate service"
 ## Task 6: Permissions matrix (TDD)
 
 **Files:**
+
 - Create: `src/auth/permissions.ts`
 - Create: `src/auth/permissions.test.ts`
 
@@ -1029,9 +1036,7 @@ describe("permissions matrix", () => {
       expect(can(u, "publish:own-post", resource)).toBe(false);
     });
     it("denies contributor and subscriber even on their own", () => {
-      expect(
-        can(actor("contributor", "u1"), "publish:own-post", { authorId: "u1" }),
-      ).toBe(false);
+      expect(can(actor("contributor", "u1"), "publish:own-post", { authorId: "u1" })).toBe(false);
       expect(can(actor("subscriber", "u1"), "publish:own-post", { authorId: "u1" })).toBe(false);
     });
   });
@@ -1192,6 +1197,7 @@ git commit -m "feat(auth): role-based permissions matrix"
 ## Task 7: Auth context helpers (TDD)
 
 **Files:**
+
 - Create: `src/auth/context.ts`
 - Create: `src/auth/context.test.ts`
 
@@ -1363,6 +1369,7 @@ git commit -m "feat(auth): getOptionalUser / requireUser / requireRole helpers"
 ## Task 8: Email adapter (TDD)
 
 **Files:**
+
 - Create: `src/auth/email.ts`
 - Create: `src/auth/email.test.ts`
 
@@ -1523,6 +1530,7 @@ git commit -m "feat(auth): Resend-backed email adapter with dev dry-run"
 ## Task 9: User CRUD orchestration (TDD)
 
 **Files:**
+
 - Create: `src/auth/users.ts`
 - Create: `src/auth/users.test.ts`
 
@@ -1543,7 +1551,9 @@ const cleanup: string[] = [];
 afterAll(async () => {
   if (!HAS_DB) return;
   for (const id of cleanup) {
-    await db().delete(users).where(sql`${users.id} = ${id}`);
+    await db()
+      .delete(users)
+      .where(sql`${users.id} = ${id}`);
   }
   await closeDb();
 });
@@ -1735,6 +1745,7 @@ git commit -m "feat(auth): user CRUD orchestration (create/find/verify/countOwne
 ## Task 10: Sign-up / sign-in / sign-out Server Actions (TDD)
 
 **Files:**
+
 - Create: `src/app/actions/auth.ts`
 - Create: `src/app/actions/auth.test.ts`
 
@@ -1954,12 +1965,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { createSession, invalidateSession, SESSION_DURATION_MS } from "@/auth/sessions";
 import { SESSION_COOKIE_NAME } from "@/auth/cookies";
-import {
-  EmailInUseError,
-  countOwners,
-  createUser,
-  verifyCredentials,
-} from "@/auth/users";
+import { EmailInUseError, countOwners, createUser, verifyCredentials } from "@/auth/users";
 
 interface ActionResult {
   error?: string;
@@ -2093,6 +2099,7 @@ git commit -m "feat(auth): signUp / signIn / signOut Server Actions"
 ## Task 11: Magic link (request + verify)
 
 **Files:**
+
 - Create: `src/auth/magic-link.ts`
 - Create: `src/auth/magic-link.test.ts`
 - Create: `src/app/api/auth/magic-link/verify/route.ts`
@@ -2123,7 +2130,10 @@ beforeEach(() => sendEmail.mockClear());
 
 afterAll(async () => {
   if (!HAS_DB) return;
-  for (const id of userIds) await db().delete(users).where(sql`${users.id} = ${id}`);
+  for (const id of userIds)
+    await db()
+      .delete(users)
+      .where(sql`${users.id} = ${id}`);
   await closeDb();
 });
 
@@ -2136,10 +2146,7 @@ describe.runIf(HAS_DB)("magic link", () => {
     expect(args.to).toBe(email);
     expect(args.html).toContain("https://app.test/api/auth/magic-link/verify?token=");
 
-    const rows = await db()
-      .select()
-      .from(magicLinkTokens)
-      .where(eq(magicLinkTokens.email, email));
+    const rows = await db().select().from(magicLinkTokens).where(eq(magicLinkTokens.email, email));
     expect(rows).toHaveLength(1);
     expect(rows[0]!.usedAt).toBeNull();
     expect(rows[0]!.expiresAt.getTime() - Date.now()).toBeGreaterThan(MAGIC_LINK_TTL_MS - 60_000);
@@ -2234,7 +2241,8 @@ export async function consumeMagicLink(token: string): Promise<ConsumeResult> {
     const token = rows[0];
     if (!token) return { kind: "error", reason: "unknown" } as const;
     if (token.usedAt) return { kind: "error", reason: "used" } as const;
-    if (token.expiresAt.getTime() < Date.now()) return { kind: "error", reason: "expired" } as const;
+    if (token.expiresAt.getTime() < Date.now())
+      return { kind: "error", reason: "expired" } as const;
 
     await tx
       .update(magicLinkTokens)
@@ -2429,6 +2437,7 @@ git commit -m "feat(auth): magic-link request + verify flow"
 ## Task 12: OAuth (Google + GitHub via Arctic)
 
 **Files:**
+
 - Create: `src/auth/oauth/index.ts`
 - Create: `src/auth/oauth/google.ts`
 - Create: `src/auth/oauth/github.ts`
@@ -2463,7 +2472,11 @@ export function googleClient() {
   const clientSecret = process.env.GOOGLE_OAUTH_CLIENT_SECRET;
   const appUrl = process.env.APP_URL ?? "http://localhost:3000";
   if (!clientId || !clientSecret) return null;
-  return new Google(clientId, clientSecret, `${appUrl.replace(/\/$/, "")}/api/auth/oauth/google/callback`);
+  return new Google(
+    clientId,
+    clientSecret,
+    `${appUrl.replace(/\/$/, "")}/api/auth/oauth/google/callback`,
+  );
 }
 
 export async function fetchGoogleProfile(accessToken: string): Promise<GoogleProfile> {
@@ -2604,7 +2617,10 @@ const userIds: string[] = [];
 
 afterAll(async () => {
   if (!HAS_DB) return;
-  for (const id of userIds) await db().delete(users).where(sql`${users.id} = ${id}`);
+  for (const id of userIds)
+    await db()
+      .delete(users)
+      .where(sql`${users.id} = ${id}`);
   await closeDb();
 });
 
@@ -2814,7 +2830,8 @@ export async function GET(
       return new Response("unknown provider", { status: 404 });
     }
   } catch (err) {
-    if (err instanceof OAuth2RequestError) return new Response("oauth exchange failed", { status: 400 });
+    if (err instanceof OAuth2RequestError)
+      return new Response("oauth exchange failed", { status: 400 });
     throw err;
   }
 
@@ -2899,6 +2916,7 @@ git commit -m "feat(auth): Google + GitHub OAuth via arctic with PKCE/state cook
 ## Task 13: First-run `/setup` wizard
 
 **Files:**
+
 - Create: `src/app/setup/page.tsx`
 - Create: `src/app/setup/actions.ts`
 - Create: `src/app/setup/actions.test.ts`
@@ -2952,14 +2970,17 @@ function fd(obj: Record<string, string>): FormData {
 describe("runSetupAction", () => {
   it("refuses when an owner already exists", async () => {
     countOwners.mockResolvedValue(1);
-    const result = await runSetupAction(undefined, fd({
-      siteTitle: "S",
-      siteTagline: "t",
-      defaultLocale: "en",
-      email: "x@example.com",
-      password: "correct horse battery",
-      displayName: "X",
-    }));
+    const result = await runSetupAction(
+      undefined,
+      fd({
+        siteTitle: "S",
+        siteTagline: "t",
+        defaultLocale: "en",
+        email: "x@example.com",
+        password: "correct horse battery",
+        displayName: "X",
+      }),
+    );
     expect(result.error).toMatch(/already complete/i);
     expect(createUser).not.toHaveBeenCalled();
   });
@@ -2972,14 +2993,17 @@ describe("runSetupAction", () => {
       expiresAt: new Date("2099-01-01"),
       session: {},
     });
-    await runSetupAction(undefined, fd({
-      siteTitle: "My Site",
-      siteTagline: "Hello",
-      defaultLocale: "en",
-      email: "owner@example.com",
-      password: "correct horse battery",
-      displayName: "Owner",
-    }));
+    await runSetupAction(
+      undefined,
+      fd({
+        siteTitle: "My Site",
+        siteTagline: "Hello",
+        defaultLocale: "en",
+        email: "owner@example.com",
+        password: "correct horse battery",
+        displayName: "Owner",
+      }),
+    );
     expect(createUser).toHaveBeenCalledWith({
       email: "owner@example.com",
       password: "correct horse battery",
@@ -2996,14 +3020,17 @@ describe("runSetupAction", () => {
 
   it("returns field errors for invalid input", async () => {
     countOwners.mockResolvedValue(0);
-    const result = await runSetupAction(undefined, fd({
-      siteTitle: "",
-      siteTagline: "",
-      defaultLocale: "en",
-      email: "not-email",
-      password: "short",
-      displayName: "",
-    }));
+    const result = await runSetupAction(
+      undefined,
+      fd({
+        siteTitle: "",
+        siteTagline: "",
+        defaultLocale: "en",
+        email: "not-email",
+        password: "short",
+        displayName: "",
+      }),
+    );
     expect(result.fieldErrors?.siteTitle).toBeDefined();
     expect(result.fieldErrors?.email).toBeDefined();
     expect(result.fieldErrors?.password).toBeDefined();
@@ -3152,17 +3179,50 @@ export default async function SetupPage() {
       <form action={runSetupAction} className="mt-6 grid gap-4">
         <fieldset className="grid gap-2">
           <legend className="text-sm font-medium text-gray-700">Site</legend>
-          <input name="siteTitle" placeholder="Site title" className="rounded border p-2" required />
-          <input name="siteTagline" placeholder="Tagline (optional)" className="rounded border p-2" />
-          <input name="defaultLocale" defaultValue="en" placeholder="Default locale (e.g. en)" className="rounded border p-2" />
+          <input
+            name="siteTitle"
+            placeholder="Site title"
+            className="rounded border p-2"
+            required
+          />
+          <input
+            name="siteTagline"
+            placeholder="Tagline (optional)"
+            className="rounded border p-2"
+          />
+          <input
+            name="defaultLocale"
+            defaultValue="en"
+            placeholder="Default locale (e.g. en)"
+            className="rounded border p-2"
+          />
         </fieldset>
         <fieldset className="grid gap-2">
           <legend className="text-sm font-medium text-gray-700">Owner</legend>
-          <input name="displayName" placeholder="Your name" className="rounded border p-2" required />
-          <input name="email" type="email" placeholder="Email" className="rounded border p-2" required />
-          <input name="password" type="password" placeholder="Password (12+ chars)" className="rounded border p-2" required />
+          <input
+            name="displayName"
+            placeholder="Your name"
+            className="rounded border p-2"
+            required
+          />
+          <input
+            name="email"
+            type="email"
+            placeholder="Email"
+            className="rounded border p-2"
+            required
+          />
+          <input
+            name="password"
+            type="password"
+            placeholder="Password (12+ chars)"
+            className="rounded border p-2"
+            required
+          />
         </fieldset>
-        <button type="submit" className="rounded bg-black px-4 py-2 text-white">Create site</button>
+        <button type="submit" className="rounded bg-black px-4 py-2 text-white">
+          Create site
+        </button>
       </form>
     </main>
   );
@@ -3228,6 +3288,7 @@ git commit -m "feat(auth): first-run /setup wizard + setup-status middleware"
 ## Task 14: Auth UI pages
 
 **Files:**
+
 - Create: `src/app/(auth)/layout.tsx`
 - Create: `src/app/(auth)/sign-in/page.tsx`
 - Create: `src/app/(auth)/sign-up/page.tsx`
@@ -3429,7 +3490,8 @@ export default function MagicLinkSentPage() {
     <section>
       <h2 className="text-2xl font-bold">Check your inbox</h2>
       <p className="mt-2 text-gray-600">
-        If we recognise your email, you&apos;ll get a sign-in link in the next minute. It expires in 15 minutes.
+        If we recognise your email, you&apos;ll get a sign-in link in the next minute. It expires in
+        15 minutes.
       </p>
     </section>
   );
@@ -3538,15 +3600,15 @@ git tag -a v0.2.0-auth -m "Auth complete: sessions, passwords, OAuth, magic link
 
 ## Out of Scope (Handled by Sibling Sub-Plans)
 
-| Sub-plan | What it adds on top of auth |
-|---|---|
-| **block-editor-core** | Admin shell, header with user menu + sign-out, requires editor role on `/admin/*`. |
-| **media-library** | `uploaded_by` FK to `users.id`; uses `can(user, "upload:media")` guard. |
-| **themes** | Customization screens require `manage:themes`. |
-| **ai-features** | Uses `requireUser` on Server Actions; `ai_usage` rows reference `user_id`. |
-| **plugin-system** | Plugin install requires `manage:plugins`. |
-| **importers / exporter-backups** | Require `manage:settings`. |
-| **deployment-hardening** | Adds rate limiting on `/api/auth/*` routes via Cloud Memorystore; backup automation for `users` table. |
+| Sub-plan                         | What it adds on top of auth                                                                            |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| **block-editor-core**            | Admin shell, header with user menu + sign-out, requires editor role on `/admin/*`.                     |
+| **media-library**                | `uploaded_by` FK to `users.id`; uses `can(user, "upload:media")` guard.                                |
+| **themes**                       | Customization screens require `manage:themes`.                                                         |
+| **ai-features**                  | Uses `requireUser` on Server Actions; `ai_usage` rows reference `user_id`.                             |
+| **plugin-system**                | Plugin install requires `manage:plugins`.                                                              |
+| **importers / exporter-backups** | Require `manage:settings`.                                                                             |
+| **deployment-hardening**         | Adds rate limiting on `/api/auth/*` routes via Cloud Memorystore; backup automation for `users` table. |
 
 ---
 
@@ -3559,4 +3621,4 @@ git tag -a v0.2.0-auth -m "Auth complete: sessions, passwords, OAuth, magic link
 
 ---
 
-*End of auth-and-users plan.*
+_End of auth-and-users plan._
