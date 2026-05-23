@@ -21,8 +21,10 @@
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
+    "drizzle-orm": "0.44",
     "next": "16.2.6",
     "pino": "9",
+    "postgres": "3.4",
     "react": "19.2.6",
     "react-dom": "19.2.6",
     "zod": "3"
@@ -37,6 +39,7 @@
     "@types/react-dom": "19.2.3",
     "@vitest/coverage-v8": "2",
     "autoprefixer": "10",
+    "drizzle-kit": "0.30",
     "eslint": "9",
     "eslint-config-next": "16",
     "eslint-config-prettier": "9",
@@ -45,6 +48,7 @@
     "pino-pretty": "11",
     "prettier": "3",
     "tailwindcss": "4",
+    "tsx": "4",
     "typescript": "5.7.3",
     "typescript-eslint": "8",
     "vitest": "2"
