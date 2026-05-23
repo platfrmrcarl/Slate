@@ -20,6 +20,11 @@ const config: NextConfig = {
     "@opentelemetry/sdk-node",
     "@opentelemetry/auto-instrumentations-node",
     "@google-cloud/opentelemetry-cloud-trace-exporter",
+    // unzipper@0.12 has an unconditional `require('@aws-sdk/client-s3')`
+    // in its `s3_v3` helper that Turbopack can't statically prove unreachable.
+    // The s3 path is never invoked at runtime; keep unzipper external so the
+    // dynamic require runs at request time (and the s3 branch is skipped).
+    "unzipper",
   ],
   env: {
     NEXT_PUBLIC_OAUTH_GOOGLE_ENABLED: process.env.GOOGLE_OAUTH_CLIENT_ID ? "1" : "0",
