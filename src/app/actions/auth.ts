@@ -8,8 +8,11 @@ import { createSession, invalidateSession, SESSION_DURATION_MS } from "@/auth/se
 import { SESSION_COOKIE_NAME } from "@/auth/cookies";
 import { EmailInUseError, countOwners, createUser, verifyCredentials } from "@/auth/users";
 import { issueMagicLink } from "@/auth/magic-link";
+import { issuePasswordReset, consumePasswordReset } from "@/auth/password-reset";
+import { issueEmailVerification, consumeEmailVerification } from "@/auth/email-verification";
 
 interface ActionResult {
+  ok?: boolean;
   error?: string;
   fieldErrors?: Record<string, string>;
 }
@@ -131,6 +134,70 @@ export async function requestMagicLinkAction(
   }
   await issueMagicLink(parsed.data.email);
   redirect("/magic-link/sent" as Route);
+}
+
+const forgotSchema = z.object({ email: z.string().email("Enter a valid email") });
+
+export async function forgotPasswordAction(
+  _prev: ActionResult | undefined,
+  formData: FormData,
+): Promise<ActionResult> {
+  const parsed = forgotSchema.safeParse({ email: formData.get("email") });
+  if (!parsed.success) {
+    return { fieldErrors: { email: parsed.error.issues[0]!.message } };
+  }
+  await issuePasswordReset(parsed.data.email);
+  return { ok: true };
+}
+
+const resetSchema = z.object({
+  token: z.string().regex(/^[a-z2-7]{40}$/),
+  password: z.string().min(12).max(256),
+});
+
+export async function resetPasswordAction(
+  _prev: ActionResult | undefined,
+  formData: FormData,
+): Promise<ActionResult> {
+  const parsed = resetSchema.safeParse({
+    token: formData.get("token"),
+    password: formData.get("password"),
+  });
+  if (!parsed.success) {
+    return { error: "Invalid token or password" };
+  }
+  const result = await consumePasswordReset(parsed.data.token, parsed.data.password);
+  if (result.kind === "error") {
+    if (result.reason === "expired") return { error: "Link expired. Request a new one." };
+    if (result.reason === "used") return { error: "This link was already used." };
+    return { error: "Invalid link." };
+  }
+  return { ok: true };
+}
+
+const verifySchema = z.object({ token: z.string().regex(/^[a-z2-7]{40}$/) });
+
+export async function verifyEmailAction(
+  _prev: ActionResult | undefined,
+  formData: FormData,
+): Promise<ActionResult> {
+  const parsed = verifySchema.safeParse({ token: formData.get("token") });
+  if (!parsed.success) return { error: "Invalid link." };
+  const r = await consumeEmailVerification(parsed.data.token);
+  if (r.kind === "error") return { error: "Invalid or expired link." };
+  return { ok: true };
+}
+
+const requestVerificationSchema = z.object({ email: z.string().email("Enter a valid email") });
+
+export async function requestEmailVerificationAction(
+  _prev: ActionResult | undefined,
+  formData: FormData,
+): Promise<ActionResult> {
+  const parsed = requestVerificationSchema.safeParse({ email: formData.get("email") });
+  if (!parsed.success) return { fieldErrors: { email: parsed.error.issues[0]!.message } };
+  await issueEmailVerification(parsed.data.email);
+  return { ok: true };
 }
 
 // Referenced to ensure SESSION_DURATION_MS is exported in the right shape.

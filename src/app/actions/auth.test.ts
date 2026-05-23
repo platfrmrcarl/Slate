@@ -36,6 +36,25 @@ vi.mock("@/auth/users", () => ({
   },
 }));
 
+const issueMagicLink = vi.fn();
+vi.mock("@/auth/magic-link", () => ({
+  issueMagicLink: (...a: unknown[]) => issueMagicLink(...a),
+}));
+
+const issuePasswordReset = vi.fn();
+const consumePasswordReset = vi.fn();
+vi.mock("@/auth/password-reset", () => ({
+  issuePasswordReset: (...a: unknown[]) => issuePasswordReset(...a),
+  consumePasswordReset: (...a: unknown[]) => consumePasswordReset(...a),
+}));
+
+const issueEmailVerification = vi.fn();
+const consumeEmailVerification = vi.fn();
+vi.mock("@/auth/email-verification", () => ({
+  issueEmailVerification: (...a: unknown[]) => issueEmailVerification(...a),
+  consumeEmailVerification: (...a: unknown[]) => consumeEmailVerification(...a),
+}));
+
 beforeEach(() => {
   vi.stubEnv("NODE_ENV", "production");
   vi.stubEnv("APP_URL", "https://example.com");
@@ -51,10 +70,23 @@ afterEach(() => {
   createUser.mockReset();
   verifyCredentials.mockReset();
   countOwners.mockReset();
+  issueMagicLink.mockReset();
+  issuePasswordReset.mockReset();
+  consumePasswordReset.mockReset();
+  issueEmailVerification.mockReset();
+  consumeEmailVerification.mockReset();
   vi.unstubAllEnvs();
 });
 
-const { signUpAction, signInAction, signOutAction } = await import("./auth");
+const {
+  signUpAction,
+  signInAction,
+  signOutAction,
+  forgotPasswordAction,
+  resetPasswordAction,
+  verifyEmailAction,
+  requestEmailVerificationAction,
+} = await import("./auth");
 
 function formData(input: Record<string, string>): FormData {
   const fd = new FormData();
@@ -187,5 +219,57 @@ describe("signOutAction", () => {
     await signOutAction();
     expect(invalidateSession).not.toHaveBeenCalled();
     expect(redirect).toHaveBeenCalledWith("/");
+  });
+});
+
+describe("forgotPasswordAction", () => {
+  it("validates email, calls issuePasswordReset, returns ok regardless of existence", async () => {
+    issuePasswordReset.mockResolvedValue(undefined);
+    const r = await forgotPasswordAction(undefined, formData({ email: "a@b.com" }));
+    expect(r.ok).toBe(true);
+    expect(issuePasswordReset).toHaveBeenCalledWith("a@b.com");
+  });
+  it("returns fieldError on invalid email", async () => {
+    const r = await forgotPasswordAction(undefined, formData({ email: "not-email" }));
+    expect(r.fieldErrors?.email).toBeDefined();
+  });
+});
+
+describe("resetPasswordAction", () => {
+  it("ok path updates", async () => {
+    consumePasswordReset.mockResolvedValue({ kind: "ok", user: { id: "u-1" } });
+    const r = await resetPasswordAction(
+      undefined,
+      formData({ token: "a".repeat(40), password: "correct horse battery 2" }),
+    );
+    expect(r.ok).toBe(true);
+  });
+  it("returns error on used token", async () => {
+    consumePasswordReset.mockResolvedValue({ kind: "error", reason: "used" });
+    const r = await resetPasswordAction(
+      undefined,
+      formData({ token: "a".repeat(40), password: "correct horse battery 2" }),
+    );
+    expect(r.error).toMatch(/used/i);
+  });
+});
+
+describe("verifyEmailAction", () => {
+  it("ok path returns ok", async () => {
+    consumeEmailVerification.mockResolvedValue({ kind: "ok", userId: "u-1" });
+    const r = await verifyEmailAction(undefined, formData({ token: "a".repeat(40) }));
+    expect(r.ok).toBe(true);
+  });
+});
+
+describe("requestEmailVerificationAction", () => {
+  it("calls issueEmailVerification with the actor's email", async () => {
+    issueEmailVerification.mockResolvedValue(undefined);
+    const r = await requestEmailVerificationAction(
+      undefined,
+      formData({ email: "user@example.com" }),
+    );
+    expect(r.ok).toBe(true);
+    expect(issueEmailVerification).toHaveBeenCalledWith("user@example.com");
   });
 });
