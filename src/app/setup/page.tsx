@@ -3,6 +3,9 @@ import { redirect } from "next/navigation";
 import { countOwners } from "@/auth/users";
 import { runSetupAction } from "./actions";
 
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 async function setupFormAction(formData: FormData): Promise<void> {
   "use server";
   await runSetupAction(undefined, formData);
