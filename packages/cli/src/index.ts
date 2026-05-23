@@ -5,6 +5,8 @@ import { pluginCommand } from "./commands/plugin";
 import { migrateCommand } from "./commands/migrate";
 import { importCommand } from "./commands/import";
 import { exportCommand } from "./commands/export";
+import { setupCommand } from "./commands/setup";
+import { shellCommand } from "./commands/shell";
 
 const program = new Command()
   .name("wpkiller")
@@ -28,6 +30,8 @@ program.addCommand(migrateCommand());
 program.addCommand(importCommand(transportOpts()));
 program.addCommand(exportCommand(transportOpts(), false));
 program.addCommand(exportCommand(transportOpts(), true));
+program.addCommand(setupCommand());
+program.addCommand(shellCommand());
 
 program.command("ping").action(() => console.log("pong"));
 
