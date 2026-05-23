@@ -8,23 +8,13 @@ import { getObjectStream } from "@/media/storage";
 import { IMPORTERS, type ImporterName } from "@/import/registry";
 import { runImportRecords } from "@/import/runner";
 import { markImportFailed } from "@/import/jobs";
+import { streamToBuffer, streamToText } from "@/lib/stream";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 export const maxDuration = 540;
 
 const schema = z.object({ importJobId: z.string().uuid() });
-
-async function streamToBuffer(stream: AsyncIterable<Uint8Array>): Promise<Buffer> {
-  const chunks: Buffer[] = [];
-  for await (const c of stream) chunks.push(Buffer.from(c));
-  return Buffer.concat(chunks);
-}
-
-async function streamToText(stream: AsyncIterable<Uint8Array>): Promise<string> {
-  const buf = await streamToBuffer(stream);
-  return buf.toString("utf8");
-}
 
 export async function POST(req: Request): Promise<Response> {
   if (!(await authorizeJobRequest(req))) {
@@ -49,12 +39,8 @@ export async function POST(req: Request): Promise<Response> {
 
     const records =
       importer.contentType === "text"
-        ? (importer.parse as (s: string) => AsyncGenerator<never>)(
-            await streamToText(stream as unknown as AsyncIterable<Uint8Array>),
-          )
-        : (importer.parse as (b: Buffer) => AsyncGenerator<never>)(
-            await streamToBuffer(stream as unknown as AsyncIterable<Uint8Array>),
-          );
+        ? (importer.parse as (s: string) => AsyncGenerator<never>)(await streamToText(stream))
+        : (importer.parse as (b: Buffer) => AsyncGenerator<never>)(await streamToBuffer(stream));
 
     await runImportRecords({
       importJobId: job.id,

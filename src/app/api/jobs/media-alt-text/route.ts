@@ -4,6 +4,7 @@ import { authorizeJobRequest } from "@/jobs/authorize";
 import { getMediaById, updateMediaAltText } from "@/media/service";
 import { getObjectStream } from "@/media/storage";
 import { generateAltText, type SupportedImageMime } from "@/ai/features/alt-text";
+import { streamToBuffer } from "@/lib/stream";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -16,12 +17,6 @@ const ALLOWED: Set<SupportedImageMime> = new Set([
   "image/gif",
 ]);
 const schema = z.object({ mediaId: z.string().uuid() });
-
-async function toBuffer(stream: AsyncIterable<Uint8Array>): Promise<Buffer> {
-  const chunks: Buffer[] = [];
-  for await (const c of stream) chunks.push(Buffer.from(c));
-  return Buffer.concat(chunks);
-}
 
 export async function POST(req: Request): Promise<Response> {
   if (!(await authorizeJobRequest(req))) {
@@ -38,7 +33,7 @@ export async function POST(req: Request): Promise<Response> {
   }
 
   const stream = await getObjectStream(media.objectPath);
-  const bytes = await toBuffer(stream as unknown as AsyncIterable<Uint8Array>);
+  const bytes = await streamToBuffer(stream);
   const result = await generateAltText({
     bytes,
     mimeType: media.mimeType as SupportedImageMime,
