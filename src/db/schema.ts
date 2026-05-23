@@ -133,6 +133,7 @@ export const pages = pgTable(
     publishedAt: timestamp("published_at", { withTimezone: true }),
     scheduledAt: timestamp("scheduled_at", { withTimezone: true }),
     locale: text("locale").notNull().default("en"),
+    translationOf: uuid("translation_of"),
     authorId: uuid("author_id")
       .notNull()
       .references(() => users.id),
@@ -144,6 +145,7 @@ export const pages = pgTable(
   (t) => ({
     slugLocale: uniqueIndex("pages_slug_locale").on(t.slug, t.locale),
     statusIdx: index("pages_status_idx").on(t.status, t.publishedAt),
+    translationOfIdx: index("pages_translation_of_idx").on(t.translationOf),
   }),
 );
 
