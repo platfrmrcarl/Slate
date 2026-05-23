@@ -1,16 +1,21 @@
 import { unified } from "unified";
 import remarkParse from "remark-parse";
 import remarkRehype from "remark-rehype";
-import rehypeSanitize, { defaultSchema } from "rehype-sanitize";
+import rehypeSanitize, { defaultSchema, type Options as Schema } from "rehype-sanitize";
 import rehypeStringify from "rehype-stringify";
 import { visit } from "unist-util-visit";
 import type { Element, Root } from "hast";
 
-const schema = {
+type PropertyDefinition =
+  | string
+  | [string, ...(string | number | boolean | RegExp | null | undefined)[]];
+
+const baseAttrs = (defaultSchema.attributes ?? {}) as Record<string, PropertyDefinition[]>;
+const schema: Schema = {
   ...defaultSchema,
   attributes: {
-    ...(defaultSchema.attributes ?? {}),
-    a: [...((defaultSchema.attributes?.a as unknown[]) ?? []), ["rel"], ["target"]],
+    ...baseAttrs,
+    a: [...(baseAttrs.a ?? []), "rel", "target"],
   },
   protocols: {
     ...(defaultSchema.protocols ?? {}),

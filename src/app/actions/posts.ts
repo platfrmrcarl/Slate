@@ -100,7 +100,7 @@ export async function publishPostAction(
     path: `/blog/${published.slug}`,
     tags: [`post:${published.id}`, "rss", "sitemap"],
   });
-  revalidateTag(`post:${published.id}`);
+  revalidateTag(`post:${published.id}`, "max");
   revalidatePath(`/blog/${published.slug}`);
   redirect(`/admin/posts/${published.id}`);
 }

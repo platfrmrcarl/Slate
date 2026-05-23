@@ -22,12 +22,13 @@ export interface CreateCommentInput {
 
 export async function createComment(input: CreateCommentInput): Promise<Comment> {
   const classifier = input.classifier ?? classifyCommentSpam;
-  const score = await classifier(input.body, {
-    authorEmail: input.authorEmail,
-    authorName: input.authorName,
-    ipAddress: input.ipAddress,
-    userAgent: input.userAgent,
-  });
+  const ctx: { authorEmail?: string; authorName?: string; ipAddress?: string; userAgent?: string } =
+    {};
+  if (input.authorEmail) ctx.authorEmail = input.authorEmail;
+  if (input.authorName) ctx.authorName = input.authorName;
+  if (input.ipAddress) ctx.ipAddress = input.ipAddress;
+  if (input.userAgent) ctx.userAgent = input.userAgent;
+  const score = await classifier(input.body, ctx);
   const status: CommentStatus =
     score === "spam" ? "spam" : score === "ham" ? "approved" : "pending";
   const values: Record<string, unknown> = {

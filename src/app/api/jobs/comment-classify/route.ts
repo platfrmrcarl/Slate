@@ -19,12 +19,17 @@ export async function POST(req: Request): Promise<Response> {
 
   const comment = await getCommentById(parsed.data.commentId);
   if (!comment) return NextResponse.json({ ok: true });
-  const score = await classifyCommentSpam(comment.body, {
-    authorEmail: comment.authorEmail ?? undefined,
-    authorName: comment.authorName ?? undefined,
-    ipAddress: comment.ipAddress ?? undefined,
-    userAgent: comment.userAgent ?? undefined,
-  });
+  const ctx: {
+    authorEmail?: string;
+    authorName?: string;
+    ipAddress?: string;
+    userAgent?: string;
+  } = {};
+  if (comment.authorEmail) ctx.authorEmail = comment.authorEmail;
+  if (comment.authorName) ctx.authorName = comment.authorName;
+  if (comment.ipAddress) ctx.ipAddress = comment.ipAddress;
+  if (comment.userAgent) ctx.userAgent = comment.userAgent;
+  const score = await classifyCommentSpam(comment.body, ctx);
   if (score === "spam") await setCommentStatus(comment.id, "spam");
   else if (score === "ham") await setCommentStatus(comment.id, "approved");
   // unknown → leave as pending
