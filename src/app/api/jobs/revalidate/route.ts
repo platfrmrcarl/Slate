@@ -1,4 +1,5 @@
 import { revalidatePath, revalidateTag } from "next/cache";
+import { authorizeJobRequest } from "@/jobs/authorize";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -9,9 +10,7 @@ interface Payload {
 }
 
 export async function POST(req: Request): Promise<Response> {
-  const auth = req.headers.get("authorization");
-  const expected = `Bearer ${process.env.INTERNAL_JOB_SECRET ?? ""}`;
-  if (!auth || auth !== expected) return new Response("forbidden", { status: 403 });
+  if (!(await authorizeJobRequest(req))) return new Response("forbidden", { status: 403 });
 
   const body = (await req.json()) as Payload;
   for (const p of body.paths ?? []) revalidatePath(p);
