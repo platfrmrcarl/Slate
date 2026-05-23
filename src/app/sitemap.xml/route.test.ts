@@ -11,6 +11,13 @@ beforeAll(() => {
 
 const listPosts = vi.fn();
 vi.mock("@/posts/service", () => ({ listPosts: (...a: unknown[]) => listPosts(...a) }));
+vi.mock("@/i18n/settings", () => ({
+  getI18nSettings: async () => ({
+    defaultLocale: "en",
+    enabledLocales: ["en"],
+    hideDefaultPrefix: true,
+  }),
+}));
 
 const { GET } = await import("./route");
 

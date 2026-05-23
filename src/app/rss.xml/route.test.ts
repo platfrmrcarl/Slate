@@ -11,6 +11,14 @@ beforeAll(() => {
 
 const listPosts = vi.fn();
 vi.mock("@/posts/service", () => ({ listPosts: (...a: unknown[]) => listPosts(...a) }));
+vi.mock("@/i18n/settings", () => ({
+  defaultLocale: async () => "en",
+  getI18nSettings: async () => ({
+    defaultLocale: "en",
+    enabledLocales: ["en"],
+    hideDefaultPrefix: true,
+  }),
+}));
 
 const { GET } = await import("./route");
 
@@ -30,7 +38,7 @@ describe("GET /rss.xml", () => {
       ],
       nextCursor: null,
     });
-    const res = await GET();
+    const res = await GET(new Request("https://app.test/rss.xml"));
     expect(res.headers.get("content-type")).toContain("application/rss+xml");
     const body = await res.text();
     expect(body).toContain("<rss");
