@@ -1,10 +1,33 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { getI18nSettings } from "@/i18n/settings";
+import { extractLocaleFromPathname, buildLocalizedPath } from "@/i18n/url";
 
 // /api/* routes handle their own auth + are exempt from the setup-incomplete
 // redirect. Critically, the middleware below fetches /api/setup-status; if that
 // path were gated by the setup check, the fetch would loop on itself and 500.
 const ALLOW_DURING_SETUP = ["/setup", "/api", "/_next", "/favicon.ico"];
 const SESSION_COOKIE_NAME = "wpk_session";
+
+// Paths that bypass locale resolution entirely (admin, api, assets, sitemaps).
+const LOCALE_BYPASS = [
+  /^\/api(\/|$)/,
+  /^\/_next(\/|$)/,
+  /^\/admin(\/|$)/,
+  /^\/setup(\/|$)/,
+  /^\/sign-in(\/|$)/,
+  /^\/sign-up(\/|$)/,
+  /^\/sign-out(\/|$)/,
+  /^\/(rss|sitemap)\.xml$/,
+  /^\/robots\.txt$/,
+  /^\/favicon\.ico$/,
+];
+
+function bypassLocale(pathname: string): boolean {
+  if (LOCALE_BYPASS.some((rx) => rx.test(pathname))) return true;
+  // Static asset shortcut — anything with a file extension.
+  if (pathname.includes(".")) return true;
+  return false;
+}
 
 export async function middleware(req: NextRequest): Promise<NextResponse> {
   const { pathname } = req.nextUrl;
@@ -21,18 +44,50 @@ export async function middleware(req: NextRequest): Promise<NextResponse> {
     }
   }
 
-  if (ALLOW_DURING_SETUP.some((p) => pathname.startsWith(p))) return NextResponse.next();
-
-  // Hot path: bypass middleware for static assets without DB hits.
-  if (pathname.startsWith("/_next") || pathname.includes(".")) return NextResponse.next();
-
-  const setupRes = await fetch(new URL("/api/setup-status", req.url), {
-    headers: { "x-internal": "1" },
-  });
-  if (setupRes.ok) {
-    const { completed } = (await setupRes.json()) as { completed: boolean };
-    if (!completed) return NextResponse.redirect(new URL("/setup", req.url));
+  if (!ALLOW_DURING_SETUP.some((p) => pathname.startsWith(p))) {
+    // Hot path: bypass middleware for static assets without DB hits.
+    if (!pathname.startsWith("/_next") && !pathname.includes(".")) {
+      const setupRes = await fetch(new URL("/api/setup-status", req.url), {
+        headers: { "x-internal": "1" },
+      });
+      if (setupRes.ok) {
+        const { completed } = (await setupRes.json()) as { completed: boolean };
+        if (!completed) return NextResponse.redirect(new URL("/setup", req.url));
+      }
+    }
   }
+
+  // Locale resolution for public-facing routes only.
+  if (bypassLocale(pathname)) return NextResponse.next();
+
+  const settings = await getI18nSettings();
+
+  // Redirect /<defaultLocale>/foo -> /foo when hideDefaultPrefix=true.
+  if (settings.hideDefaultPrefix && pathname.startsWith(`/${settings.defaultLocale}/`)) {
+    const stripped = pathname.replace(`/${settings.defaultLocale}`, "") || "/";
+    const url = req.nextUrl.clone();
+    url.pathname = stripped;
+    return NextResponse.redirect(url, 308);
+  }
+  // Also redirect bare "/<defaultLocale>" when hidden.
+  if (settings.hideDefaultPrefix && pathname === `/${settings.defaultLocale}`) {
+    const url = req.nextUrl.clone();
+    url.pathname = "/";
+    return NextResponse.redirect(url, 308);
+  }
+
+  const { locale } = extractLocaleFromPathname(pathname, settings);
+
+  // Rewrite "/about" -> "/en/about" so the [locale] segment route catches it.
+  if (locale === settings.defaultLocale && settings.hideDefaultPrefix) {
+    const url = req.nextUrl.clone();
+    url.pathname = buildLocalizedPath(locale, pathname, {
+      ...settings,
+      hideDefaultPrefix: false,
+    });
+    return NextResponse.rewrite(url);
+  }
+
   return NextResponse.next();
 }
 
