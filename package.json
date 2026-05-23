@@ -50,6 +50,7 @@
     "resend": "4",
     "sharp": "0.34",
     "unified": "11",
+    "unist-util-visit": "5",
     "zod": "3"
   },
   "devDependencies": {
