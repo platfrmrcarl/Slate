@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getI18nSettings } from "@/i18n/settings";
 import { extractLocaleFromPathname, buildLocalizedPath } from "@/i18n/url";
+import { take } from "@/lib/rate-limit";
 
 // /api/* routes handle their own auth + are exempt from the setup-incomplete
 // redirect. Critically, the middleware below fetches /api/setup-status; if that
@@ -29,6 +30,25 @@ function bypassLocale(pathname: string): boolean {
   return false;
 }
 
+// Rate-limit config: 5/min per IP on /api/auth, 30/min per IP on /api/ai.
+const RATE_LIMITS: Array<{
+  rx: RegExp;
+  capacity: number;
+  refillPerSec: number;
+  keyPrefix: string;
+}> = [
+  { rx: /^\/api\/auth\//, capacity: 5, refillPerSec: 5 / 60, keyPrefix: "auth" },
+  { rx: /^\/api\/ai\//, capacity: 30, refillPerSec: 30 / 60, keyPrefix: "ai" },
+];
+
+function ipOf(req: NextRequest): string {
+  return (
+    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+    req.headers.get("x-real-ip") ??
+    "anon"
+  );
+}
+
 export async function middleware(req: NextRequest): Promise<NextResponse> {
   const { pathname } = req.nextUrl;
 
@@ -54,6 +74,34 @@ export async function middleware(req: NextRequest): Promise<NextResponse> {
         const { completed } = (await setupRes.json()) as { completed: boolean };
         if (!completed) return NextResponse.redirect(new URL("/setup", req.url));
       }
+    }
+  }
+
+  // Rate limiting: /api/auth/* and /api/ai/*. Skipped in test env so the
+  // per-route handler tests don't have to seed bucket rows.
+  if (process.env.NODE_ENV !== "test") {
+    for (const lim of RATE_LIMITS) {
+      if (!lim.rx.test(pathname)) continue;
+      try {
+        const key = `${lim.keyPrefix}:${ipOf(req)}`;
+        const result = await take(key, {
+          capacity: lim.capacity,
+          refillPerSec: lim.refillPerSec,
+        });
+        if (!result.ok) {
+          return new NextResponse(JSON.stringify({ error: "rate limited" }), {
+            status: 429,
+            headers: {
+              "content-type": "application/json",
+              "retry-after": String(Math.ceil(1 / Math.max(lim.refillPerSec, 0.001))),
+            },
+          });
+        }
+      } catch {
+        // Fail-open: if the rate-limit store is unreachable we don't want to
+        // take the whole site down. Logs go through pino in `take()`.
+      }
+      break;
     }
   }
 
