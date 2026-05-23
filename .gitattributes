@@ -7,4 +7,3 @@
 *.webp binary
 *.avif binary
 pnpm-lock.yaml linguist-generated
-src/db/migrations/*.sql linguist-generated
