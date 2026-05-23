@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "name": "WPK Default",
+  "slug": "wpk-default",
+  "version": "1.0.0",
+  "description": "Polished baseline theme bundled with WordPressKiller.",
+  "author": { "name": "WordPressKiller" },
+  "license": "MIT",
+  "preview": "preview.png",
+  "supportedLocales": ["en"],
+  "supportedBlocks": "*",
+  "customizations": [
+    { "key": "siteName", "type": "text", "label": "Site name", "default": "My Site" },
+    { "key": "tagline", "type": "text", "label": "Tagline", "default": "Words from the internet." },
+    { "key": "primary", "type": "color", "label": "Primary color", "default": "#0b5fff" },
+    { "key": "background", "type": "color", "label": "Background", "default": "#ffffff" },
+    { "key": "foreground", "type": "color", "label": "Foreground", "default": "#0f172a" },
+    {
+      "key": "fontDisplay",
+      "type": "font",
+      "label": "Display font",
+      "default": "Inter, system-ui, sans-serif"
+    },
+    {
+      "key": "fontBody",
+      "type": "font",
+      "label": "Body font",
+      "default": "Inter, system-ui, sans-serif"
+    },
+    {
+      "key": "radius",
+      "type": "select",
+      "label": "Corner radius",
+      "default": "md",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "sm", "label": "Small" },
+        { "value": "md", "label": "Medium" },
+        { "value": "lg", "label": "Large" }
+      ]
+    },
+    {
+      "key": "containerWidth",
+      "type": "select",
+      "label": "Container width",
+      "default": "3xl",
+      "options": [
+        { "value": "2xl", "label": "Narrow" },
+        { "value": "3xl", "label": "Comfortable" },
+        { "value": "5xl", "label": "Wide" }
+      ]
+    },
+    { "key": "showNav", "type": "boolean", "label": "Show top nav", "default": true },
+    { "key": "navHomeLabel", "type": "text", "label": "Home link label", "default": "Home" },
+    { "key": "navBlogLabel", "type": "text", "label": "Blog link label", "default": "Blog" },
+    {
+      "key": "footerText",
+      "type": "text",
+      "label": "Footer text",
+      "default": "Made with WordPressKiller."
+    }
+  ],
+  "templates": {
+    "page": "page",
+    "post": "post",
+    "archive": "archive",
+    "home": "home"
+  }
+}
