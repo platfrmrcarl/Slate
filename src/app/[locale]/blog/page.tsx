@@ -1,16 +1,22 @@
 import Link from "next/link";
 import type { Route } from "next";
 import { listPosts, type ListPostsInput } from "@/posts/service";
+import { buildLocalizedPath } from "@/i18n/url";
+import { getI18nSettings } from "@/i18n/settings";
 
 export const revalidate = 60;
 
-export default async function BlogIndex({
+export default async function LocaleBlogIndex({
+  params,
   searchParams,
 }: {
+  params: Promise<{ locale: string }>;
   searchParams: Promise<{ cursor?: string }>;
 }): Promise<React.ReactElement> {
+  const { locale } = await params;
   const sp = await searchParams;
-  const listInput: ListPostsInput = { status: "published", limit: 20 };
+  const settings = await getI18nSettings();
+  const listInput: ListPostsInput = { status: "published", limit: 20, locale };
   if (sp.cursor) listInput.cursor = sp.cursor;
   const { items, nextCursor } = await listPosts(listInput);
   return (
@@ -20,7 +26,10 @@ export default async function BlogIndex({
         {items.map((p) => (
           <li key={p.id}>
             <h2 className="text-xl">
-              <Link href={`/blog/${p.slug}` as Route} className="hover:underline">
+              <Link
+                href={buildLocalizedPath(locale, `/blog/${p.slug}`, settings) as Route}
+                className="hover:underline"
+              >
                 {p.title}
               </Link>
             </h2>
@@ -32,8 +41,10 @@ export default async function BlogIndex({
       {nextCursor && (
         <p className="mt-8">
           <Link
+            href={
+              `${buildLocalizedPath(locale, "/blog", settings)}?cursor=${encodeURIComponent(nextCursor)}` as Route
+            }
             className="underline"
-            href={`/blog?cursor=${encodeURIComponent(nextCursor)}` as Route}
           >
             Older posts →
           </Link>

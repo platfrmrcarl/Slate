@@ -10,6 +10,7 @@ export interface CreatePageInput {
   blocks: Block[];
   authorId: string;
   locale?: string;
+  translationOf?: string;
   excerpt?: string;
   seoTitle?: string;
   seoDescription?: string;
@@ -43,8 +44,14 @@ export async function createPage(input: CreatePageInput): Promise<Page> {
   if (input.excerpt !== undefined) values.excerpt = input.excerpt;
   if (input.seoTitle !== undefined) values.seoTitle = input.seoTitle;
   if (input.seoDescription !== undefined) values.seoDescription = input.seoDescription;
+  if (input.translationOf !== undefined) values.translationOf = input.translationOf;
   const [row] = await db().insert(pages).values(values).returning();
   return row!;
+}
+
+// Alias for symmetry with posts service.
+export async function getPageById(id: string): Promise<Page | null> {
+  return getPage(id);
 }
 
 export async function getPage(id: string): Promise<Page | null> {
@@ -55,20 +62,32 @@ export async function getPage(id: string): Promise<Page | null> {
 export interface GetBySlugOptions {
   includeDrafts?: boolean;
   locale?: string;
+  publishedOnly?: boolean;
 }
 
+export async function getPageBySlug(slug: string, opts?: GetBySlugOptions): Promise<Page | null>;
 export async function getPageBySlug(
   slug: string,
-  opts: GetBySlugOptions = {},
+  locale: string,
+  opts?: GetBySlugOptions,
+): Promise<Page | null>;
+export async function getPageBySlug(
+  slug: string,
+  arg2?: GetBySlugOptions | string,
+  arg3?: GetBySlugOptions,
 ): Promise<Page | null> {
-  const locale = opts.locale ?? "en";
+  const opts: GetBySlugOptions = typeof arg2 === "string" ? (arg3 ?? {}) : (arg2 ?? {});
+  const locale: string = typeof arg2 === "string" ? arg2 : (opts.locale ?? "en");
+  // publishedOnly takes precedence; includeDrafts inverts.
+  const requirePublished =
+    opts.publishedOnly === true || (opts.publishedOnly === undefined && !opts.includeDrafts);
   const rows = await db()
     .select()
     .from(pages)
     .where(
-      opts.includeDrafts
-        ? and(eq(pages.slug, slug), eq(pages.locale, locale))
-        : and(eq(pages.slug, slug), eq(pages.locale, locale), eq(pages.status, "published")),
+      requirePublished
+        ? and(eq(pages.slug, slug), eq(pages.locale, locale), eq(pages.status, "published"))
+        : and(eq(pages.slug, slug), eq(pages.locale, locale)),
     )
     .limit(1);
   return rows[0] ?? null;
