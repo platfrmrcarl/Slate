@@ -11,6 +11,7 @@ The CLI's `wpkiller user reset-password` endpoint (delivered by the **cli** plan
 **Tech Stack additions:** `@react-email/components` v0.0.x (templates), `@react-email/render` v0.0.x. No build-system changes.
 
 **Depends on:**
+
 - foundation, auth-and-users (env, sessions, passwords, tokens, magic link primitives, `sendEmail`).
 - cli (`wpkiller user reset-password` already issues tokens against the `passwordResetTokens` table).
 
@@ -18,32 +19,33 @@ The CLI's `wpkiller user reset-password` endpoint (delivered by the **cli** plan
 
 ## File Map
 
-| Path | Purpose |
-|---|---|
-| `src/db/schema.ts` | **MODIFY** — add `purpose` column to `magic_link_tokens` |
-| `src/db/migrations/0013_email_verification.sql` | Generated migration |
-| `src/auth/password-reset.ts` | `issuePasswordReset(email)`, `consumePasswordReset(token, newPassword)` |
-| `src/auth/password-reset.test.ts` | Tests |
-| `src/auth/email-verification.ts` | `issueEmailVerification(email)`, `consumeEmailVerification(token)` |
-| `src/auth/email-verification.test.ts` | Tests |
-| `src/auth/magic-link.ts` | **MODIFY** — accept `purpose` argument, default 'signin' |
-| `src/emails/PasswordResetEmail.tsx` | React Email template |
-| `src/emails/EmailVerificationEmail.tsx` | React Email template |
-| `src/emails/render.ts` | Render React Email → HTML + plain text |
-| `src/emails/render.test.tsx` | Tests |
-| `src/auth/email.ts` | **MODIFY** — accept a `{ react: ReactElement }` alternative to raw html/text |
-| `src/app/actions/auth.ts` | **MODIFY** — add `forgotPasswordAction`, `resetPasswordAction`, `requestEmailVerificationAction` |
-| `src/app/actions/auth.test.ts` | **MODIFY** — extend |
-| `src/app/(auth)/forgot-password/page.tsx` | Request form |
-| `src/app/(auth)/reset-password/page.tsx` | New-password form |
-| `src/app/(auth)/verify-email/page.tsx` | Click-target |
-| `src/app/admin/profile/page.tsx` | Show verification status; resend button |
+| Path                                            | Purpose                                                                                          |
+| ----------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `src/db/schema.ts`                              | **MODIFY** — add `purpose` column to `magic_link_tokens`                                         |
+| `src/db/migrations/0013_email_verification.sql` | Generated migration                                                                              |
+| `src/auth/password-reset.ts`                    | `issuePasswordReset(email)`, `consumePasswordReset(token, newPassword)`                          |
+| `src/auth/password-reset.test.ts`               | Tests                                                                                            |
+| `src/auth/email-verification.ts`                | `issueEmailVerification(email)`, `consumeEmailVerification(token)`                               |
+| `src/auth/email-verification.test.ts`           | Tests                                                                                            |
+| `src/auth/magic-link.ts`                        | **MODIFY** — accept `purpose` argument, default 'signin'                                         |
+| `src/emails/PasswordResetEmail.tsx`             | React Email template                                                                             |
+| `src/emails/EmailVerificationEmail.tsx`         | React Email template                                                                             |
+| `src/emails/render.ts`                          | Render React Email → HTML + plain text                                                           |
+| `src/emails/render.test.tsx`                    | Tests                                                                                            |
+| `src/auth/email.ts`                             | **MODIFY** — accept a `{ react: ReactElement }` alternative to raw html/text                     |
+| `src/app/actions/auth.ts`                       | **MODIFY** — add `forgotPasswordAction`, `resetPasswordAction`, `requestEmailVerificationAction` |
+| `src/app/actions/auth.test.ts`                  | **MODIFY** — extend                                                                              |
+| `src/app/(auth)/forgot-password/page.tsx`       | Request form                                                                                     |
+| `src/app/(auth)/reset-password/page.tsx`        | New-password form                                                                                |
+| `src/app/(auth)/verify-email/page.tsx`          | Click-target                                                                                     |
+| `src/app/admin/profile/page.tsx`                | Show verification status; resend button                                                          |
 
 ---
 
 ## Task 1: Extend magic-link tokens with purpose
 
 **Files:**
+
 - Modify: `src/db/schema.ts`
 - Create: `src/db/migrations/0013_email_verification.sql`
 - Modify: `src/auth/magic-link.ts`
@@ -85,7 +87,10 @@ pnpm db:migrate
 In `src/auth/magic-link.ts`:
 
 ```ts
-export async function issueMagicLink(rawEmail: string, purpose: "signin" | "verify" = "signin"): Promise<void> {
+export async function issueMagicLink(
+  rawEmail: string,
+  purpose: "signin" | "verify" = "signin",
+): Promise<void> {
   const email = rawEmail.trim().toLowerCase();
   const token = generateRandomToken();
   const tokenHash = hashToken(token);
@@ -120,6 +125,7 @@ git commit -m "feat(auth-polish): magic-link tokens carry a purpose"
 ## Task 2: Email templates (TDD)
 
 **Files:**
+
 - Create: `src/emails/PasswordResetEmail.tsx`
 - Create: `src/emails/EmailVerificationEmail.tsx`
 - Create: `src/emails/render.ts`
@@ -175,7 +181,16 @@ export async function renderEmail(element: ReactElement): Promise<{ html: string
 `src/emails/PasswordResetEmail.tsx`:
 
 ```tsx
-import { Body, Button, Container, Head, Heading, Html, Preview, Text } from "@react-email/components";
+import {
+  Body,
+  Button,
+  Container,
+  Head,
+  Heading,
+  Html,
+  Preview,
+  Text,
+} from "@react-email/components";
 
 export interface PasswordResetEmailProps {
   resetUrl: string;
@@ -188,7 +203,9 @@ export function PasswordResetEmail({ resetUrl, displayName }: PasswordResetEmail
       <Head />
       <Preview>Reset your WordPressKiller password</Preview>
       <Body style={{ fontFamily: "system-ui, sans-serif", background: "#f9fafb", padding: "20px" }}>
-        <Container style={{ background: "white", padding: "24px", borderRadius: "8px", maxWidth: "560px" }}>
+        <Container
+          style={{ background: "white", padding: "24px", borderRadius: "8px", maxWidth: "560px" }}
+        >
           <Heading style={{ fontSize: "20px", margin: 0 }}>Hi {displayName},</Heading>
           <Text>
             We received a request to reset the password on your WordPressKiller account. Click the
@@ -222,7 +239,16 @@ export function PasswordResetEmail({ resetUrl, displayName }: PasswordResetEmail
 `src/emails/EmailVerificationEmail.tsx`:
 
 ```tsx
-import { Body, Button, Container, Head, Heading, Html, Preview, Text } from "@react-email/components";
+import {
+  Body,
+  Button,
+  Container,
+  Head,
+  Heading,
+  Html,
+  Preview,
+  Text,
+} from "@react-email/components";
 
 export interface EmailVerificationEmailProps {
   verifyUrl: string;
@@ -235,7 +261,9 @@ export function EmailVerificationEmail({ verifyUrl, displayName }: EmailVerifica
       <Head />
       <Preview>Verify your email</Preview>
       <Body style={{ fontFamily: "system-ui, sans-serif", background: "#f9fafb", padding: "20px" }}>
-        <Container style={{ background: "white", padding: "24px", borderRadius: "8px", maxWidth: "560px" }}>
+        <Container
+          style={{ background: "white", padding: "24px", borderRadius: "8px", maxWidth: "560px" }}
+        >
           <Heading style={{ fontSize: "20px", margin: 0 }}>Welcome, {displayName}!</Heading>
           <Text>Confirm your email address to finish setting up your account.</Text>
           <Button
@@ -312,6 +340,7 @@ git commit -m "feat(auth-polish): React Email templates + sendEmail({ react })"
 ## Task 3: Password reset service (TDD)
 
 **Files:**
+
 - Create: `src/auth/password-reset.ts`
 - Create: `src/auth/password-reset.test.ts`
 
@@ -336,7 +365,10 @@ vi.stubEnv("APP_URL", "https://app.test");
 
 afterAll(async () => {
   if (!HAS_DB) return;
-  for (const id of uids) await db().delete(users).where(sql`${users.id} = ${id}`);
+  for (const id of uids)
+    await db()
+      .delete(users)
+      .where(sql`${users.id} = ${id}`);
   await closeDb();
 });
 
@@ -384,7 +416,10 @@ describe.runIf(HAS_DB)("password reset", () => {
 
     const result = await consumePasswordReset(token, "correct horse battery 2");
     expect(result.kind).toBe("ok");
-    const fresh = await db().select().from(users).where(sql`${users.id} = ${u!.id}`);
+    const fresh = await db()
+      .select()
+      .from(users)
+      .where(sql`${users.id} = ${u!.id}`);
     expect(fresh[0]!.passwordHash).toMatch(/^\$argon2id\$/);
   });
 
@@ -443,17 +478,21 @@ export async function issuePasswordReset(rawEmail: string): Promise<void> {
   }
   const token = generateRandomToken();
   const tokenHash = hashToken(token);
-  await db().insert(passwordResetTokens).values({
-    tokenHash,
-    userId: user.id,
-    expiresAt: new Date(Date.now() + RESET_TTL_MS),
-  });
+  await db()
+    .insert(passwordResetTokens)
+    .values({
+      tokenHash,
+      userId: user.id,
+      expiresAt: new Date(Date.now() + RESET_TTL_MS),
+    });
   const appUrl = (process.env.APP_URL ?? "http://localhost:3000").replace(/\/$/, "");
   const resetUrl = `${appUrl}/reset-password?token=${token}`;
   await sendEmail({
     to: email,
     subject: "Reset your WordPressKiller password",
-    react: PasswordResetEmail({ resetUrl, displayName: user.displayName }) as ReturnType<typeof PasswordResetEmail>,
+    react: PasswordResetEmail({ resetUrl, displayName: user.displayName }) as ReturnType<
+      typeof PasswordResetEmail
+    >,
   });
 }
 
@@ -461,7 +500,10 @@ export type ConsumeResult =
   | { kind: "ok"; user: User }
   | { kind: "error"; reason: "unknown" | "expired" | "used" };
 
-export async function consumePasswordReset(token: string, newPassword: string): Promise<ConsumeResult> {
+export async function consumePasswordReset(
+  token: string,
+  newPassword: string,
+): Promise<ConsumeResult> {
   if (!token || !/^[a-z2-7]{40}$/.test(token)) return { kind: "error", reason: "unknown" };
   const tokenHash = hashToken(token);
   return await db().transaction(async (tx) => {
@@ -511,6 +553,7 @@ git commit -m "feat(auth-polish): password reset issuance + consumption"
 ## Task 4: Email verification service (TDD)
 
 **Files:**
+
 - Create: `src/auth/email-verification.ts`
 - Create: `src/auth/email-verification.test.ts`
 
@@ -535,7 +578,10 @@ vi.stubEnv("APP_URL", "https://app.test");
 
 afterAll(async () => {
   if (!HAS_DB) return;
-  for (const id of uids) await db().delete(users).where(sql`${users.id} = ${id}`);
+  for (const id of uids)
+    await db()
+      .delete(users)
+      .where(sql`${users.id} = ${id}`);
   await closeDb();
 });
 
@@ -570,21 +616,28 @@ describe.runIf(HAS_DB)("email verification", () => {
     )![1]!;
     const result = await consumeEmailVerification(token);
     expect(result.kind).toBe("ok");
-    const fresh = await db().select().from(users).where(sql`${users.id} = ${u!.id}`);
+    const fresh = await db()
+      .select()
+      .from(users)
+      .where(sql`${users.id} = ${u!.id}`);
     expect(fresh[0]!.emailVerifiedAt).not.toBeNull();
   });
 
   it("consumeEmailVerification rejects a signin-purpose token", async () => {
     // create a signin-purpose token directly
     const token = "a".repeat(40);
-    await db().insert(magicLinkTokens).values({
-      tokenHash: (await import("./tokens")).hashToken(token),
-      email: "x@e.com",
-      purpose: "signin",
-      expiresAt: new Date(Date.now() + 60_000),
-    });
+    await db()
+      .insert(magicLinkTokens)
+      .values({
+        tokenHash: (await import("./tokens")).hashToken(token),
+        email: "x@e.com",
+        purpose: "signin",
+        expiresAt: new Date(Date.now() + 60_000),
+      });
     expect((await consumeEmailVerification(token)).kind).toBe("error");
-    await db().delete(magicLinkTokens).where(sql`${magicLinkTokens.email} = 'x@e.com'`);
+    await db()
+      .delete(magicLinkTokens)
+      .where(sql`${magicLinkTokens.email} = 'x@e.com'`);
   });
 });
 ```
@@ -610,12 +663,14 @@ export async function issueEmailVerification(rawEmail: string): Promise<void> {
   if (user.emailVerifiedAt) return;
   const token = generateRandomToken();
   const tokenHash = hashToken(token);
-  await db().insert(magicLinkTokens).values({
-    tokenHash,
-    email,
-    purpose: "verify",
-    expiresAt: new Date(Date.now() + VERIFY_TTL_MS),
-  });
+  await db()
+    .insert(magicLinkTokens)
+    .values({
+      tokenHash,
+      email,
+      purpose: "verify",
+      expiresAt: new Date(Date.now() + VERIFY_TTL_MS),
+    });
   const appUrl = (process.env.APP_URL ?? "http://localhost:3000").replace(/\/$/, "");
   const verifyUrl = `${appUrl}/verify-email?token=${token}`;
   await sendEmail({
@@ -633,7 +688,10 @@ export async function consumeEmailVerification(token: string): Promise<ConsumeRe
   if (!token || !/^[a-z2-7]{40}$/.test(token)) return { kind: "error", reason: "unknown" };
   const tokenHash = hashToken(token);
   return await db().transaction(async (tx) => {
-    const rows = await tx.select().from(magicLinkTokens).where(eq(magicLinkTokens.tokenHash, tokenHash));
+    const rows = await tx
+      .select()
+      .from(magicLinkTokens)
+      .where(eq(magicLinkTokens.tokenHash, tokenHash));
     const t = rows[0];
     if (!t) return { kind: "error", reason: "unknown" } as const;
     if (t.purpose !== "verify") return { kind: "error", reason: "wrong-purpose" } as const;
@@ -674,6 +732,7 @@ git commit -m "feat(auth-polish): email verification flow"
 ## Task 5: Server Actions for forgot/reset/verify (TDD)
 
 **Files:**
+
 - Modify: `src/app/actions/auth.ts`
 - Modify: `src/app/actions/auth.test.ts`
 
@@ -697,8 +756,12 @@ vi.mock("@/auth/email-verification", () => ({
   consumeEmailVerification: (...a: unknown[]) => consumeEmailVerification(...a),
 }));
 
-const { forgotPasswordAction, resetPasswordAction, requestEmailVerificationAction, verifyEmailAction } =
-  await import("./auth");
+const {
+  forgotPasswordAction,
+  resetPasswordAction,
+  requestEmailVerificationAction,
+  verifyEmailAction,
+} = await import("./auth");
 
 afterEach(() => {
   issuePasswordReset.mockReset();
@@ -856,6 +919,7 @@ git commit -m "feat(auth-polish): forgot/reset/verify server actions"
 ## Task 6: Public pages
 
 **Files:**
+
 - Create: `src/app/(auth)/forgot-password/page.tsx`
 - Create: `src/app/(auth)/reset-password/page.tsx`
 - Create: `src/app/(auth)/verify-email/page.tsx`
@@ -905,7 +969,9 @@ export default function ForgotPasswordPage() {
             className="w-full rounded border px-2 py-1"
             aria-invalid={state?.fieldErrors?.email ? true : undefined}
           />
-          {state?.fieldErrors?.email && <p className="mt-1 text-xs text-red-700">{state.fieldErrors.email}</p>}
+          {state?.fieldErrors?.email && (
+            <p className="mt-1 text-xs text-red-700">{state.fieldErrors.email}</p>
+          )}
         </label>
         {state?.error && <p className="text-sm text-red-700">{state.error}</p>}
         <button
@@ -931,7 +997,10 @@ import { useActionState } from "react";
 import { useSearchParams } from "next/navigation";
 import { resetPasswordAction } from "@/app/actions/auth";
 
-interface State { ok?: boolean; error?: string }
+interface State {
+  ok?: boolean;
+  error?: string;
+}
 
 export default function ResetPasswordPage() {
   const params = useSearchParams();
@@ -945,7 +1014,9 @@ export default function ResetPasswordPage() {
       <main className="mx-auto mt-20 max-w-md p-6">
         <h1 className="mb-4 text-2xl font-bold">Password updated</h1>
         <p>You can now sign in with your new password.</p>
-        <a className="mt-3 inline-block underline" href="/sign-in">Sign in</a>
+        <a className="mt-3 inline-block underline" href="/sign-in">
+          Sign in
+        </a>
       </main>
     );
   }
@@ -988,7 +1059,10 @@ import { useActionState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { verifyEmailAction } from "@/app/actions/auth";
 
-interface State { ok?: boolean; error?: string }
+interface State {
+  ok?: boolean;
+  error?: string;
+}
 
 export default function VerifyEmailPage() {
   const params = useSearchParams();
@@ -1008,7 +1082,9 @@ export default function VerifyEmailPage() {
       <main className="mx-auto mt-20 max-w-md p-6">
         <h1 className="mb-4 text-2xl font-bold">Email verified</h1>
         <p>You're all set.</p>
-        <a className="mt-3 inline-block underline" href="/">Continue</a>
+        <a className="mt-3 inline-block underline" href="/">
+          Continue
+        </a>
       </main>
     );
   }
@@ -1044,6 +1120,7 @@ git commit -m "feat(auth-polish): public forgot / reset / verify pages"
 ## Task 7: Profile page surface
 
 **Files:**
+
 - Create: `src/app/admin/profile/page.tsx`
 
 - [ ] **Step 1: Implement**
@@ -1087,7 +1164,9 @@ export default async function ProfilePage() {
         </form>
       )}
       <p className="mt-8 text-sm">
-        <a className="underline" href="/forgot-password">Change password</a>
+        <a className="underline" href="/forgot-password">
+          Change password
+        </a>
       </p>
     </main>
   );
@@ -1106,6 +1185,7 @@ git commit -m "feat(auth-polish): profile page with verification status"
 ## Task 8: Sign-in surface: link to forgot password
 
 **Files:**
+
 - Modify: `src/app/(auth)/sign-in/page.tsx`
 
 - [ ] **Step 1: Add a "Forgot password?" link**
@@ -1169,4 +1249,4 @@ pnpm build
 
 ---
 
-*End of password-reset-polish plan.*
+_End of password-reset-polish plan._

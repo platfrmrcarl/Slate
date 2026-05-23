@@ -4,11 +4,12 @@
 
 **Goal:** Build the v1 exporter and backup pipeline (per master spec §14.2–§14.4) — a single endpoint that produces a ZIP containing every page, post, taxonomy, media object, user list, active theme, and (optionally) a `pg_dump` of the database. The same primitive backs the "Download full backup" admin button. Large exports run as Cloud Tasks jobs. Provide a tiny restore CLI helper that can replay an export ZIP into a fresh install — paired with the **cli** sub-plan's `wpkiller import` command.
 
-**Architecture:** A streaming ZIP writer (`yazl`) wraps the export pipeline. Each block-bearing row is serialized to a `frontmatter + markdown` document via a block-to-markdown writer: text-bearing blocks round-trip natively; non-text blocks are emitted as fenced ` ```block:<type>` JSON ` blocks (re-imported losslessly by the markdown-folder importer). Media bytes are streamed from Cloud Storage into the ZIP. `pg_dump` is shelled out when `--include-db` is set (Cloud Run has the binary installed in the runtime image — see deployment-hardening). The job row in `import_jobs` is reused (renamed conceptually as `export_jobs` via a `kind` column added in Task 1) for progress tracking and the eventual signed-download URL.
+**Architecture:** A streaming ZIP writer (`yazl`) wraps the export pipeline. Each block-bearing row is serialized to a `frontmatter + markdown` document via a block-to-markdown writer: text-bearing blocks round-trip natively; non-text blocks are emitted as fenced ` ```block:<type>` JSON `blocks (re-imported losslessly by the markdown-folder importer). Media bytes are streamed from Cloud Storage into the ZIP.`pg_dump`is shelled out when`--include-db`is set (Cloud Run has the binary installed in the runtime image — see deployment-hardening). The job row in`import_jobs`is reused (renamed conceptually as`export_jobs`via a`kind` column added in Task 1) for progress tracking and the eventual signed-download URL.
 
 **Tech Stack additions:** `yazl` v3 (streaming ZIP writer), `mdast-util-from-markdown` v2 for inverse parsing (not needed here — we only emit), `node:child_process` for `pg_dump` shelling.
 
 **Depends on:**
+
 - foundation, auth-and-users (admin role for export).
 - posts-taxonomies-comments + block-editor-core (`pages`, `posts`, `taxonomies`, comments).
 - media-library (`getObjectStream`, `listMedia`).
@@ -19,35 +20,36 @@
 
 ## File Map
 
-| Path | Purpose |
-|---|---|
-| `src/db/schema.ts` | **MODIFY** — add `kind` ('import' \| 'export') and `result.downloadUrl` to `import_jobs`; rename table to `data_jobs` |
-| `src/db/migrations/0010_export.sql` | Generated migration |
-| `src/export/blocks-to-markdown.ts` | Block[] → markdown (with fenced `block:<type>` for non-text) |
-| `src/export/blocks-to-markdown.test.ts` | Tests |
-| `src/export/frontmatter.ts` | Frontmatter (de-)serializer used by both export + import |
-| `src/export/frontmatter.test.ts` | Tests |
-| `src/export/zip.ts` | Streaming ZIP builder |
-| `src/export/zip.test.ts` | Tests |
-| `src/export/runner.ts` | The export pipeline |
-| `src/export/runner.test.ts` | Tests |
-| `src/export/dump.ts` | `pg_dump` wrapper |
-| `src/export/dump.test.ts` | Tests |
-| `src/app/api/export/route.ts` | POST `/api/export` — kicks off export |
-| `src/app/api/export/route.test.ts` | Tests |
-| `src/app/api/jobs/export-run/route.ts` | Cloud Tasks handler |
-| `src/app/api/jobs/export-run/route.test.ts` | Tests |
-| `src/app/api/export/[id]/download/route.ts` | Signed-URL redirect to the ZIP in Cloud Storage |
-| `src/app/api/export/[id]/download/route.test.ts` | Tests |
-| `src/app/admin/export/page.tsx` | Admin UI: kick off + list past exports |
-| `src/app/admin/export/ExportButton.tsx` | Client island |
-| `src/import/runner.ts` | **MODIFY** — accept `media-manifest.json` ref so we can restore media-id stability on round trip |
+| Path                                             | Purpose                                                                                                               |
+| ------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------- |
+| `src/db/schema.ts`                               | **MODIFY** — add `kind` ('import' \| 'export') and `result.downloadUrl` to `import_jobs`; rename table to `data_jobs` |
+| `src/db/migrations/0010_export.sql`              | Generated migration                                                                                                   |
+| `src/export/blocks-to-markdown.ts`               | Block[] → markdown (with fenced `block:<type>` for non-text)                                                          |
+| `src/export/blocks-to-markdown.test.ts`          | Tests                                                                                                                 |
+| `src/export/frontmatter.ts`                      | Frontmatter (de-)serializer used by both export + import                                                              |
+| `src/export/frontmatter.test.ts`                 | Tests                                                                                                                 |
+| `src/export/zip.ts`                              | Streaming ZIP builder                                                                                                 |
+| `src/export/zip.test.ts`                         | Tests                                                                                                                 |
+| `src/export/runner.ts`                           | The export pipeline                                                                                                   |
+| `src/export/runner.test.ts`                      | Tests                                                                                                                 |
+| `src/export/dump.ts`                             | `pg_dump` wrapper                                                                                                     |
+| `src/export/dump.test.ts`                        | Tests                                                                                                                 |
+| `src/app/api/export/route.ts`                    | POST `/api/export` — kicks off export                                                                                 |
+| `src/app/api/export/route.test.ts`               | Tests                                                                                                                 |
+| `src/app/api/jobs/export-run/route.ts`           | Cloud Tasks handler                                                                                                   |
+| `src/app/api/jobs/export-run/route.test.ts`      | Tests                                                                                                                 |
+| `src/app/api/export/[id]/download/route.ts`      | Signed-URL redirect to the ZIP in Cloud Storage                                                                       |
+| `src/app/api/export/[id]/download/route.test.ts` | Tests                                                                                                                 |
+| `src/app/admin/export/page.tsx`                  | Admin UI: kick off + list past exports                                                                                |
+| `src/app/admin/export/ExportButton.tsx`          | Client island                                                                                                         |
+| `src/import/runner.ts`                           | **MODIFY** — accept `media-manifest.json` ref so we can restore media-id stability on round trip                      |
 
 ---
 
 ## Task 1: Schema migration (consolidate import + export jobs)
 
 **Files:**
+
 - Modify: `src/db/schema.ts`
 - Create: `src/db/migrations/0010_export.sql`
 
@@ -119,6 +121,7 @@ git commit -m "feat(export): consolidate import_jobs → data_jobs with kind col
 ## Task 2: Frontmatter serializer (TDD)
 
 **Files:**
+
 - Create: `src/export/frontmatter.ts`
 - Create: `src/export/frontmatter.test.ts`
 
@@ -212,6 +215,7 @@ git commit -m "feat(export): frontmatter serializer + parser"
 ## Task 3: Blocks → markdown (TDD)
 
 **Files:**
+
 - Create: `src/export/blocks-to-markdown.ts`
 - Create: `src/export/blocks-to-markdown.test.ts`
 
@@ -219,7 +223,7 @@ git commit -m "feat(export): frontmatter serializer + parser"
 
 `src/export/blocks-to-markdown.test.ts`:
 
-```ts
+````ts
 import { describe, expect, it } from "vitest";
 import { blocksToMarkdown } from "./blocks-to-markdown";
 
@@ -246,7 +250,9 @@ describe("blocksToMarkdown", () => {
   });
 
   it("emits a fenced code block with language", () => {
-    const md = blocksToMarkdown([{ id: "c", type: "code", language: "ts", source: "const x = 1;" }]);
+    const md = blocksToMarkdown([
+      { id: "c", type: "code", language: "ts", source: "const x = 1;" },
+    ]);
     expect(md).toBe("```ts\nconst x = 1;\n```\n");
   });
 
@@ -269,7 +275,7 @@ describe("blocksToMarkdown", () => {
     expect(md).toContain('"html": "<div>raw</div>"');
   });
 });
-```
+````
 
 - [ ] **Step 2: Implement**
 
@@ -351,6 +357,7 @@ git commit -m "feat(export): block → markdown writer with fenced block:<type>"
 ## Task 4: Streaming ZIP builder (TDD)
 
 **Files:**
+
 - Create: `src/export/zip.ts`
 - Create: `src/export/zip.test.ts`
 
@@ -451,6 +458,7 @@ git commit -m "feat(export): streaming ZIP builder over yazl"
 ## Task 5: Postgres dump wrapper (TDD)
 
 **Files:**
+
 - Create: `src/export/dump.ts`
 - Create: `src/export/dump.test.ts`
 
@@ -534,6 +542,7 @@ git commit -m "feat(export): pg_dump wrapper (shell-out)"
 ## Task 6: Export pipeline (TDD)
 
 **Files:**
+
 - Create: `src/export/runner.ts`
 - Create: `src/export/runner.test.ts`
 
@@ -549,10 +558,22 @@ const listPagesAll = vi.fn();
 vi.mock("./queries", () => ({
   listAllPosts: () => listPostsAll(),
   listAllPages: () => listPagesAll(),
-  listAllTaxonomies: () => Promise.resolve([{ id: "t-1", type: "tag", slug: "news", name: "News" }]),
-  listAllUsers: () => Promise.resolve([{ id: "u-1", email: "a@b", displayName: "A", role: "author" }]),
-  listAllMedia: () => Promise.resolve([{ id: "m-1", objectPath: "media/x.jpg", mimeType: "image/jpeg", originalFilename: "x.jpg", altText: null }]),
-  getActiveThemeMeta: () => Promise.resolve({ slug: "wpk-default", version: "1.0.0", customization: {} }),
+  listAllTaxonomies: () =>
+    Promise.resolve([{ id: "t-1", type: "tag", slug: "news", name: "News" }]),
+  listAllUsers: () =>
+    Promise.resolve([{ id: "u-1", email: "a@b", displayName: "A", role: "author" }]),
+  listAllMedia: () =>
+    Promise.resolve([
+      {
+        id: "m-1",
+        objectPath: "media/x.jpg",
+        mimeType: "image/jpeg",
+        originalFilename: "x.jpg",
+        altText: null,
+      },
+    ]),
+  getActiveThemeMeta: () =>
+    Promise.resolve({ slug: "wpk-default", version: "1.0.0", customization: {} }),
 }));
 const getObjectStream = vi.fn();
 vi.mock("@/media/storage", () => ({ getObjectStream: (...a: unknown[]) => getObjectStream(...a) }));
@@ -654,7 +675,9 @@ export async function listAllTaxonomies() {
 }
 
 export async function listAllUsers() {
-  return db().select({ id: users.id, email: users.email, displayName: users.displayName, role: users.role }).from(users);
+  return db()
+    .select({ id: users.id, email: users.email, displayName: users.displayName, role: users.role })
+    .from(users);
 }
 
 export async function listAllMedia() {
@@ -694,7 +717,12 @@ export interface ExportOptions {
   includeDb: boolean;
 }
 
-function datedSlugPath(prefix: string, locale: string, slug: string, publishedAt: Date | null): string {
+function datedSlugPath(
+  prefix: string,
+  locale: string,
+  slug: string,
+  publishedAt: Date | null,
+): string {
   if (!publishedAt) return `${prefix}/${locale}/${slug}.md`;
   const yyyy = publishedAt.getUTCFullYear();
   const mm = (publishedAt.getUTCMonth() + 1).toString().padStart(2, "0");
@@ -733,7 +761,9 @@ export async function runExport(opts: ExportOptions): Promise<Readable> {
       seoDescription: p.seoDescription ?? undefined,
       authorId: p.authorId,
     });
-    const body = blocksToMarkdown(p.blocks as Array<{ id: string; type: string; [k: string]: unknown }>);
+    const body = blocksToMarkdown(
+      p.blocks as Array<{ id: string; type: string; [k: string]: unknown }>,
+    );
     z.addText(datedSlugPath("posts", p.locale, p.slug, p.publishedAt), `${fm}\n\n${body}`);
   }
 
@@ -746,7 +776,9 @@ export async function runExport(opts: ExportOptions): Promise<Readable> {
       publishedAt: p.publishedAt ? p.publishedAt.toISOString() : undefined,
       locale: p.locale,
     });
-    const body = blocksToMarkdown(p.blocks as Array<{ id: string; type: string; [k: string]: unknown }>);
+    const body = blocksToMarkdown(
+      p.blocks as Array<{ id: string; type: string; [k: string]: unknown }>,
+    );
     z.addText(`pages/${p.locale}/${p.slug}.md`, `${fm}\n\n${body}`);
   }
 
@@ -798,6 +830,7 @@ git commit -m "feat(export): runner pipeline (site + posts + pages + media + opt
 ## Task 7: API + Cloud Tasks handler + download route (TDD)
 
 **Files:**
+
 - Create: `src/app/api/export/route.ts`
 - Create: `src/app/api/export/route.test.ts`
 - Create: `src/app/api/jobs/export-run/route.ts`
@@ -848,10 +881,9 @@ describe("POST /api/export", () => {
     const res = await POST(req({ includeDb: false }));
     expect(res.status).toBe(202);
     expect(returning).toHaveBeenCalled();
-    expect(enqueueJob).toHaveBeenCalledWith(
-      "import-run",
-      expect.anything(),
-    ).catch(() => {});
+    expect(enqueueJob)
+      .toHaveBeenCalledWith("import-run", expect.anything())
+      .catch(() => {});
     // We expect "export-run" — but jobs.ts uses the JobType union; let's assert that exact value:
     expect(enqueueJob).toHaveBeenCalledWith(
       "export-run",
@@ -870,11 +902,7 @@ describe("POST /api/export", () => {
 ```ts
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import {
-  requireRole,
-  AuthRequiredError,
-  PermissionDeniedError,
-} from "@/auth/context";
+import { requireRole, AuthRequiredError, PermissionDeniedError } from "@/auth/context";
 import { db } from "@/db";
 import { dataJobs } from "@/db/schema";
 import { enqueueJob } from "@/jobs/enqueue";
@@ -890,8 +918,10 @@ export async function POST(req: Request): Promise<Response> {
   try {
     user = await requireRole("admin");
   } catch (err) {
-    if (err instanceof AuthRequiredError) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
-    if (err instanceof PermissionDeniedError) return NextResponse.json({ error: "forbidden" }, { status: 403 });
+    if (err instanceof AuthRequiredError)
+      return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
+    if (err instanceof PermissionDeniedError)
+      return NextResponse.json({ error: "forbidden" }, { status: 403 });
     throw err;
   }
   const parsed = schema.safeParse(await req.json().catch(() => ({ includeDb: false })));
@@ -1027,7 +1057,9 @@ describe("POST /api/jobs/export-run", () => {
         yield Buffer.from("ZIP_BYTES");
       })(),
     );
-    const res = await POST(req({ jobId: "11111111-1111-1111-1111-111111111111", includeDb: false }));
+    const res = await POST(
+      req({ jobId: "11111111-1111-1111-1111-111111111111", includeDb: false }),
+    );
     expect(res.status).toBe(200);
     expect(putObject).toHaveBeenCalledWith("exports/x.zip", expect.any(Buffer), "application/zip");
   });
@@ -1056,8 +1088,10 @@ export async function GET(
   try {
     await requireRole("admin");
   } catch (err) {
-    if (err instanceof AuthRequiredError) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
-    if (err instanceof PermissionDeniedError) return NextResponse.json({ error: "forbidden" }, { status: 403 });
+    if (err instanceof AuthRequiredError)
+      return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
+    if (err instanceof PermissionDeniedError)
+      return NextResponse.json({ error: "forbidden" }, { status: 403 });
     throw err;
   }
   const { id } = await ctx.params;
@@ -1156,6 +1190,7 @@ git commit -m "feat(export): POST endpoint + Cloud Tasks handler + signed downlo
 ## Task 8: Admin UI
 
 **Files:**
+
 - Create: `src/app/admin/export/page.tsx`
 - Create: `src/app/admin/export/ExportButton.tsx`
 
@@ -1196,7 +1231,11 @@ export function ExportButton() {
   return (
     <div className="space-y-2">
       <label className="flex items-center gap-2 text-sm">
-        <input type="checkbox" checked={includeDb} onChange={(e) => setIncludeDb(e.target.checked)} />
+        <input
+          type="checkbox"
+          checked={includeDb}
+          onChange={(e) => setIncludeDb(e.target.checked)}
+        />
         Include database dump
       </label>
       <button
@@ -1251,7 +1290,10 @@ export default async function ExportPage() {
           {rows.map((r) => (
             <tr key={r.id} id={r.id} className="border-b">
               <td className="py-1">{r.createdAt.toISOString()}</td>
-              <td>{r.status}{r.errorMessage ? ` — ${r.errorMessage.slice(0, 80)}` : ""}</td>
+              <td>
+                {r.status}
+                {r.errorMessage ? ` — ${r.errorMessage.slice(0, 80)}` : ""}
+              </td>
               <td>
                 {(r.result as { sizeBytes?: number })?.sizeBytes
                   ? `${Math.round(((r.result as { sizeBytes?: number }).sizeBytes ?? 0) / 1024)} KB`
@@ -1259,7 +1301,9 @@ export default async function ExportPage() {
               </td>
               <td>
                 {r.status === "completed" ? (
-                  <a className="underline" href={`/api/export/${r.id}/download`}>Download</a>
+                  <a className="underline" href={`/api/export/${r.id}/download`}>
+                    Download
+                  </a>
                 ) : (
                   "—"
                 )}
@@ -1319,12 +1363,12 @@ pnpm build
 
 ## Out of Scope (handled by sibling sub-plans)
 
-| Sub-plan | What it adds |
-|---|---|
-| **cli** | `wpkiller export` (calls `POST /api/export`), `wpkiller backup` (alias with `includeDb=true`), `wpkiller migrate-import <export.zip>` for cross-cloud migration. |
-| **deployment-hardening** | Ensures the runtime image includes `postgresql-client` for `pg_dump`; adds a Cloud Scheduler entry that fires weekly exports. |
-| **importers** | Already consumes the same ZIP shape via the markdown-folder importer. |
+| Sub-plan                 | What it adds                                                                                                                                                     |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **cli**                  | `wpkiller export` (calls `POST /api/export`), `wpkiller backup` (alias with `includeDb=true`), `wpkiller migrate-import <export.zip>` for cross-cloud migration. |
+| **deployment-hardening** | Ensures the runtime image includes `postgresql-client` for `pg_dump`; adds a Cloud Scheduler entry that fires weekly exports.                                    |
+| **importers**            | Already consumes the same ZIP shape via the markdown-folder importer.                                                                                            |
 
 ---
 
-*End of exporter-backups plan.*
+_End of exporter-backups plan._

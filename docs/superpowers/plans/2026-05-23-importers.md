@@ -9,6 +9,7 @@
 **Tech Stack additions:** `fast-xml-parser` v4 (WXR), `papaparse` v5 (CSV), `unzipper` v0.12 (ZIP / Ghost JSON archives can be zipped), `gray-matter` v4 (markdown frontmatter), `unified` + `remark-parse` (markdown → MDAST). Mobiledoc parsing is hand-rolled — Ghost mobiledoc is JSON, not text.
 
 **Depends on:**
+
 - foundation, auth-and-users (admin role for import endpoint).
 - posts-taxonomies-comments (`createPost`, `attachTaxonomyToPost`, `createComment`, etc.).
 - block-editor-core (`pages` service).
@@ -20,47 +21,48 @@
 
 ## File Map
 
-| Path | Purpose |
-|---|---|
-| `src/db/schema.ts` | **MODIFY** — add `import_jobs` (richer than the generic `jobs` table for import-specific progress) |
-| `src/db/migrations/0009_imports.sql` | Generated migration |
-| `src/import/types.ts` | `ImportRecord` discriminated union + `ImportContext` |
-| `src/import/types.test.ts` | Tests |
-| `src/import/runner.ts` | `runImport(importerName, sourceKey)` orchestrator |
-| `src/import/runner.test.ts` | Tests |
-| `src/import/resolve.ts` | Author/taxonomy/media reference resolution helpers |
-| `src/import/resolve.test.ts` | Tests |
-| `src/import/html-to-blocks.ts` | HTML → `Block[]` heuristic converter |
-| `src/import/html-to-blocks.test.ts` | Tests |
-| `src/import/markdown-to-blocks.ts` | Markdown → `Block[]` |
-| `src/import/markdown-to-blocks.test.ts` | Tests |
-| `src/import/mobiledoc-to-blocks.ts` | Ghost mobiledoc → `Block[]` |
-| `src/import/mobiledoc-to-blocks.test.ts` | Tests |
-| `src/import/importers/wordpress.ts` | WXR importer |
-| `src/import/importers/wordpress.test.ts` | Tests |
-| `src/import/importers/ghost.ts` | Ghost JSON importer |
-| `src/import/importers/ghost.test.ts` | Tests |
-| `src/import/importers/markdown.ts` | Markdown folder importer (consumes a ZIP) |
-| `src/import/importers/markdown.test.ts` | Tests |
-| `src/import/importers/csv.ts` | CSV importer |
-| `src/import/importers/csv.test.ts` | Tests |
-| `src/import/registry.ts` | Importer registry |
-| `src/app/api/import/[source]/route.ts` | Upload + enqueue (POST) |
-| `src/app/api/import/[source]/route.test.ts` | Tests |
-| `src/app/api/jobs/import-run/route.ts` | Cloud Tasks handler |
-| `src/app/api/jobs/import-run/route.test.ts` | Tests |
-| `src/app/admin/import/page.tsx` | UI: pick source + upload |
-| `src/app/admin/import/[id]/page.tsx` | Progress detail |
-| `src/test/fixtures/imports/sample.xml` | Tiny WXR fixture |
-| `src/test/fixtures/imports/ghost.json` | Tiny Ghost fixture |
-| `src/test/fixtures/imports/markdown.zip` | Tiny markdown folder fixture |
-| `src/test/fixtures/imports/sample.csv` | CSV fixture |
+| Path                                        | Purpose                                                                                            |
+| ------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `src/db/schema.ts`                          | **MODIFY** — add `import_jobs` (richer than the generic `jobs` table for import-specific progress) |
+| `src/db/migrations/0009_imports.sql`        | Generated migration                                                                                |
+| `src/import/types.ts`                       | `ImportRecord` discriminated union + `ImportContext`                                               |
+| `src/import/types.test.ts`                  | Tests                                                                                              |
+| `src/import/runner.ts`                      | `runImport(importerName, sourceKey)` orchestrator                                                  |
+| `src/import/runner.test.ts`                 | Tests                                                                                              |
+| `src/import/resolve.ts`                     | Author/taxonomy/media reference resolution helpers                                                 |
+| `src/import/resolve.test.ts`                | Tests                                                                                              |
+| `src/import/html-to-blocks.ts`              | HTML → `Block[]` heuristic converter                                                               |
+| `src/import/html-to-blocks.test.ts`         | Tests                                                                                              |
+| `src/import/markdown-to-blocks.ts`          | Markdown → `Block[]`                                                                               |
+| `src/import/markdown-to-blocks.test.ts`     | Tests                                                                                              |
+| `src/import/mobiledoc-to-blocks.ts`         | Ghost mobiledoc → `Block[]`                                                                        |
+| `src/import/mobiledoc-to-blocks.test.ts`    | Tests                                                                                              |
+| `src/import/importers/wordpress.ts`         | WXR importer                                                                                       |
+| `src/import/importers/wordpress.test.ts`    | Tests                                                                                              |
+| `src/import/importers/ghost.ts`             | Ghost JSON importer                                                                                |
+| `src/import/importers/ghost.test.ts`        | Tests                                                                                              |
+| `src/import/importers/markdown.ts`          | Markdown folder importer (consumes a ZIP)                                                          |
+| `src/import/importers/markdown.test.ts`     | Tests                                                                                              |
+| `src/import/importers/csv.ts`               | CSV importer                                                                                       |
+| `src/import/importers/csv.test.ts`          | Tests                                                                                              |
+| `src/import/registry.ts`                    | Importer registry                                                                                  |
+| `src/app/api/import/[source]/route.ts`      | Upload + enqueue (POST)                                                                            |
+| `src/app/api/import/[source]/route.test.ts` | Tests                                                                                              |
+| `src/app/api/jobs/import-run/route.ts`      | Cloud Tasks handler                                                                                |
+| `src/app/api/jobs/import-run/route.test.ts` | Tests                                                                                              |
+| `src/app/admin/import/page.tsx`             | UI: pick source + upload                                                                           |
+| `src/app/admin/import/[id]/page.tsx`        | Progress detail                                                                                    |
+| `src/test/fixtures/imports/sample.xml`      | Tiny WXR fixture                                                                                   |
+| `src/test/fixtures/imports/ghost.json`      | Tiny Ghost fixture                                                                                 |
+| `src/test/fixtures/imports/markdown.zip`    | Tiny markdown folder fixture                                                                       |
+| `src/test/fixtures/imports/sample.csv`      | CSV fixture                                                                                        |
 
 ---
 
 ## Task 1: Schema + types
 
 **Files:**
+
 - Modify: `src/db/schema.ts`
 - Create: `src/db/migrations/0009_imports.sql`
 - Create: `src/import/types.ts`
@@ -181,7 +183,9 @@ const userRecord = z.object({
   externalId: z.string(),
   email: z.string().email(),
   displayName: z.string().min(1).max(200),
-  role: z.enum(["owner", "admin", "editor", "author", "contributor", "subscriber"]).default("subscriber"),
+  role: z
+    .enum(["owner", "admin", "editor", "author", "contributor", "subscriber"])
+    .default("subscriber"),
 });
 
 const taxonomyRecord = z.object({
@@ -287,6 +291,7 @@ git commit -m "feat(import): schema + ImportRecord types"
 ## Task 2: HTML → blocks (TDD)
 
 **Files:**
+
 - Create: `src/import/html-to-blocks.ts`
 - Create: `src/import/html-to-blocks.test.ts`
 
@@ -315,8 +320,12 @@ describe("htmlToBlocks", () => {
 
   it("converts unordered and ordered lists", () => {
     const blocks = htmlToBlocks("<ul><li>a</li><li>b</li></ul><ol><li>x</li></ol>");
-    expect(blocks[0]).toEqual(expect.objectContaining({ type: "list", ordered: false, items: ["a", "b"] }));
-    expect(blocks[1]).toEqual(expect.objectContaining({ type: "list", ordered: true, items: ["x"] }));
+    expect(blocks[0]).toEqual(
+      expect.objectContaining({ type: "list", ordered: false, items: ["a", "b"] }),
+    );
+    expect(blocks[1]).toEqual(
+      expect.objectContaining({ type: "list", ordered: true, items: ["x"] }),
+    );
   });
 
   it("converts blockquote to quote block", () => {
@@ -344,7 +353,10 @@ describe("htmlToBlocks", () => {
   it("wraps unrecognized tags in an html block", () => {
     const blocks = htmlToBlocks("<section><p>x</p></section>");
     expect(
-      blocks.some((b) => (b as { type: string }).type === "html" || (b as { type: string }).type === "paragraph"),
+      blocks.some(
+        (b) =>
+          (b as { type: string }).type === "html" || (b as { type: string }).type === "paragraph",
+      ),
     ).toBe(true);
   });
 
@@ -457,7 +469,14 @@ function languageOf(codeEl: Element): string {
 
 function convertElement(el: Element): Block | Block[] | null {
   const tag = el.tagName;
-  if (tag === "h1" || tag === "h2" || tag === "h3" || tag === "h4" || tag === "h5" || tag === "h6") {
+  if (
+    tag === "h1" ||
+    tag === "h2" ||
+    tag === "h3" ||
+    tag === "h4" ||
+    tag === "h5" ||
+    tag === "h6"
+  ) {
     return {
       id: nextId("h"),
       type: "heading",
@@ -484,7 +503,9 @@ function convertElement(el: Element): Block | Block[] | null {
     return { id: nextId("q"), type: "quote", markdown: inner };
   }
   if (tag === "pre") {
-    const code = el.childNodes.find((c) => isElement(c) && c.tagName === "code") as Element | undefined;
+    const code = el.childNodes.find((c) => isElement(c) && c.tagName === "code") as
+      | Element
+      | undefined;
     const source = code ? textOf(code) : textOf(el);
     const language = code ? languageOf(code) : "";
     return { id: nextId("c"), type: "code", language, source };
@@ -560,6 +581,7 @@ git commit -m "feat(import): HTML → Block[] heuristic converter"
 ## Task 3: Markdown → blocks (TDD)
 
 **Files:**
+
 - Create: `src/import/markdown-to-blocks.ts`
 - Create: `src/import/markdown-to-blocks.test.ts`
 
@@ -567,7 +589,7 @@ git commit -m "feat(import): HTML → Block[] heuristic converter"
 
 `src/import/markdown-to-blocks.test.ts`:
 
-```ts
+````ts
 import { describe, expect, it } from "vitest";
 import { markdownToBlocks } from "./markdown-to-blocks";
 
@@ -591,15 +613,19 @@ describe("markdownToBlocks", () => {
   });
   it("converts thematic break to divider", async () => {
     const blocks = await markdownToBlocks("a\n\n---\n\nb");
-    expect(blocks.map((b) => (b as { type: string }).type)).toEqual(["paragraph", "divider", "paragraph"]);
+    expect(blocks.map((b) => (b as { type: string }).type)).toEqual([
+      "paragraph",
+      "divider",
+      "paragraph",
+    ]);
   });
   it("preserves the block:<type> fenced JSON round-trip", async () => {
-    const fenced = "```block:hero\n{\"id\":\"h1\",\"type\":\"hero\",\"headline\":\"Welcome\"}\n```";
+    const fenced = '```block:hero\n{"id":"h1","type":"hero","headline":"Welcome"}\n```';
     const blocks = await markdownToBlocks(fenced);
     expect(blocks[0]).toEqual({ id: "h1", type: "hero", headline: "Welcome" });
   });
 });
-```
+````
 
 - [ ] **Step 2: Implement**
 
@@ -623,7 +649,11 @@ interface Block {
   [k: string]: unknown;
 }
 
-function inline(node: { type: string; value?: string; children?: { type: string; value?: string }[] }): string {
+function inline(node: {
+  type: string;
+  value?: string;
+  children?: { type: string; value?: string }[];
+}): string {
   // Render an mdast inline node tree back into markdown.
   return toMarkdown(node as Parameters<typeof toMarkdown>[0]).trim();
 }
@@ -636,7 +666,12 @@ export async function markdownToBlocks(source: string): Promise<Block[]> {
   for (const node of tree.children) {
     if (node.type === "heading") {
       const h = node as Heading;
-      out.push({ id: nextId("h"), type: "heading", level: h.depth, text: inline({ type: "paragraph", children: h.children as Heading["children"] }) });
+      out.push({
+        id: nextId("h"),
+        type: "heading",
+        level: h.depth,
+        text: inline({ type: "paragraph", children: h.children as Heading["children"] }),
+      });
     } else if (node.type === "paragraph") {
       const p = node as Paragraph;
       out.push({ id: nextId("p"), type: "paragraph", markdown: inline(p).trim() });
@@ -645,7 +680,11 @@ export async function markdownToBlocks(source: string): Promise<Block[]> {
       out.push({
         id: nextId("q"),
         type: "quote",
-        markdown: inline({ type: "blockquote", children: bq.children } as Parameters<typeof inline>[0]).replace(/^>\s?/gm, "").trim(),
+        markdown: inline({ type: "blockquote", children: bq.children } as Parameters<
+          typeof inline
+        >[0])
+          .replace(/^>\s?/gm, "")
+          .trim(),
       });
     } else if (node.type === "list") {
       const l = node as List;
@@ -711,6 +750,7 @@ git commit -m "feat(import): markdown → blocks with fenced-JSON round-trip"
 ## Task 4: Mobiledoc → blocks (TDD)
 
 **Files:**
+
 - Create: `src/import/mobiledoc-to-blocks.ts`
 - Create: `src/import/mobiledoc-to-blocks.test.ts`
 
@@ -737,9 +777,7 @@ const PARA_DOC = {
   atoms: [],
   cards: [],
   markups: [],
-  sections: [
-    [1, "p", [[0, [], 0, "Plain paragraph"]]],
-  ],
+  sections: [[1, "p", [[0, [], 0, "Plain paragraph"]]]],
 };
 
 const IMAGE_DOC = {
@@ -753,12 +791,16 @@ const IMAGE_DOC = {
 describe("mobiledocToBlocks", () => {
   it("expands a markdown card", async () => {
     const blocks = await mobiledocToBlocks(MD_DOC);
-    expect(blocks[0]).toEqual(expect.objectContaining({ type: "heading", level: 1, text: "Hello" }));
+    expect(blocks[0]).toEqual(
+      expect.objectContaining({ type: "heading", level: 1, text: "Hello" }),
+    );
     expect(blocks[1]).toEqual(expect.objectContaining({ type: "paragraph", markdown: "world." }));
   });
   it("converts paragraph sections", async () => {
     const blocks = await mobiledocToBlocks(PARA_DOC);
-    expect(blocks[0]).toEqual(expect.objectContaining({ type: "paragraph", markdown: "Plain paragraph" }));
+    expect(blocks[0]).toEqual(
+      expect.objectContaining({ type: "paragraph", markdown: "Plain paragraph" }),
+    );
   });
   it("converts image cards to paragraph image-placeholders (URL preserved)", async () => {
     const blocks = await mobiledocToBlocks(IMAGE_DOC);
@@ -789,10 +831,7 @@ interface Mobiledoc {
   markups: Array<Array<unknown>>;
 }
 
-function sectionToBlocks(
-  doc: Mobiledoc,
-  section: Array<unknown>,
-): Promise<unknown[]> | unknown[] {
+function sectionToBlocks(doc: Mobiledoc, section: Array<unknown>): Promise<unknown[]> | unknown[] {
   const type = section[0];
   if (type === 10) {
     // card index
@@ -873,6 +912,7 @@ git commit -m "feat(import): mobiledoc → blocks"
 ## Task 5: Reference resolvers (TDD)
 
 **Files:**
+
 - Create: `src/import/resolve.ts`
 - Create: `src/import/resolve.test.ts`
 
@@ -892,7 +932,10 @@ const uids: string[] = [];
 
 afterAll(async () => {
   if (!HAS_DB) return;
-  for (const id of uids) await db().delete(users).where(sql`${users.id} = ${id}`);
+  for (const id of uids)
+    await db()
+      .delete(users)
+      .where(sql`${users.id} = ${id}`);
   await closeDb();
 });
 
@@ -989,6 +1032,7 @@ git commit -m "feat(import): user + taxonomy resolvers"
 ## Task 6: WordPress XML importer (TDD)
 
 **Files:**
+
 - Create: `src/test/fixtures/imports/sample.xml`
 - Create: `src/import/importers/wordpress.ts`
 - Create: `src/import/importers/wordpress.test.ts`
@@ -1063,12 +1107,18 @@ describe("parseWordpressXml", () => {
     for await (const r of parseWordpressXml(xml)) records.push(r);
     const kinds = records.map((r) => r.kind).sort();
     expect(kinds).toEqual(["page", "post", "taxonomy", "taxonomy", "user"]);
-    const post = records.find((r) => r.kind === "post") as Extract<typeof records[number], { kind: "post" }>;
+    const post = records.find((r) => r.kind === "post") as Extract<
+      (typeof records)[number],
+      { kind: "post" }
+    >;
     expect(post.slug).toBe("hello");
     expect(post.status).toBe("published");
     expect(post.bodyHtml).toContain("<h2>Hi</h2>");
     expect(post.taxonomyRefs).toEqual(
-      expect.arrayContaining([{ type: "category", slug: "news", name: "News" }, { type: "tag", slug: "release", name: "Release" }]),
+      expect.arrayContaining([
+        { type: "category", slug: "news", name: "News" },
+        { type: "tag", slug: "release", name: "Release" },
+      ]),
     );
   });
 });
@@ -1216,6 +1266,7 @@ git commit -m "feat(import): WordPress WXR importer"
 ## Task 7: Ghost JSON importer (TDD)
 
 **Files:**
+
 - Create: `src/test/fixtures/imports/ghost.json`
 - Create: `src/import/importers/ghost.ts`
 - Create: `src/import/importers/ghost.test.ts`
@@ -1232,9 +1283,7 @@ git commit -m "feat(import): WordPress WXR importer"
         "users": [
           { "id": 1, "name": "Ghost Author", "email": "ga@example.com", "slug": "ghost-author" }
         ],
-        "tags": [
-          { "id": 11, "name": "Notes", "slug": "notes" }
-        ],
+        "tags": [{ "id": 11, "name": "Notes", "slug": "notes" }],
         "posts": [
           {
             "id": 101,
@@ -1259,9 +1308,7 @@ git commit -m "feat(import): WordPress WXR importer"
             "author_id": 1
           }
         ],
-        "posts_tags": [
-          { "post_id": 101, "tag_id": 11 }
-        ]
+        "posts_tags": [{ "post_id": 101, "tag_id": 11 }]
       }
     }
   ]
@@ -1287,7 +1334,9 @@ describe("parseGhostJson", () => {
     expect(kinds).toEqual(expect.arrayContaining(["user", "taxonomy", "post", "page"]));
     const post = records.find((r) => r.kind === "post" && r.slug === "ghost-post");
     expect(post).toBeTruthy();
-    expect((post as Extract<typeof records[number], { kind: "post" }>).bodyMobiledoc).toBeDefined();
+    expect(
+      (post as Extract<(typeof records)[number], { kind: "post" }>).bodyMobiledoc,
+    ).toBeDefined();
   });
 });
 ```
@@ -1361,7 +1410,8 @@ export async function* parseGhostJson(rawJson: string): AsyncGenerator<ImportRec
   for (const p of data.posts) {
     const isPage = p.type === "page";
     const mobiledoc = p.mobiledoc ? JSON.parse(p.mobiledoc) : undefined;
-    const status = p.status === "published" ? "published" : p.status === "scheduled" ? "scheduled" : "draft";
+    const status =
+      p.status === "published" ? "published" : p.status === "scheduled" ? "scheduled" : "draft";
     yield {
       kind: isPage ? "page" : "post",
       externalId: `ghost:${p.id}`,
@@ -1401,6 +1451,7 @@ git commit -m "feat(import): Ghost JSON importer"
 ## Task 8: Markdown folder importer (TDD)
 
 **Files:**
+
 - Create: `src/test/fixtures/imports/markdown.zip`
 - Create: `src/import/importers/markdown.ts`
 - Create: `src/import/importers/markdown.test.ts`
@@ -1463,8 +1514,10 @@ describe("parseMarkdownZip", () => {
     const page = records.find((r) => r.kind === "page");
     expect(post).toBeTruthy();
     expect(page).toBeTruthy();
-    expect((post as Extract<typeof records[number], { kind: "post" }>).bodyMarkdown).toContain("# Hi");
-    expect((post as Extract<typeof records[number], { kind: "post" }>).taxonomyRefs).toEqual(
+    expect((post as Extract<(typeof records)[number], { kind: "post" }>).bodyMarkdown).toContain(
+      "# Hi",
+    );
+    expect((post as Extract<(typeof records)[number], { kind: "post" }>).taxonomyRefs).toEqual(
       expect.arrayContaining([
         { type: "tag", slug: "news" },
         { type: "tag", slug: "release" },
@@ -1523,7 +1576,8 @@ export async function* parseMarkdownZip(zipBytes: Buffer): AsyncGenerator<Import
       externalId: `md:${file.path}`,
       title: fm.title ?? slug,
       slug,
-      status: fm.status === "published" ? "published" : (fm.status as "draft" | "scheduled") ?? "draft",
+      status:
+        fm.status === "published" ? "published" : ((fm.status as "draft" | "scheduled") ?? "draft"),
       publishedAt: fm.publishedAt,
       excerpt: fm.excerpt,
       bodyMarkdown: parsed.content,
@@ -1556,6 +1610,7 @@ git commit -m "feat(import): markdown folder importer (zip + frontmatter)"
 ## Task 9: CSV importer (TDD)
 
 **Files:**
+
 - Create: `src/test/fixtures/imports/sample.csv`
 - Create: `src/import/importers/csv.ts`
 - Create: `src/import/importers/csv.test.ts`
@@ -1631,9 +1686,18 @@ export async function* parseCsv(raw: string): AsyncGenerator<ImportRecord> {
   const parsed = Papa.parse<Row>(raw, { header: true, skipEmptyLines: true });
   for (const row of parsed.data) {
     if (!row.title) continue;
-    const slug = row.slug ?? row.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+    const slug =
+      row.slug ??
+      row.title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
     const taxonomyRefs = [
-      ...(row.tags ?? "").split(",").map((t) => t.trim()).filter(Boolean).map((slug) => ({ type: "tag", slug })),
+      ...(row.tags ?? "")
+        .split(",")
+        .map((t) => t.trim())
+        .filter(Boolean)
+        .map((slug) => ({ type: "tag", slug })),
       ...(row.categories ?? "")
         .split(",")
         .map((t) => t.trim())
@@ -1650,7 +1714,9 @@ export async function* parseCsv(raw: string): AsyncGenerator<ImportRecord> {
       excerpt: row.excerpt,
       bodyMarkdown: row.bodyMarkdown,
       bodyHtml: row.bodyHtml,
-      authorExternalId: row.authorEmail ? `email:${row.authorEmail.trim().toLowerCase()}` : undefined,
+      authorExternalId: row.authorEmail
+        ? `email:${row.authorEmail.trim().toLowerCase()}`
+        : undefined,
       locale: row.locale ?? "en",
       taxonomyRefs,
     };
@@ -1678,6 +1744,7 @@ git commit -m "feat(import): CSV importer"
 ## Task 10: Importer registry + runner (TDD)
 
 **Files:**
+
 - Create: `src/import/registry.ts`
 - Create: `src/import/runner.ts`
 - Create: `src/import/runner.test.ts`
@@ -1863,7 +1930,9 @@ import type { ImportRecord, ImportContext } from "./types";
 import { ZERO_PROGRESS, updateImportProgress, markImportCompleted, markImportFailed } from "./jobs";
 import { logger } from "@/lib/logger";
 
-async function recordToBlocks(record: Extract<ImportRecord, { kind: "post" | "page" }>): Promise<unknown[]> {
+async function recordToBlocks(
+  record: Extract<ImportRecord, { kind: "post" | "page" }>,
+): Promise<unknown[]> {
   if (record.blocks?.length) return record.blocks;
   if (record.bodyMarkdown) return markdownToBlocks(record.bodyMarkdown);
   if (record.bodyMobiledoc) return mobiledocToBlocks(record.bodyMobiledoc as never);
@@ -1901,7 +1970,10 @@ export async function runImportRecords(input: RunInput): Promise<void> {
         await handle(record, ctx, progress);
       } catch (err) {
         progress.errors += 1;
-        logger().warn({ err, kind: record.kind, externalId: (record as { externalId: string }).externalId }, "import:record-failed");
+        logger().warn(
+          { err, kind: record.kind, externalId: (record as { externalId: string }).externalId },
+          "import:record-failed",
+        );
       }
       progress.processed += 1;
       if (progress.processed % 25 === 0) await flush();
@@ -1950,36 +2022,37 @@ async function handle(
         : ctx.fallbackAuthorId;
       const blocks = await recordToBlocks(record);
 
-      const created = record.kind === "post"
-        ? await createPost(
-            {
-              title: record.title,
-              slug: record.slug,
-              excerpt: record.excerpt,
-              blocks,
-              status: record.status,
-              publishedAt: record.publishedAt,
-              locale: record.locale ?? ctx.defaultLocale,
-              seoTitle: record.seoTitle,
-              seoDescription: record.seoDescription,
-              categoryIds: [],
-              tagIds: [],
-            },
-            authorId,
-          )
-        : await createPage(
-            {
-              title: record.title,
-              slug: record.slug,
-              blocks,
-              status: record.status,
-              publishedAt: record.publishedAt,
-              locale: record.locale ?? ctx.defaultLocale,
-              seoTitle: record.seoTitle,
-              seoDescription: record.seoDescription,
-            },
-            authorId,
-          );
+      const created =
+        record.kind === "post"
+          ? await createPost(
+              {
+                title: record.title,
+                slug: record.slug,
+                excerpt: record.excerpt,
+                blocks,
+                status: record.status,
+                publishedAt: record.publishedAt,
+                locale: record.locale ?? ctx.defaultLocale,
+                seoTitle: record.seoTitle,
+                seoDescription: record.seoDescription,
+                categoryIds: [],
+                tagIds: [],
+              },
+              authorId,
+            )
+          : await createPage(
+              {
+                title: record.title,
+                slug: record.slug,
+                blocks,
+                status: record.status,
+                publishedAt: record.publishedAt,
+                locale: record.locale ?? ctx.defaultLocale,
+                seoTitle: record.seoTitle,
+                seoDescription: record.seoDescription,
+              },
+              authorId,
+            );
       ctx.postIdByExternalId.set(record.externalId, created.id);
 
       if (record.kind === "post") {
@@ -2036,6 +2109,7 @@ git commit -m "feat(import): registry + runner + progress tracking"
 ## Task 11: Media + comments record handling
 
 **Files:**
+
 - Modify: `src/import/runner.ts`
 
 - [ ] **Step 1: Extend runner to handle media records**
@@ -2124,6 +2198,7 @@ git commit -m "feat(import): handle media + comment records"
 ## Task 12: Upload route + Cloud Tasks handler (TDD)
 
 **Files:**
+
 - Create: `src/app/api/import/[source]/route.ts`
 - Create: `src/app/api/import/[source]/route.test.ts`
 - Create: `src/app/api/jobs/import-run/route.ts`
@@ -2142,7 +2217,11 @@ const putObject = vi.fn().mockResolvedValue(undefined);
 vi.mock("@/media/storage", () => ({ putObject: (...a: unknown[]) => putObject(...a) }));
 const insert = vi.fn();
 const returningResult = [{ id: "ij-1" }];
-vi.mock("@/db", () => ({ db: () => ({ insert: () => ({ values: () => ({ returning: () => Promise.resolve(returningResult) }) }) }) }));
+vi.mock("@/db", () => ({
+  db: () => ({
+    insert: () => ({ values: () => ({ returning: () => Promise.resolve(returningResult) }) }),
+  }),
+}));
 const enqueueJob = vi.fn();
 vi.mock("@/jobs/enqueue", () => ({ enqueueJob: (...a: unknown[]) => enqueueJob(...a) }));
 
@@ -2190,11 +2269,7 @@ describe("POST /api/import/[source]", () => {
 ```ts
 import { NextResponse } from "next/server";
 import { randomUUID } from "node:crypto";
-import {
-  requireRole,
-  AuthRequiredError,
-  PermissionDeniedError,
-} from "@/auth/context";
+import { requireRole, AuthRequiredError, PermissionDeniedError } from "@/auth/context";
 import { db } from "@/db";
 import { importJobs } from "@/db/schema";
 import { putObject } from "@/media/storage";
@@ -2216,16 +2291,20 @@ export async function POST(
   try {
     user = await requireRole("admin");
   } catch (err) {
-    if (err instanceof AuthRequiredError) return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
-    if (err instanceof PermissionDeniedError) return NextResponse.json({ error: "forbidden" }, { status: 403 });
+    if (err instanceof AuthRequiredError)
+      return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
+    if (err instanceof PermissionDeniedError)
+      return NextResponse.json({ error: "forbidden" }, { status: 403 });
     throw err;
   }
   const { source } = await ctx.params;
-  if (!VALID_SOURCES.has(source)) return NextResponse.json({ error: "unknown source" }, { status: 400 });
+  if (!VALID_SOURCES.has(source))
+    return NextResponse.json({ error: "unknown source" }, { status: 400 });
 
   const form = await req.formData();
   const file = form.get("file");
-  if (!(file instanceof Blob)) return NextResponse.json({ error: "file required" }, { status: 400 });
+  if (!(file instanceof Blob))
+    return NextResponse.json({ error: "file required" }, { status: 400 });
   const filename = (file as File).name ?? "upload.bin";
   const bytes = Buffer.from(await file.arrayBuffer());
 
@@ -2288,7 +2367,10 @@ export async function POST(req: Request): Promise<Response> {
   const parsed = schema.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "invalid input" }, { status: 400 });
 
-  const rows = await db().select().from(importJobs).where(eq(importJobs.id, parsed.data.importJobId));
+  const rows = await db()
+    .select()
+    .from(importJobs)
+    .where(eq(importJobs.id, parsed.data.importJobId));
   const job = rows[0];
   if (!job) return NextResponse.json({ ok: true, skipped: "missing" });
 
@@ -2297,9 +2379,14 @@ export async function POST(req: Request): Promise<Response> {
     if (!importer) throw new Error(`unknown importer: ${job.source}`);
     const stream = await getObjectStream(job.objectPath);
 
-    const records = importer.contentType === "text"
-      ? (importer.parse as (s: string) => AsyncGenerator<never>)(await streamToText(stream as unknown as AsyncIterable<Uint8Array>))
-      : (importer.parse as (b: Buffer) => AsyncGenerator<never>)(await streamToBuffer(stream as unknown as AsyncIterable<Uint8Array>));
+    const records =
+      importer.contentType === "text"
+        ? (importer.parse as (s: string) => AsyncGenerator<never>)(
+            await streamToText(stream as unknown as AsyncIterable<Uint8Array>),
+          )
+        : (importer.parse as (b: Buffer) => AsyncGenerator<never>)(
+            await streamToBuffer(stream as unknown as AsyncIterable<Uint8Array>),
+          );
 
     await runImportRecords({
       importJobId: job.id,
@@ -2331,7 +2418,9 @@ vi.mock("@/db", () => ({
   }),
 }));
 const runImportRecords = vi.fn().mockResolvedValue(undefined);
-vi.mock("@/import/runner", () => ({ runImportRecords: (...a: unknown[]) => runImportRecords(...a) }));
+vi.mock("@/import/runner", () => ({
+  runImportRecords: (...a: unknown[]) => runImportRecords(...a),
+}));
 const markImportFailed = vi.fn().mockResolvedValue(undefined);
 vi.mock("@/import/jobs", () => ({ markImportFailed }));
 const getObjectStream = vi.fn();
@@ -2401,6 +2490,7 @@ git commit -m "feat(import): upload endpoint + Cloud Tasks handler"
 ## Task 13: Admin UI — pick source, monitor progress
 
 **Files:**
+
 - Create: `src/app/admin/import/page.tsx`
 - Create: `src/app/admin/import/[id]/page.tsx`
 - Create: `src/app/admin/import/UploadForm.tsx`
@@ -2486,11 +2576,7 @@ export const dynamic = "force-dynamic";
 
 export default async function ImportPage() {
   await requireRole("admin");
-  const rows = await db()
-    .select()
-    .from(importJobs)
-    .orderBy(desc(importJobs.createdAt))
-    .limit(30);
+  const rows = await db().select().from(importJobs).orderBy(desc(importJobs.createdAt)).limit(30);
   return (
     <main className="p-6">
       <h1 className="mb-4 text-2xl font-bold">Import</h1>
@@ -2556,14 +2642,22 @@ export default async function ImportDetail({ params }: { params: Promise<{ id: s
         </pre>
       )}
       <dl className="mt-4 grid grid-cols-2 gap-2 text-sm">
-        <dt>Processed</dt><dd>{p?.processed ?? 0}</dd>
-        <dt>Users</dt><dd>{p?.users ?? 0}</dd>
-        <dt>Posts</dt><dd>{p?.posts ?? 0}</dd>
-        <dt>Pages</dt><dd>{p?.pages ?? 0}</dd>
-        <dt>Media</dt><dd>{p?.media ?? 0}</dd>
-        <dt>Taxonomies</dt><dd>{p?.taxonomies ?? 0}</dd>
-        <dt>Comments</dt><dd>{p?.comments ?? 0}</dd>
-        <dt>Errors</dt><dd>{p?.errors ?? 0}</dd>
+        <dt>Processed</dt>
+        <dd>{p?.processed ?? 0}</dd>
+        <dt>Users</dt>
+        <dd>{p?.users ?? 0}</dd>
+        <dt>Posts</dt>
+        <dd>{p?.posts ?? 0}</dd>
+        <dt>Pages</dt>
+        <dd>{p?.pages ?? 0}</dd>
+        <dt>Media</dt>
+        <dd>{p?.media ?? 0}</dd>
+        <dt>Taxonomies</dt>
+        <dd>{p?.taxonomies ?? 0}</dd>
+        <dt>Comments</dt>
+        <dd>{p?.comments ?? 0}</dd>
+        <dt>Errors</dt>
+        <dd>{p?.errors ?? 0}</dd>
       </dl>
     </main>
   );
@@ -2597,6 +2691,7 @@ pnpm test
 - [ ] **Step 2: Smoke through UI**
 
 Visit `/admin/import`, choose CSV, upload `src/test/fixtures/imports/sample.csv`. Confirm:
+
 1. Redirect to detail page.
 2. Status flips to `running` then `completed`.
 3. Two new draft+published posts appear at `/admin/posts`.
@@ -2616,13 +2711,13 @@ Repeat for the WXR, Ghost JSON, and markdown ZIP fixtures.
 
 ## Out of Scope (handled by sibling sub-plans)
 
-| Sub-plan | What it adds |
-|---|---|
-| **ai-features** | Optional post-import enrichment: auto-SEO for posts missing meta, alt text for media missing alt. |
-| **multilingual** | WPML/Polylang translation pointers — feed `translation_of` from WXR `<wp:post_translations>`. |
-| **exporter-backups** | Round-trips imports back out via the same record shape. |
-| **cli** | `wpkiller import <source> <file>` calls the same upload endpoint with an admin token. |
+| Sub-plan             | What it adds                                                                                      |
+| -------------------- | ------------------------------------------------------------------------------------------------- |
+| **ai-features**      | Optional post-import enrichment: auto-SEO for posts missing meta, alt text for media missing alt. |
+| **multilingual**     | WPML/Polylang translation pointers — feed `translation_of` from WXR `<wp:post_translations>`.     |
+| **exporter-backups** | Round-trips imports back out via the same record shape.                                           |
+| **cli**              | `wpkiller import <source> <file>` calls the same upload endpoint with an admin token.             |
 
 ---
 
-*End of importers plan.*
+_End of importers plan._

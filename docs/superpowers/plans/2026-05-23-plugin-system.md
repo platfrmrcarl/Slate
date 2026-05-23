@@ -11,6 +11,7 @@
 **Tech Stack additions:** None — uses Node `crypto` for HMAC, the foundation logger, the existing Cloud Tasks adapter.
 
 **Depends on:**
+
 - foundation, auth-and-users (admin role for plugin management).
 - block-editor-core (`defineBlock`, block registry).
 - posts-taxonomies-comments (emits `post.*` / `comment.*` events).
@@ -21,43 +22,44 @@
 
 ## File Map
 
-| Path | Purpose |
-|---|---|
-| `src/db/schema.ts` | **MODIFY** — add `plugins`, `webhooks`, `webhook_deliveries` |
-| `src/db/migrations/0008_plugins.sql` | Generated migration |
-| `src/plugins/manifest.ts` | Manifest Zod schema |
-| `src/plugins/manifest.test.ts` | Tests |
-| `src/plugins/registry.ts` | Plugin loader + registry |
-| `src/plugins/registry.test.ts` | Tests |
-| `src/plugins/service.ts` | CRUD: install/enable/disable/upsertWebhooks |
-| `src/plugins/service.test.ts` | Tests |
-| `src/plugins/events.ts` | `WebhookEvent` union + payload types |
-| `src/plugins/events.test.ts` | Tests |
-| `src/plugins/emit.ts` | Domain event emitter (called from features) |
-| `src/plugins/emit.test.ts` | Tests |
-| `src/plugins/deliver.ts` | Webhook delivery worker (HMAC sign + retry) |
-| `src/plugins/deliver.test.ts` | Tests |
-| `src/plugins/hmac.ts` | HMAC-SHA256 helper |
-| `src/plugins/hmac.test.ts` | Tests |
-| `src/app/api/jobs/webhook-deliver/route.ts` | Cloud Tasks handler |
-| `src/app/api/jobs/webhook-deliver/route.test.ts` | Tests |
-| `src/app/actions/plugins.ts` | Server Actions: enablePlugin, disablePlugin, regenerateSecret |
-| `src/app/actions/plugins.test.ts` | Tests |
-| `src/app/admin/plugins/page.tsx` | List + enable/disable |
-| `src/app/admin/plugins/[slug]/page.tsx` | Detail + secret rotation + webhook deliveries log |
-| `src/app/admin/AdminSidebar.tsx` | **MODIFY** — merge plugin menu entries |
-| `src/app/admin/[...plugin-path]/page.tsx` | Plugin-provided admin sub-route loader |
-| `src/posts/service.ts` | **MODIFY** — call `emit("post.published", ...)` etc. |
-| `src/comments/service.ts` | **MODIFY** — `emit("comment.added", ...)` |
-| `src/media/service.ts` | **MODIFY** — `emit("media.uploaded", ...)` |
-| `src/themes/service.ts` | **MODIFY** — `emit("theme.activated", ...)` |
-| `src/auth/users.ts` | **MODIFY** — `emit("user.created", ...)` |
+| Path                                             | Purpose                                                       |
+| ------------------------------------------------ | ------------------------------------------------------------- |
+| `src/db/schema.ts`                               | **MODIFY** — add `plugins`, `webhooks`, `webhook_deliveries`  |
+| `src/db/migrations/0008_plugins.sql`             | Generated migration                                           |
+| `src/plugins/manifest.ts`                        | Manifest Zod schema                                           |
+| `src/plugins/manifest.test.ts`                   | Tests                                                         |
+| `src/plugins/registry.ts`                        | Plugin loader + registry                                      |
+| `src/plugins/registry.test.ts`                   | Tests                                                         |
+| `src/plugins/service.ts`                         | CRUD: install/enable/disable/upsertWebhooks                   |
+| `src/plugins/service.test.ts`                    | Tests                                                         |
+| `src/plugins/events.ts`                          | `WebhookEvent` union + payload types                          |
+| `src/plugins/events.test.ts`                     | Tests                                                         |
+| `src/plugins/emit.ts`                            | Domain event emitter (called from features)                   |
+| `src/plugins/emit.test.ts`                       | Tests                                                         |
+| `src/plugins/deliver.ts`                         | Webhook delivery worker (HMAC sign + retry)                   |
+| `src/plugins/deliver.test.ts`                    | Tests                                                         |
+| `src/plugins/hmac.ts`                            | HMAC-SHA256 helper                                            |
+| `src/plugins/hmac.test.ts`                       | Tests                                                         |
+| `src/app/api/jobs/webhook-deliver/route.ts`      | Cloud Tasks handler                                           |
+| `src/app/api/jobs/webhook-deliver/route.test.ts` | Tests                                                         |
+| `src/app/actions/plugins.ts`                     | Server Actions: enablePlugin, disablePlugin, regenerateSecret |
+| `src/app/actions/plugins.test.ts`                | Tests                                                         |
+| `src/app/admin/plugins/page.tsx`                 | List + enable/disable                                         |
+| `src/app/admin/plugins/[slug]/page.tsx`          | Detail + secret rotation + webhook deliveries log             |
+| `src/app/admin/AdminSidebar.tsx`                 | **MODIFY** — merge plugin menu entries                        |
+| `src/app/admin/[...plugin-path]/page.tsx`        | Plugin-provided admin sub-route loader                        |
+| `src/posts/service.ts`                           | **MODIFY** — call `emit("post.published", ...)` etc.          |
+| `src/comments/service.ts`                        | **MODIFY** — `emit("comment.added", ...)`                     |
+| `src/media/service.ts`                           | **MODIFY** — `emit("media.uploaded", ...)`                    |
+| `src/themes/service.ts`                          | **MODIFY** — `emit("theme.activated", ...)`                   |
+| `src/auth/users.ts`                              | **MODIFY** — `emit("user.created", ...)`                      |
 
 ---
 
 ## Task 1: Schema + migration
 
 **Files:**
+
 - Modify: `src/db/schema.ts`
 - Create: `src/db/migrations/0008_plugins.sql`
 
@@ -136,6 +138,7 @@ git commit -m "feat(plugins): plugins + webhooks + webhook_deliveries schema"
 ## Task 2: Manifest schema (TDD)
 
 **Files:**
+
 - Create: `src/plugins/manifest.ts`
 - Create: `src/plugins/manifest.test.ts`
 
@@ -256,9 +259,7 @@ export const ALL_WEBHOOK_EVENTS = [
 export type WebhookEvent = (typeof ALL_WEBHOOK_EVENTS)[number];
 
 const settingSchema = z.object({
-  key: z
-    .string()
-    .regex(/^[a-z][a-zA-Z0-9_-]{0,40}$/, "setting key must be kebab/camelCase"),
+  key: z.string().regex(/^[a-z][a-zA-Z0-9_-]{0,40}$/, "setting key must be kebab/camelCase"),
   type: z.enum(["string", "boolean", "number", "secret"]),
   label: z.string().min(1).max(120),
   default: z.union([z.string(), z.number(), z.boolean()]).optional(),
@@ -274,16 +275,16 @@ const adminMenuSchema = z.object({
   path: z.string().regex(/^\/[a-zA-Z0-9/_-]*$/, "admin menu path must start with /"),
   icon: z.string().optional(),
   component: z.string().min(1),
-  minRole: z.enum(["owner", "admin", "editor", "author", "contributor", "subscriber"]).default("admin"),
+  minRole: z
+    .enum(["owner", "admin", "editor", "author", "contributor", "subscriber"])
+    .default("admin"),
 });
 
 export const pluginManifestSchema = z.object({
   schemaVersion: z.literal(1),
   name: z.string().min(1).max(100),
   slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
-  version: z
-    .string()
-    .regex(/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/, "version must be semver"),
+  version: z.string().regex(/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/, "version must be semver"),
   description: z.string().max(500),
   author: z.object({ name: z.string(), url: z.string().url().optional() }),
   blocks: z.array(z.string()).optional(), // module paths exporting defineBlock(...)
@@ -322,6 +323,7 @@ git commit -m "feat(plugins): manifest schema"
 ## Task 3: Event payload types (TDD)
 
 **Files:**
+
 - Create: `src/plugins/events.ts`
 - Create: `src/plugins/events.test.ts`
 
@@ -389,7 +391,11 @@ const pageOrPostBase = z.object({
 });
 
 export const eventPayloadSchemas: Record<WebhookEvent, z.ZodTypeAny> = {
-  "page.created": z.object({ pageId: z.string().uuid(), slug: z.string(), authorId: z.string().uuid() }),
+  "page.created": z.object({
+    pageId: z.string().uuid(),
+    slug: z.string(),
+    authorId: z.string().uuid(),
+  }),
   "page.updated": z.object({
     pageId: z.string().uuid(),
     slug: z.string(),
@@ -397,7 +403,11 @@ export const eventPayloadSchemas: Record<WebhookEvent, z.ZodTypeAny> = {
   }),
   "page.published": pageOrPostBase.extend({ pageId: z.string().uuid() }),
   "page.unpublished": z.object({ pageId: z.string().uuid() }),
-  "post.created": z.object({ postId: z.string().uuid(), slug: z.string(), authorId: z.string().uuid() }),
+  "post.created": z.object({
+    postId: z.string().uuid(),
+    slug: z.string(),
+    authorId: z.string().uuid(),
+  }),
   "post.updated": z.object({
     postId: z.string().uuid(),
     slug: z.string(),
@@ -448,6 +458,7 @@ git commit -m "feat(plugins): event payload schemas"
 ## Task 4: HMAC helper (TDD)
 
 **Files:**
+
 - Create: `src/plugins/hmac.ts`
 - Create: `src/plugins/hmac.test.ts`
 
@@ -552,6 +563,7 @@ git commit -m "feat(plugins): HMAC sign + verify"
 ## Task 5: Plugin service (TDD)
 
 **Files:**
+
 - Create: `src/plugins/service.ts`
 - Create: `src/plugins/service.test.ts`
 
@@ -578,7 +590,10 @@ const ids: string[] = [];
 
 afterAll(async () => {
   if (!HAS_DB) return;
-  for (const id of ids) await db().delete(plugins).where(sql`${plugins.id} = ${id}`);
+  for (const id of ids)
+    await db()
+      .delete(plugins)
+      .where(sql`${plugins.id} = ${id}`);
   await closeDb();
 });
 
@@ -695,16 +710,9 @@ export async function listPlugins() {
   return db().select().from(plugins).orderBy(plugins.name);
 }
 
-export async function upsertWebhookForPlugin(
-  pluginId: string,
-  events: string[],
-  url: string,
-) {
+export async function upsertWebhookForPlugin(pluginId: string, events: string[], url: string) {
   const secret = newWebhookSecret();
-  const [row] = await db()
-    .insert(webhooks)
-    .values({ pluginId, events, url, secret })
-    .returning();
+  const [row] = await db().insert(webhooks).values({ pluginId, events, url, secret }).returning();
   return row!;
 }
 
@@ -760,6 +768,7 @@ git commit -m "feat(plugins): service (upsert, enable, webhooks)"
 ## Task 6: Plugin registry + boot loader (TDD)
 
 **Files:**
+
 - Create: `src/plugins/registry.ts`
 - Create: `src/plugins/registry.test.ts`
 - Create: `plugins/example-webhook/manifest.json`
@@ -781,9 +790,7 @@ mkdir -p plugins/example-webhook
   "version": "0.1.0",
   "description": "Reference webhook plugin used by tests; ships no admin pages.",
   "author": { "name": "WordPressKiller" },
-  "webhooks": [
-    { "event": "post.published", "description": "Notify when a post is published" }
-  ]
+  "webhooks": [{ "event": "post.published", "description": "Notify when a post is published" }]
 }
 ```
 
@@ -951,6 +958,7 @@ git commit -m "feat(plugins): registry + boot-time seeder"
 ## Task 7: Emit domain events (TDD)
 
 **Files:**
+
 - Create: `src/plugins/emit.ts`
 - Create: `src/plugins/emit.test.ts`
 - Modify: `src/posts/service.ts`, `src/comments/service.ts`, `src/media/service.ts`, `src/themes/service.ts`, `src/auth/users.ts`
@@ -1003,7 +1011,9 @@ describe("emit", () => {
 
   it("throws on invalid payload", async () => {
     listWebhooksForEvent.mockResolvedValue([]);
-    await expect(emit("post.published", { wrong: true } as unknown as Record<string, never>)).rejects.toThrow(/payload/);
+    await expect(
+      emit("post.published", { wrong: true } as unknown as Record<string, never>),
+    ).rejects.toThrow(/payload/);
   });
 
   it("is a no-op when no webhooks subscribe", async () => {
@@ -1160,6 +1170,7 @@ git commit -m "feat(plugins): emit() + domain hooks"
 ## Task 8: Webhook delivery worker (TDD)
 
 **Files:**
+
 - Create: `src/plugins/deliver.ts`
 - Create: `src/plugins/deliver.test.ts`
 - Create: `src/app/api/jobs/webhook-deliver/route.ts`
@@ -1200,7 +1211,13 @@ afterEach(() => vi.useRealTimers());
 
 describe("deliverOnce", () => {
   it("marks success on 2xx", async () => {
-    getDelivery.mockResolvedValue({ id: "d-1", webhookId: "w-1", event: "post.published", payload: { ok: true }, attempts: 0 });
+    getDelivery.mockResolvedValue({
+      id: "d-1",
+      webhookId: "w-1",
+      event: "post.published",
+      payload: { ok: true },
+      attempts: 0,
+    });
     getWebhook.mockResolvedValue({ id: "w-1", url: "https://e.test/hook", secret: "a".repeat(64) });
     fetchMock.mockResolvedValue({ ok: true, status: 200, text: async () => "OK" });
     await deliverOnce({ deliveryId: "d-1", webhookId: "w-1" });
@@ -1210,7 +1227,13 @@ describe("deliverOnce", () => {
   });
 
   it("marks retrying + enqueues with backoff on 5xx (under MAX_ATTEMPTS)", async () => {
-    getDelivery.mockResolvedValue({ id: "d-1", webhookId: "w-1", event: "post.published", payload: {}, attempts: 0 });
+    getDelivery.mockResolvedValue({
+      id: "d-1",
+      webhookId: "w-1",
+      event: "post.published",
+      payload: {},
+      attempts: 0,
+    });
     getWebhook.mockResolvedValue({ id: "w-1", url: "https://e.test/hook", secret: "a".repeat(64) });
     fetchMock.mockResolvedValue({ ok: false, status: 503, text: async () => "Service down" });
     await deliverOnce({ deliveryId: "d-1", webhookId: "w-1" });
@@ -1225,7 +1248,13 @@ describe("deliverOnce", () => {
   });
 
   it("marks failed after MAX_ATTEMPTS", async () => {
-    getDelivery.mockResolvedValue({ id: "d-1", webhookId: "w-1", event: "post.published", payload: {}, attempts: MAX_ATTEMPTS });
+    getDelivery.mockResolvedValue({
+      id: "d-1",
+      webhookId: "w-1",
+      event: "post.published",
+      payload: {},
+      attempts: MAX_ATTEMPTS,
+    });
     getWebhook.mockResolvedValue({ id: "w-1", url: "https://e.test/hook", secret: "a".repeat(64) });
     fetchMock.mockResolvedValue({ ok: false, status: 502, text: async () => "" });
     await deliverOnce({ deliveryId: "d-1", webhookId: "w-1" });
@@ -1236,7 +1265,13 @@ describe("deliverOnce", () => {
   });
 
   it("treats network error like a 5xx retry", async () => {
-    getDelivery.mockResolvedValue({ id: "d-1", webhookId: "w-1", event: "x", payload: {}, attempts: 1 });
+    getDelivery.mockResolvedValue({
+      id: "d-1",
+      webhookId: "w-1",
+      event: "x",
+      payload: {},
+      attempts: 1,
+    });
     getWebhook.mockResolvedValue({ id: "w-1", url: "https://e.test/hook", secret: "a".repeat(64) });
     fetchMock.mockRejectedValue(new Error("ECONNRESET"));
     await deliverOnce({ deliveryId: "d-1", webhookId: "w-1" });
@@ -1305,7 +1340,11 @@ export async function deliverOnce(input: DeliverInput): Promise<void> {
     return;
   }
   const ts = Math.floor(Date.now() / 1000);
-  const body = JSON.stringify({ event: delivery.event, deliveredAt: new Date().toISOString(), payload: delivery.payload });
+  const body = JSON.stringify({
+    event: delivery.event,
+    deliveredAt: new Date().toISOString(),
+    payload: delivery.payload,
+  });
   const signature = signPayload(webhook.secret, ts, body);
 
   let status = 0;
@@ -1482,6 +1521,7 @@ git commit -m "feat(plugins): webhook delivery worker (HMAC + exponential backof
 ## Task 9: Admin UI — plugins list + detail + admin menu extension
 
 **Files:**
+
 - Create: `src/app/admin/plugins/page.tsx`
 - Create: `src/app/admin/plugins/[slug]/page.tsx`
 - Create: `src/app/actions/plugins.ts`
@@ -1500,7 +1540,9 @@ import { revalidatePath } from "next/cache";
 import { requireRole } from "@/auth/context";
 import { setEnabled, rotateWebhookSecret } from "@/plugins/service";
 
-interface ActionResult { error?: string }
+interface ActionResult {
+  error?: string;
+}
 
 const id = z.object({ id: z.string().uuid() });
 
@@ -1618,7 +1660,10 @@ export default async function PluginsPage() {
                 </p>
               </div>
               <form
-                action={(p.enabled ? disablePluginAction : enablePluginAction).bind(null, undefined)}
+                action={(p.enabled ? disablePluginAction : enablePluginAction).bind(
+                  null,
+                  undefined,
+                )}
               >
                 <input type="hidden" name="id" value={p.id} />
                 <button className="text-xs underline">{p.enabled ? "Disable" : "Enable"}</button>
@@ -1646,11 +1691,7 @@ import { rotateSecretAction } from "@/app/actions/plugins";
 
 export const dynamic = "force-dynamic";
 
-export default async function PluginDetail({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+export default async function PluginDetail({ params }: { params: Promise<{ slug: string }> }) {
   await requireRole("admin");
   const { slug } = await params;
   const pRows = await db().select().from(plugins).where(eq(plugins.slug, slug));
@@ -1698,7 +1739,9 @@ export default async function PluginDetail({
             {recentDeliveries.map((d) => (
               <tr key={d.id} className="border-b">
                 <td className="py-1 font-mono">{d.event}</td>
-                <td>{d.status} {d.statusCode ? `(${d.statusCode})` : ""}</td>
+                <td>
+                  {d.status} {d.statusCode ? `(${d.statusCode})` : ""}
+                </td>
                 <td>{d.attempts}</td>
                 <td>{d.createdAt.toISOString()}</td>
               </tr>
@@ -1735,15 +1778,33 @@ export async function AdminSidebar() {
 
   return (
     <nav className="space-y-1 text-sm">
-      <Link href="/admin/posts" className="block py-1 underline">Posts</Link>
-      <Link href="/admin/pages" className="block py-1 underline">Pages</Link>
-      <Link href="/admin/media" className="block py-1 underline">Media</Link>
-      <Link href="/admin/comments" className="block py-1 underline">Comments</Link>
-      <Link href="/admin/taxonomies" className="block py-1 underline">Taxonomies</Link>
-      <Link href="/admin/themes" className="block py-1 underline">Themes</Link>
-      <Link href="/admin/plugins" className="block py-1 underline">Plugins</Link>
-      <Link href="/admin/settings/locales" className="block py-1 underline">Locales</Link>
-      <Link href="/admin/ai" className="block py-1 underline">AI usage</Link>
+      <Link href="/admin/posts" className="block py-1 underline">
+        Posts
+      </Link>
+      <Link href="/admin/pages" className="block py-1 underline">
+        Pages
+      </Link>
+      <Link href="/admin/media" className="block py-1 underline">
+        Media
+      </Link>
+      <Link href="/admin/comments" className="block py-1 underline">
+        Comments
+      </Link>
+      <Link href="/admin/taxonomies" className="block py-1 underline">
+        Taxonomies
+      </Link>
+      <Link href="/admin/themes" className="block py-1 underline">
+        Themes
+      </Link>
+      <Link href="/admin/plugins" className="block py-1 underline">
+        Plugins
+      </Link>
+      <Link href="/admin/settings/locales" className="block py-1 underline">
+        Locales
+      </Link>
+      <Link href="/admin/ai" className="block py-1 underline">
+        AI usage
+      </Link>
       {pluginMenu.length > 0 && (
         <>
           <p className="mt-3 text-xs font-semibold uppercase text-gray-500">Plugin pages</p>
@@ -1786,6 +1847,7 @@ git commit -m "feat(plugins): admin list + detail + sidebar extension"
 ## Task 10: Custom-block registration from plugins
 
 **Files:**
+
 - Modify: `src/blocks/registry.ts` (delivered by block-editor-core)
 - Create: `src/plugins/blocks.ts`
 - Create: `src/plugins/blocks.test.ts`
@@ -1824,11 +1886,11 @@ describe("loadPluginBlocks", () => {
         sourceKind: "local",
       },
     ]);
-    importPath.mockResolvedValue({ default: { type: "custom:pricing", schema: {}, render: () => null } });
+    importPath.mockResolvedValue({
+      default: { type: "custom:pricing", schema: {}, render: () => null },
+    });
     await loadPluginBlocks();
-    expect(register).toHaveBeenCalledWith(
-      expect.objectContaining({ type: "custom:pricing" }),
-    );
+    expect(register).toHaveBeenCalledWith(expect.objectContaining({ type: "custom:pricing" }));
   });
 
   it("skips plugins without blocks", async () => {
@@ -1940,6 +2002,7 @@ git commit -m "feat(plugins): custom-block registration at boot"
 ## Task 11: Admin sub-route loader (TDD)
 
 **Files:**
+
 - Create: `src/app/admin/plugins/[slug]/[...path]/page.tsx`
 
 - [ ] **Step 1: Implement plugin sub-route loader**
@@ -1981,7 +2044,8 @@ export default async function PluginSubRoute({
     return <p className="p-6 text-sm text-red-700">Plugin component failed to load.</p>;
   }
   const Component = mod.default;
-  if (!Component) return <p className="p-6 text-sm text-red-700">Plugin component missing default export.</p>;
+  if (!Component)
+    return <p className="p-6 text-sm text-red-700">Plugin component missing default export.</p>;
   return <Component />;
 }
 ```
@@ -2029,13 +2093,13 @@ pnpm build
 
 ## Out of Scope (handled by sibling sub-plans or v2)
 
-| Sub-plan / version | What it adds |
-|---|---|
-| **ai-features** | `chatTools` may be extended by plugins (future hook). |
-| **cli** | `wpkiller plugin install <package>` adds an npm dependency + reruns boot. |
-| **deployment-hardening** | Provisions `wpk-webhooks` Cloud Tasks queue and alerts on persistent delivery failures. |
-| **v2 marketplace** | Sandboxed WASM/per-tenant Cloud Run runtime for arbitrary plugin code with capability-based permissions. |
+| Sub-plan / version       | What it adds                                                                                             |
+| ------------------------ | -------------------------------------------------------------------------------------------------------- |
+| **ai-features**          | `chatTools` may be extended by plugins (future hook).                                                    |
+| **cli**                  | `wpkiller plugin install <package>` adds an npm dependency + reruns boot.                                |
+| **deployment-hardening** | Provisions `wpk-webhooks` Cloud Tasks queue and alerts on persistent delivery failures.                  |
+| **v2 marketplace**       | Sandboxed WASM/per-tenant Cloud Run runtime for arbitrary plugin code with capability-based permissions. |
 
 ---
 
-*End of plugin-system plan.*
+_End of plugin-system plan._

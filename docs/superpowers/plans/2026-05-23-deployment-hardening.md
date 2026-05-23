@@ -14,40 +14,41 @@
 
 ## File Map
 
-| Path | Purpose |
-|---|---|
-| `Dockerfile` | **MODIFY** — install `postgresql-client`, add OTel envs |
-| `instrumentation.ts` | OpenTelemetry SDK bootstrap (Next.js auto-detects this) |
-| `instrumentation.test.ts` | Smoke test that the module loads |
-| `next.config.ts` | **MODIFY** — `instrumentationHook: true` is the default in Next.js 16 but pin it |
-| `src/lib/otel.ts` | Custom-metric helpers (`recordCounter`, `recordHistogram`) |
-| `src/lib/otel.test.ts` | Tests |
-| `src/lib/rate-limit.ts` | Postgres-backed token bucket |
-| `src/lib/rate-limit.test.ts` | Tests |
-| `src/middleware.ts` | **MODIFY** — apply rate limit to `/api/auth/*` and `/api/ai/*` |
-| `src/app/api/healthz/route.ts` | **MODIFY** — emit a heartbeat metric |
-| `cloudbuild.yaml` | **MODIFY** — add `migrate` + `deploy` steps |
-| `infra/terraform/main.tf` | Root module wiring |
-| `infra/terraform/variables.tf` | Variables |
-| `infra/terraform/outputs.tf` | Outputs (LB IP, Cloud Run URL) |
-| `infra/terraform/modules/wpkiller/main.tf` | All resources |
-| `infra/terraform/modules/wpkiller/variables.tf` | Module variables |
-| `infra/terraform/modules/wpkiller/iam.tf` | Service accounts + bindings |
-| `infra/terraform/modules/wpkiller/secrets.tf` | Secret Manager secrets |
-| `infra/terraform/modules/wpkiller/cloudsql.tf` | Cloud SQL Postgres |
-| `infra/terraform/modules/wpkiller/storage.tf` | GCS buckets |
-| `infra/terraform/modules/wpkiller/tasks.tf` | Cloud Tasks queues |
-| `infra/terraform/modules/wpkiller/cloudrun.tf` | Cloud Run service + job |
-| `infra/terraform/modules/wpkiller/lb.tf` | Global LB + Cloud CDN + managed cert |
-| `infra/terraform/modules/wpkiller/monitoring.tf` | Alert policies + uptime check |
-| `infra/terraform/modules/wpkiller/cloudbuild.tf` | Cloud Build trigger + Artifact Registry |
-| `infra/terraform/README.md` | One-command bootstrap notes |
+| Path                                             | Purpose                                                                          |
+| ------------------------------------------------ | -------------------------------------------------------------------------------- |
+| `Dockerfile`                                     | **MODIFY** — install `postgresql-client`, add OTel envs                          |
+| `instrumentation.ts`                             | OpenTelemetry SDK bootstrap (Next.js auto-detects this)                          |
+| `instrumentation.test.ts`                        | Smoke test that the module loads                                                 |
+| `next.config.ts`                                 | **MODIFY** — `instrumentationHook: true` is the default in Next.js 16 but pin it |
+| `src/lib/otel.ts`                                | Custom-metric helpers (`recordCounter`, `recordHistogram`)                       |
+| `src/lib/otel.test.ts`                           | Tests                                                                            |
+| `src/lib/rate-limit.ts`                          | Postgres-backed token bucket                                                     |
+| `src/lib/rate-limit.test.ts`                     | Tests                                                                            |
+| `src/middleware.ts`                              | **MODIFY** — apply rate limit to `/api/auth/*` and `/api/ai/*`                   |
+| `src/app/api/healthz/route.ts`                   | **MODIFY** — emit a heartbeat metric                                             |
+| `cloudbuild.yaml`                                | **MODIFY** — add `migrate` + `deploy` steps                                      |
+| `infra/terraform/main.tf`                        | Root module wiring                                                               |
+| `infra/terraform/variables.tf`                   | Variables                                                                        |
+| `infra/terraform/outputs.tf`                     | Outputs (LB IP, Cloud Run URL)                                                   |
+| `infra/terraform/modules/wpkiller/main.tf`       | All resources                                                                    |
+| `infra/terraform/modules/wpkiller/variables.tf`  | Module variables                                                                 |
+| `infra/terraform/modules/wpkiller/iam.tf`        | Service accounts + bindings                                                      |
+| `infra/terraform/modules/wpkiller/secrets.tf`    | Secret Manager secrets                                                           |
+| `infra/terraform/modules/wpkiller/cloudsql.tf`   | Cloud SQL Postgres                                                               |
+| `infra/terraform/modules/wpkiller/storage.tf`    | GCS buckets                                                                      |
+| `infra/terraform/modules/wpkiller/tasks.tf`      | Cloud Tasks queues                                                               |
+| `infra/terraform/modules/wpkiller/cloudrun.tf`   | Cloud Run service + job                                                          |
+| `infra/terraform/modules/wpkiller/lb.tf`         | Global LB + Cloud CDN + managed cert                                             |
+| `infra/terraform/modules/wpkiller/monitoring.tf` | Alert policies + uptime check                                                    |
+| `infra/terraform/modules/wpkiller/cloudbuild.tf` | Cloud Build trigger + Artifact Registry                                          |
+| `infra/terraform/README.md`                      | One-command bootstrap notes                                                      |
 
 ---
 
 ## Task 1: OpenTelemetry bootstrap (TDD)
 
 **Files:**
+
 - Create: `instrumentation.ts`
 - Create: `instrumentation.test.ts`
 - Modify: `next.config.ts`
@@ -163,6 +164,7 @@ git commit -m "feat(deploy): OpenTelemetry bootstrap (Cloud Trace + auto-instrum
 ## Task 2: Custom metrics helper (TDD)
 
 **Files:**
+
 - Create: `src/lib/otel.ts`
 - Create: `src/lib/otel.test.ts`
 
@@ -179,8 +181,12 @@ vi.mock("@opentelemetry/api", async () => {
   return {
     metrics: {
       getMeter: () => ({
-        createCounter: (name: string) => ({ add: (n: number, attrs?: Record<string, unknown>) => inc({ name, n, attrs }) }),
-        createHistogram: (name: string) => ({ record: (n: number, attrs?: Record<string, unknown>) => recordHist({ name, n, attrs }) }),
+        createCounter: (name: string) => ({
+          add: (n: number, attrs?: Record<string, unknown>) => inc({ name, n, attrs }),
+        }),
+        createHistogram: (name: string) => ({
+          record: (n: number, attrs?: Record<string, unknown>) => recordHist({ name, n, attrs }),
+        }),
       }),
     },
   };
@@ -198,7 +204,11 @@ describe("recordCounter", () => {
 describe("recordHistogram", () => {
   it("forwards name + value to OTel meter", () => {
     recordHistogram("wpk.image.transform.ms", 120);
-    expect(recordHist).toHaveBeenCalledWith({ name: "wpk.image.transform.ms", n: 120, attrs: undefined });
+    expect(recordHist).toHaveBeenCalledWith({
+      name: "wpk.image.transform.ms",
+      n: 120,
+      attrs: undefined,
+    });
   });
 });
 ```
@@ -224,7 +234,11 @@ export function recordCounter(name: string, value = 1, attrs?: Record<string, un
   c.add(value, attrs as Record<string, string | number | boolean>);
 }
 
-export function recordHistogram(name: string, value: number, attrs?: Record<string, unknown>): void {
+export function recordHistogram(
+  name: string,
+  value: number,
+  attrs?: Record<string, unknown>,
+): void {
   let h = histograms.get(name);
   if (!h) {
     h = meter.createHistogram(name);
@@ -260,6 +274,7 @@ git commit -m "feat(deploy): custom-metrics helper + wire into post publish / im
 ## Task 3: Rate limiter (TDD)
 
 **Files:**
+
 - Create: `src/lib/rate-limit.ts`
 - Create: `src/lib/rate-limit.test.ts`
 - Create: `src/db/migrations/0011_rate_limit.sql`
@@ -299,7 +314,9 @@ const HAS_DB = !!process.env.DATABASE_URL;
 
 afterAll(async () => {
   if (!HAS_DB) return;
-  await db().delete(rateLimitBuckets).where(sql`${rateLimitBuckets.key} LIKE 'test:%'`);
+  await db()
+    .delete(rateLimitBuckets)
+    .where(sql`${rateLimitBuckets.key} LIKE 'test:%'`);
   await closeDb();
 });
 
@@ -382,7 +399,9 @@ export async function take(key: string, cfg: BucketConfig, cost = 1): Promise<Ta
 }
 
 export async function resetBucket(key: string): Promise<void> {
-  await db().delete(rateLimitBuckets).where(sql`${rateLimitBuckets.key} = ${key}`);
+  await db()
+    .delete(rateLimitBuckets)
+    .where(sql`${rateLimitBuckets.key} = ${key}`);
 }
 ```
 
@@ -407,6 +426,7 @@ git commit -m "feat(deploy): Postgres-backed token-bucket rate limiter"
 ## Task 4: Apply rate limit at middleware
 
 **Files:**
+
 - Modify: `src/middleware.ts`
 
 > Apply 5/min per IP on auth endpoints and 30/min per IP on AI endpoints.
@@ -416,7 +436,12 @@ git commit -m "feat(deploy): Postgres-backed token-bucket rate limiter"
 ```ts
 import { take } from "@/lib/rate-limit";
 
-const LIMITS: Array<{ rx: RegExp; capacity: number; refillPerSec: number; key: (req: NextRequest) => string }> = [
+const LIMITS: Array<{
+  rx: RegExp;
+  capacity: number;
+  refillPerSec: number;
+  key: (req: NextRequest) => string;
+}> = [
   {
     rx: /^\/api\/auth\//,
     capacity: 5,
@@ -442,7 +467,10 @@ function ipOf(req: NextRequest): string {
 // Inside middleware(), before the locale logic:
 for (const lim of LIMITS) {
   if (!lim.rx.test(pathname)) continue;
-  const result = await take(lim.key(req), { capacity: lim.capacity, refillPerSec: lim.refillPerSec });
+  const result = await take(lim.key(req), {
+    capacity: lim.capacity,
+    refillPerSec: lim.refillPerSec,
+  });
   if (!result.ok) {
     return new NextResponse(JSON.stringify({ error: "rate limited" }), {
       status: 429,
@@ -465,6 +493,7 @@ git commit -m "feat(deploy): rate-limit /api/auth and /api/ai at middleware"
 ## Task 5: Dockerfile updates
 
 **Files:**
+
 - Modify: `Dockerfile`
 
 - [ ] **Step 1: Add `postgresql-client` and OTel env in runner**
@@ -521,6 +550,7 @@ git commit -m "feat(deploy): runner + migration Dockerfile targets"
 ## Task 6: Cloud Build deploy steps
 
 **Files:**
+
 - Modify: `cloudbuild.yaml`
 
 - [ ] **Step 1: Append migrate + deploy steps**
@@ -597,6 +627,7 @@ git commit -m "feat(deploy): Cloud Build migrate + deploy stages"
 ## Task 7: Terraform module
 
 **Files:**
+
 - Create: `infra/terraform/main.tf`
 - Create: `infra/terraform/variables.tf`
 - Create: `infra/terraform/outputs.tf`
@@ -1150,7 +1181,7 @@ resource "google_cloudbuild_trigger" "main" {
 
 `infra/terraform/README.md`:
 
-```markdown
+````markdown
 # WordPressKiller Terraform
 
 One-command provision of every GCP resource the app needs.
@@ -1179,13 +1210,15 @@ terraform apply \
   -var="anthropic_api_key=$ANTHROPIC_KEY" \
   -var="resend_api_key=$RESEND_KEY"
 ```
+````
 
 Push your first image to Artifact Registry before applying so the Cloud Run
 service can come up cleanly. After the first apply, subsequent deploys are
 handled by Cloud Build.
 
 DNS: point your A record at `terraform output lb_ip`.
-```
+
+````
 
 - [ ] **Step 12: Validate**
 
@@ -1193,7 +1226,7 @@ DNS: point your A record at `terraform output lb_ip`.
 cd infra/terraform
 terraform init -backend=false
 terraform validate
-```
+````
 
 Expected: success (network/auth errors are fine; we only validate syntax).
 
@@ -1209,6 +1242,7 @@ git commit -m "feat(deploy): Terraform module (Cloud Run, SQL, Storage, Tasks, L
 ## Task 8: Health metric + manual smoke
 
 **Files:**
+
 - Modify: `src/app/api/healthz/route.ts`
 
 - [ ] **Step 1: Emit a counter on every health probe**
@@ -1218,7 +1252,11 @@ import { recordCounter } from "@/lib/otel";
 
 // inside GET():
 recordCounter("wpk.healthz.hit");
-return NextResponse.json({ status: "ok", uptime: process.uptime(), timestamp: new Date().toISOString() });
+return NextResponse.json({
+  status: "ok",
+  uptime: process.uptime(),
+  timestamp: new Date().toISOString(),
+});
 ```
 
 - [ ] **Step 2: Local smoke + container build**
@@ -1294,4 +1332,4 @@ cd infra/terraform && terraform init -backend=false && terraform validate
 
 ---
 
-*End of deployment-hardening plan.*
+_End of deployment-hardening plan._
