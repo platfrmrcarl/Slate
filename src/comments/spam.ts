@@ -1,3 +1,5 @@
+import { aiClassifyCommentSpam } from "@/ai/features/spam-classify";
+
 export type SpamScore = "spam" | "ham" | "unknown";
 
 export interface CommentContext {
@@ -11,9 +13,5 @@ export async function classifyCommentSpam(
   body: string,
   context: CommentContext,
 ): Promise<SpamScore> {
-  // The ai-features sub-plan replaces this body with a Claude Haiku call.
-  // Until then, every comment lands in the moderation queue as 'unknown'.
-  void body;
-  void context;
-  return "unknown";
+  return aiClassifyCommentSpam(body, context);
 }
