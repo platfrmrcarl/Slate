@@ -33,6 +33,7 @@
     "@oslojs/encoding": "1",
     "arctic": "2",
     "drizzle-orm": "0.44",
+    "fast-xml-parser": "4",
     "feed": "4",
     "file-type": "^22.0.1",
     "jose": "5",
