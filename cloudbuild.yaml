@@ -32,6 +32,24 @@ steps:
     env:
       - "NODE_ENV=test"
 
+  - id: next-build
+    name: node:22
+    entrypoint: bash
+    args:
+      - -lc
+      - |
+        corepack enable
+        pnpm build
+    waitFor: ["install"]
+    env:
+      - "NODE_ENV=production"
+      - "APP_URL=https://example.invalid"
+      - "AUTH_SECRET=ci-build-only-not-used-at-runtime-padding-padding"
+      - "PREVIEW_TOKEN_SECRET=ci-build-only-not-used-at-runtime-padding-padding"
+      - "INTERNAL_JOB_SECRET=ci-build-only-not-used-at-runtime-padding-padding"
+      - "DATABASE_URL=postgres://ci:ci@localhost:5432/ci"
+      - "GCS_BUCKET_MEDIA=ci-bucket"
+
   - id: build-image
     name: gcr.io/cloud-builders/docker
     args:
@@ -40,7 +58,7 @@ steps:
       - "--tag=${_AR_HOST}/${PROJECT_ID}/${_AR_REPO}/wpk:${SHORT_SHA}"
       - "--tag=${_AR_HOST}/${PROJECT_ID}/${_AR_REPO}/wpk:latest"
       - "."
-    waitFor: ["lint", "test"]
+    waitFor: ["lint", "test", "next-build"]
 
   - id: push-image
     name: gcr.io/cloud-builders/docker
@@ -88,6 +106,9 @@ steps:
     args:
       - -lc
       - |
+        # Ingress is owned by Terraform (internal-and-cloud-load-balancing).
+        # Do NOT pass --allow-unauthenticated or --ingress here, or each
+        # deploy would silently undo the TF-managed network policy.
         gcloud run deploy wpk \
           --image=${_AR_HOST}/${PROJECT_ID}/${_AR_REPO}/wpk:${SHORT_SHA} \
           --region=${_REGION} \
@@ -97,7 +118,6 @@ steps:
           --cpu=1 \
           --memory=1Gi \
           --port=8080 \
-          --allow-unauthenticated \
           --set-env-vars=NODE_ENV=production,LOG_LEVEL=info,OTEL_ENABLED=true,GCP_PROJECT_ID=${PROJECT_ID},GCP_REGION=${_REGION} \
           --set-secrets=DATABASE_URL=DATABASE_URL:latest,AUTH_SECRET=AUTH_SECRET:latest,ANTHROPIC_API_KEY=ANTHROPIC_API_KEY:latest,RESEND_API_KEY=RESEND_API_KEY:latest,GOOGLE_OAUTH_CLIENT_ID=GOOGLE_OAUTH_CLIENT_ID:latest,GOOGLE_OAUTH_CLIENT_SECRET=GOOGLE_OAUTH_CLIENT_SECRET:latest,GITHUB_OAUTH_CLIENT_ID=GITHUB_OAUTH_CLIENT_ID:latest,GITHUB_OAUTH_CLIENT_SECRET=GITHUB_OAUTH_CLIENT_SECRET:latest \
           --quiet
