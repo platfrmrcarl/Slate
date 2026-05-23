@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "next": "16.2.6",
+    "pino": "9",
     "react": "19.2.6",
     "react-dom": "19.2.6",
     "zod": "3"
@@ -41,6 +42,7 @@
     "eslint-config-prettier": "9",
     "happy-dom": "15",
     "jsdom": "25",
+    "pino-pretty": "11",
     "prettier": "3",
     "tailwindcss": "4",
     "typescript": "5.7.3",
