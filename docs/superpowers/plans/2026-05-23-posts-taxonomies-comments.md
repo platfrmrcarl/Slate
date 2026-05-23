@@ -9,6 +9,7 @@
 **Tech Stack additions:** `feed` v4 (RSS generation), `slugify` (slug from title), `unified` + `remark-parse` + `remark-stringify` + `rehype-sanitize` (markdown comment rendering — reuses what block-editor-core has if already added).
 
 **Depends on:**
+
 - foundation (Drizzle + Postgres + env + logger).
 - auth-and-users (`users`, `requireRole`, permission matrix — `publish:any-post`, `publish:own-post`, `moderate:comments`, `comment:create`).
 - block-editor-core (the `Block[]` schema, server-side renderer, slug utilities, revision pattern, admin shell layout). The Posts CRUD reuses the same Server Actions wrapper pattern.
@@ -19,58 +20,59 @@
 
 ## File Map
 
-| Path | Purpose |
-|---|---|
-| `src/db/schema.ts` | **MODIFY** — add `posts`, `post_revisions`, `taxonomies`, `post_taxonomies`, `comments` |
-| `src/db/migrations/0004_posts.sql` | Generated migration |
-| `src/auth/permissions.ts` | **MODIFY** — extend matrix mapping for post actions (already mostly there from auth) |
-| `src/posts/types.ts` | TS types + Zod input schemas |
-| `src/posts/types.test.ts` | Tests |
-| `src/posts/service.ts` | CRUD: createPost, updatePost, publishPost, listPosts, getPostBySlug |
-| `src/posts/service.test.ts` | Integration tests |
-| `src/posts/revisions.ts` | createRevision, listRevisions, restoreRevision |
-| `src/posts/revisions.test.ts` | Tests |
-| `src/posts/search.ts` | tsvector search helper |
-| `src/posts/search.test.ts` | Tests |
-| `src/taxonomies/types.ts` | Types |
-| `src/taxonomies/service.ts` | CRUD on taxonomies + attach/detach |
-| `src/taxonomies/service.test.ts` | Tests |
-| `src/comments/types.ts` | Types |
-| `src/comments/service.ts` | createComment, listForPost, moderate (approve/spam/trash), counts |
-| `src/comments/service.test.ts` | Tests |
-| `src/comments/render.ts` | Markdown comment body → sanitized HTML |
-| `src/comments/render.test.ts` | Tests |
-| `src/comments/spam.ts` | classifyCommentSpam contract + stub |
-| `src/comments/spam.test.ts` | Tests |
-| `src/app/api/jobs/comment-classify/route.ts` | Cloud Tasks handler for spam classification |
-| `src/app/api/jobs/comment-classify/route.test.ts` | Tests |
-| `src/app/actions/posts.ts` | Server Actions: savePost, publishPost, deletePost |
-| `src/app/actions/posts.test.ts` | Tests |
-| `src/app/actions/taxonomies.ts` | Server Actions: createCategory, createTag, attach, detach |
-| `src/app/actions/taxonomies.test.ts` | Tests |
-| `src/app/actions/comments.ts` | Server Actions: submitComment, approveComment, markSpam, deleteComment |
-| `src/app/actions/comments.test.ts` | Tests |
-| `src/app/admin/posts/page.tsx` | List screen |
-| `src/app/admin/posts/new/page.tsx` | New post screen |
-| `src/app/admin/posts/[id]/page.tsx` | Edit screen |
-| `src/app/admin/posts/[id]/CommentsList.tsx` | Comments admin per-post |
-| `src/app/admin/taxonomies/page.tsx` | Categories + tags screen |
-| `src/app/admin/comments/page.tsx` | Comments moderation queue |
-| `src/app/blog/page.tsx` | Blog index |
-| `src/app/blog/[slug]/page.tsx` | Single post |
-| `src/app/blog/[slug]/CommentsThread.tsx` | Public comments thread |
-| `src/app/blog/[slug]/CommentForm.tsx` | Public comment form (client) |
-| `src/app/blog/category/[slug]/page.tsx` | Category archive |
-| `src/app/blog/tag/[slug]/page.tsx` | Tag archive |
-| `src/app/blog/author/[id]/page.tsx` | Author archive |
-| `src/app/rss.xml/route.ts` | RSS feed |
-| `src/app/sitemap.xml/route.ts` | Sitemap |
+| Path                                              | Purpose                                                                                 |
+| ------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| `src/db/schema.ts`                                | **MODIFY** — add `posts`, `post_revisions`, `taxonomies`, `post_taxonomies`, `comments` |
+| `src/db/migrations/0004_posts.sql`                | Generated migration                                                                     |
+| `src/auth/permissions.ts`                         | **MODIFY** — extend matrix mapping for post actions (already mostly there from auth)    |
+| `src/posts/types.ts`                              | TS types + Zod input schemas                                                            |
+| `src/posts/types.test.ts`                         | Tests                                                                                   |
+| `src/posts/service.ts`                            | CRUD: createPost, updatePost, publishPost, listPosts, getPostBySlug                     |
+| `src/posts/service.test.ts`                       | Integration tests                                                                       |
+| `src/posts/revisions.ts`                          | createRevision, listRevisions, restoreRevision                                          |
+| `src/posts/revisions.test.ts`                     | Tests                                                                                   |
+| `src/posts/search.ts`                             | tsvector search helper                                                                  |
+| `src/posts/search.test.ts`                        | Tests                                                                                   |
+| `src/taxonomies/types.ts`                         | Types                                                                                   |
+| `src/taxonomies/service.ts`                       | CRUD on taxonomies + attach/detach                                                      |
+| `src/taxonomies/service.test.ts`                  | Tests                                                                                   |
+| `src/comments/types.ts`                           | Types                                                                                   |
+| `src/comments/service.ts`                         | createComment, listForPost, moderate (approve/spam/trash), counts                       |
+| `src/comments/service.test.ts`                    | Tests                                                                                   |
+| `src/comments/render.ts`                          | Markdown comment body → sanitized HTML                                                  |
+| `src/comments/render.test.ts`                     | Tests                                                                                   |
+| `src/comments/spam.ts`                            | classifyCommentSpam contract + stub                                                     |
+| `src/comments/spam.test.ts`                       | Tests                                                                                   |
+| `src/app/api/jobs/comment-classify/route.ts`      | Cloud Tasks handler for spam classification                                             |
+| `src/app/api/jobs/comment-classify/route.test.ts` | Tests                                                                                   |
+| `src/app/actions/posts.ts`                        | Server Actions: savePost, publishPost, deletePost                                       |
+| `src/app/actions/posts.test.ts`                   | Tests                                                                                   |
+| `src/app/actions/taxonomies.ts`                   | Server Actions: createCategory, createTag, attach, detach                               |
+| `src/app/actions/taxonomies.test.ts`              | Tests                                                                                   |
+| `src/app/actions/comments.ts`                     | Server Actions: submitComment, approveComment, markSpam, deleteComment                  |
+| `src/app/actions/comments.test.ts`                | Tests                                                                                   |
+| `src/app/admin/posts/page.tsx`                    | List screen                                                                             |
+| `src/app/admin/posts/new/page.tsx`                | New post screen                                                                         |
+| `src/app/admin/posts/[id]/page.tsx`               | Edit screen                                                                             |
+| `src/app/admin/posts/[id]/CommentsList.tsx`       | Comments admin per-post                                                                 |
+| `src/app/admin/taxonomies/page.tsx`               | Categories + tags screen                                                                |
+| `src/app/admin/comments/page.tsx`                 | Comments moderation queue                                                               |
+| `src/app/blog/page.tsx`                           | Blog index                                                                              |
+| `src/app/blog/[slug]/page.tsx`                    | Single post                                                                             |
+| `src/app/blog/[slug]/CommentsThread.tsx`          | Public comments thread                                                                  |
+| `src/app/blog/[slug]/CommentForm.tsx`             | Public comment form (client)                                                            |
+| `src/app/blog/category/[slug]/page.tsx`           | Category archive                                                                        |
+| `src/app/blog/tag/[slug]/page.tsx`                | Tag archive                                                                             |
+| `src/app/blog/author/[id]/page.tsx`               | Author archive                                                                          |
+| `src/app/rss.xml/route.ts`                        | RSS feed                                                                                |
+| `src/app/sitemap.xml/route.ts`                    | Sitemap                                                                                 |
 
 ---
 
 ## Task 1: Schema + migration
 
 **Files:**
+
 - Modify: `src/db/schema.ts`
 - Create: `src/db/migrations/0004_posts.sql`
 
@@ -237,6 +239,7 @@ git commit -m "feat(posts): posts + taxonomies + comments schema + tsvector"
 ## Task 2: Post types + Zod schemas (TDD)
 
 **Files:**
+
 - Create: `src/posts/types.ts`
 - Create: `src/posts/types.test.ts`
 
@@ -337,7 +340,11 @@ export const savePostInputSchema = z
   })
   .superRefine((v, ctx) => {
     if (v.status === "scheduled" && !v.scheduledAt) {
-      ctx.addIssue({ code: "custom", path: ["scheduledAt"], message: "scheduledAt required for scheduled status" });
+      ctx.addIssue({
+        code: "custom",
+        path: ["scheduledAt"],
+        message: "scheduledAt required for scheduled status",
+      });
     }
   });
 
@@ -371,6 +378,7 @@ git commit -m "feat(posts): zod schemas for savePost + publishPost"
 ## Task 3: Posts service (TDD)
 
 **Files:**
+
 - Create: `src/posts/service.ts`
 - Create: `src/posts/service.test.ts`
 
@@ -400,8 +408,14 @@ const cleanupPosts: string[] = [];
 
 afterAll(async () => {
   if (!HAS_DB) return;
-  for (const id of cleanupPosts) await db().delete(posts).where(sql`${posts.id} = ${id}`);
-  for (const id of cleanupUsers) await db().delete(users).where(sql`${users.id} = ${id}`);
+  for (const id of cleanupPosts)
+    await db()
+      .delete(posts)
+      .where(sql`${posts.id} = ${id}`);
+  for (const id of cleanupUsers)
+    await db()
+      .delete(users)
+      .where(sql`${users.id} = ${id}`);
   await closeDb();
 });
 
@@ -454,7 +468,12 @@ describe.runIf(HAS_DB)("posts service", () => {
     cleanupPosts.push(post.id);
     const before = post.updatedAt.getTime();
     await new Promise((r) => setTimeout(r, 25));
-    const updated = await updatePost(post.id, { title: "Renamed", blocks: [], categoryIds: [], tagIds: [] });
+    const updated = await updatePost(post.id, {
+      title: "Renamed",
+      blocks: [],
+      categoryIds: [],
+      tagIds: [],
+    });
     expect(updated.title).toBe("Renamed");
     expect(updated.status).toBe("draft");
     expect(updated.updatedAt.getTime()).toBeGreaterThan(before);
@@ -633,7 +652,10 @@ export async function getPostBySlug(
 ): Promise<Post | null> {
   const conditions = [eq(posts.slug, slug), eq(posts.locale, locale)];
   if (opts.publishedOnly) conditions.push(eq(posts.status, "published"));
-  const rows = await db().select().from(posts).where(and(...conditions));
+  const rows = await db()
+    .select()
+    .from(posts)
+    .where(and(...conditions));
   return rows[0] ?? null;
 }
 
@@ -674,7 +696,9 @@ export async function listPosts(input: ListPostsInput): Promise<ListPostsResult>
     .orderBy(desc(posts.publishedAt), desc(posts.createdAt))
     .limit(input.limit + 1);
 
-  const items = rows.slice(0, input.limit).map((r) => ("posts" in r ? (r.posts as Post) : (r as Post)));
+  const items = rows
+    .slice(0, input.limit)
+    .map((r) => ("posts" in r ? (r.posts as Post) : (r as Post)));
   const last = items[items.length - 1];
   const nextCursor =
     rows.length > input.limit && last?.publishedAt ? last.publishedAt.toISOString() : null;
@@ -703,6 +727,7 @@ git commit -m "feat(posts): posts service (CRUD + publish + list)"
 ## Task 4: Post revisions (TDD)
 
 **Files:**
+
 - Create: `src/posts/revisions.ts`
 - Create: `src/posts/revisions.test.ts`
 
@@ -723,8 +748,14 @@ const pids: string[] = [];
 
 afterAll(async () => {
   if (!HAS_DB) return;
-  for (const id of pids) await db().delete(posts).where(sql`${posts.id} = ${id}`);
-  for (const id of uids) await db().delete(users).where(sql`${users.id} = ${id}`);
+  for (const id of pids)
+    await db()
+      .delete(posts)
+      .where(sql`${posts.id} = ${id}`);
+  for (const id of uids)
+    await db()
+      .delete(users)
+      .where(sql`${users.id} = ${id}`);
   await closeDb();
 });
 
@@ -853,9 +884,7 @@ export async function listRevisions(postId: string) {
 
 export async function restoreRevision(revisionId: string): Promise<Post> {
   return await db().transaction(async (tx) => {
-    const rev = (
-      await tx.select().from(postRevisions).where(eq(postRevisions.id, revisionId))
-    )[0];
+    const rev = (await tx.select().from(postRevisions).where(eq(postRevisions.id, revisionId)))[0];
     if (!rev) throw new Error(`revision ${revisionId} not found`);
     const [updated] = await tx
       .update(posts)
@@ -893,6 +922,7 @@ git commit -m "feat(posts): revisions (snapshot/list/restore)"
 ## Task 5: Taxonomies service (TDD)
 
 **Files:**
+
 - Create: `src/taxonomies/service.ts`
 - Create: `src/taxonomies/service.test.ts`
 - Create: `src/taxonomies/types.ts`
@@ -922,9 +952,18 @@ const uids: string[] = [];
 
 afterAll(async () => {
   if (!HAS_DB) return;
-  for (const id of tids) await db().delete(taxonomies).where(sql`${taxonomies.id} = ${id}`);
-  for (const id of pids) await db().delete(posts).where(sql`${posts.id} = ${id}`);
-  for (const id of uids) await db().delete(users).where(sql`${users.id} = ${id}`);
+  for (const id of tids)
+    await db()
+      .delete(taxonomies)
+      .where(sql`${taxonomies.id} = ${id}`);
+  for (const id of pids)
+    await db()
+      .delete(posts)
+      .where(sql`${posts.id} = ${id}`);
+  for (const id of uids)
+    await db()
+      .delete(users)
+      .where(sql`${users.id} = ${id}`);
   await closeDb();
 });
 
@@ -1093,6 +1132,7 @@ git commit -m "feat(taxonomies): create/list/attach + dedupe by slug"
 ## Task 6: Full-text search (TDD)
 
 **Files:**
+
 - Create: `src/posts/search.ts`
 - Create: `src/posts/search.test.ts`
 
@@ -1113,8 +1153,14 @@ const pids: string[] = [];
 
 afterAll(async () => {
   if (!HAS_DB) return;
-  for (const id of pids) await db().delete(posts).where(sql`${posts.id} = ${id}`);
-  for (const id of uids) await db().delete(users).where(sql`${users.id} = ${id}`);
+  for (const id of pids)
+    await db()
+      .delete(posts)
+      .where(sql`${posts.id} = ${id}`);
+  for (const id of uids)
+    await db()
+      .delete(users)
+      .where(sql`${users.id} = ${id}`);
   await closeDb();
 });
 
@@ -1263,6 +1309,7 @@ git commit -m "feat(posts): tsvector + ts_rank full-text search"
 ## Task 7: Spam classifier stub (TDD)
 
 **Files:**
+
 - Create: `src/comments/spam.ts`
 - Create: `src/comments/spam.test.ts`
 
@@ -1338,6 +1385,7 @@ git commit -m "feat(comments): spam-classifier contract (stubbed; ai-features fi
 ## Task 8: Comments service (TDD)
 
 **Files:**
+
 - Create: `src/comments/types.ts`
 - Create: `src/comments/service.ts`
 - Create: `src/comments/service.test.ts`
@@ -1364,8 +1412,14 @@ const pids: string[] = [];
 
 afterAll(async () => {
   if (!HAS_DB) return;
-  for (const id of pids) await db().delete(posts).where(sql`${posts.id} = ${id}`);
-  for (const id of uids) await db().delete(users).where(sql`${users.id} = ${id}`);
+  for (const id of pids)
+    await db()
+      .delete(posts)
+      .where(sql`${posts.id} = ${id}`);
+  for (const id of uids)
+    await db()
+      .delete(users)
+      .where(sql`${users.id} = ${id}`);
   await closeDb();
 });
 
@@ -1433,7 +1487,12 @@ describe.runIf(HAS_DB)("comments service", () => {
 
   it("listCommentsForPost returns approved tree only by default", async () => {
     const post = await aPost();
-    const a = await createComment({ postId: post.id, authorName: "A", authorEmail: "a@e.com", body: "A" });
+    const a = await createComment({
+      postId: post.id,
+      authorName: "A",
+      authorEmail: "a@e.com",
+      body: "A",
+    });
     await setCommentStatus(a.id, "approved");
     await createComment({
       postId: post.id,
@@ -1443,7 +1502,12 @@ describe.runIf(HAS_DB)("comments service", () => {
       body: "B",
       classifier: async () => "ham",
     });
-    await createComment({ postId: post.id, authorName: "P", authorEmail: "p@e.com", body: "Pending" });
+    await createComment({
+      postId: post.id,
+      authorName: "P",
+      authorEmail: "p@e.com",
+      body: "Pending",
+    });
     const tree = await listCommentsForPost(post.id);
     expect(tree).toHaveLength(1);
     expect(tree[0]!.replies).toHaveLength(1);
@@ -1509,7 +1573,8 @@ export async function createComment(input: CreateCommentInput): Promise<Comment>
   const score = await classifier(input.body, {
     authorEmail: input.authorEmail,
   });
-  const status: CommentStatus = score === "spam" ? "spam" : score === "ham" ? "approved" : "pending";
+  const status: CommentStatus =
+    score === "spam" ? "spam" : score === "ham" ? "approved" : "pending";
   const [row] = await db()
     .insert(comments)
     .values({
@@ -1529,11 +1594,7 @@ export async function createComment(input: CreateCommentInput): Promise<Comment>
 }
 
 export async function setCommentStatus(id: string, status: CommentStatus): Promise<Comment> {
-  const [row] = await db()
-    .update(comments)
-    .set({ status })
-    .where(eq(comments.id, id))
-    .returning();
+  const [row] = await db().update(comments).set({ status }).where(eq(comments.id, id)).returning();
   return row!;
 }
 
@@ -1604,6 +1665,7 @@ git commit -m "feat(comments): service (create/moderate/tree) with classifier ho
 ## Task 9: Comment markdown renderer (TDD)
 
 **Files:**
+
 - Create: `src/comments/render.ts`
 - Create: `src/comments/render.test.ts`
 
@@ -1722,6 +1784,7 @@ git commit -m "feat(comments): sanitized markdown comment renderer"
 ## Task 10: Comment classify job + enqueue (TDD)
 
 **Files:**
+
 - Create: `src/app/api/jobs/comment-classify/route.ts`
 - Create: `src/app/api/jobs/comment-classify/route.test.ts`
 
@@ -1864,6 +1927,7 @@ git commit -m "feat(comments): async classify job"
 ## Task 11: Server Actions — posts (TDD)
 
 **Files:**
+
 - Create: `src/app/actions/posts.ts`
 - Create: `src/app/actions/posts.test.ts`
 
@@ -1938,7 +2002,10 @@ describe("savePostAction", () => {
     requireUser.mockResolvedValue({ id: "u-1", role: "contributor" });
     can.mockReturnValue(true);
     createPost.mockResolvedValue({ id: "p-1", slug: "x", locale: "en" });
-    await savePostAction(undefined, fd({ title: "t", blocks: "[]", categoryIds: "[]", tagIds: "[]" }));
+    await savePostAction(
+      undefined,
+      fd({ title: "t", blocks: "[]", categoryIds: "[]", tagIds: "[]" }),
+    );
     expect(createPost).toHaveBeenCalled();
     expect(redirect).toHaveBeenCalledWith("/admin/posts/p-1");
   });
@@ -1959,11 +2026,21 @@ describe("publishPostAction", () => {
   it("publishes, snapshots revision, enqueues revalidate", async () => {
     requireUser.mockResolvedValue({ id: "u-1", role: "editor" });
     can.mockReturnValue(true);
-    getPostById.mockResolvedValue({ id: "p-1", title: "t", excerpt: "e", blocks: [], slug: "s", locale: "en" });
+    getPostById.mockResolvedValue({
+      id: "p-1",
+      title: "t",
+      excerpt: "e",
+      blocks: [],
+      slug: "s",
+      locale: "en",
+    });
     publishPost.mockResolvedValue({ id: "p-1", slug: "s", locale: "en" });
     await publishPostAction(undefined, fd({ id: "p-1" }));
     expect(createRevision).toHaveBeenCalled();
-    expect(enqueueJob).toHaveBeenCalledWith("revalidate", expect.objectContaining({ path: "/blog/s" }));
+    expect(enqueueJob).toHaveBeenCalledWith(
+      "revalidate",
+      expect.objectContaining({ path: "/blog/s" }),
+    );
     expect(revalidateTag).toHaveBeenCalled();
   });
 });
@@ -1999,13 +2076,7 @@ import { revalidatePath, revalidateTag } from "next/cache";
 import { z } from "zod";
 import { requireUser } from "@/auth/context";
 import { can } from "@/auth/permissions";
-import {
-  createPost,
-  updatePost,
-  publishPost,
-  getPostById,
-  deletePost,
-} from "@/posts/service";
+import { createPost, updatePost, publishPost, getPostById, deletePost } from "@/posts/service";
 import { createRevision } from "@/posts/revisions";
 import { enqueueJob } from "@/jobs/enqueue";
 import { savePostInputSchema, publishInputSchema } from "@/posts/types";
@@ -2144,6 +2215,7 @@ git commit -m "feat(posts): savePost / publishPost / deletePost actions"
 ## Task 12: Server Actions — taxonomies + comments
 
 **Files:**
+
 - Create: `src/app/actions/taxonomies.ts`
 - Create: `src/app/actions/taxonomies.test.ts`
 - Create: `src/app/actions/comments.ts`
@@ -2239,7 +2311,10 @@ import {
 } from "@/taxonomies/service";
 import { createTaxonomySchema } from "@/taxonomies/types";
 
-interface ActionResult { error?: string; fieldErrors?: Record<string, string> }
+interface ActionResult {
+  error?: string;
+  fieldErrors?: Record<string, string>;
+}
 
 function guardEditor() {
   return requireRole("editor").catch((err) => {
@@ -2420,7 +2495,10 @@ describe("submitCommentAction", () => {
 describe("approveCommentAction", () => {
   it("requires moderate:comments role", async () => {
     requireRole.mockRejectedValue(new Error("forbidden"));
-    const r = await approveCommentAction(undefined, fd({ id: "11111111-1111-1111-1111-111111111111" }));
+    const r = await approveCommentAction(
+      undefined,
+      fd({ id: "11111111-1111-1111-1111-111111111111" }),
+    );
     expect(r.error).toMatch(/forbid|sign in/i);
   });
 
@@ -2456,8 +2534,14 @@ import { enqueueJob } from "@/jobs/enqueue";
 
 const idSchema = z.object({ id: z.string().uuid() });
 
-interface SubmitResult { ok?: boolean; error?: string; fieldErrors?: Record<string, string> }
-interface ActionResult { error?: string }
+interface SubmitResult {
+  ok?: boolean;
+  error?: string;
+  fieldErrors?: Record<string, string>;
+}
+interface ActionResult {
+  error?: string;
+}
 
 const ASYNC_THRESHOLD = 1000;
 
@@ -2580,6 +2664,7 @@ git commit -m "feat(posts/comments): server actions"
 ## Task 13: Admin UI — posts, taxonomies, comments moderation
 
 **Files:**
+
 - Create: `src/app/admin/posts/page.tsx`
 - Create: `src/app/admin/posts/new/page.tsx`
 - Create: `src/app/admin/posts/[id]/page.tsx`
@@ -2623,7 +2708,11 @@ export default async function PostsPage({
       </header>
       <nav className="mb-4 flex gap-2 text-sm">
         {(["draft", "scheduled", "published", "archived", "trash"] as const).map((s) => (
-          <Link key={s} href={`/admin/posts?status=${s}`} className="underline-offset-2 hover:underline">
+          <Link
+            key={s}
+            href={`/admin/posts?status=${s}`}
+            className="underline-offset-2 hover:underline"
+          >
             {s}
           </Link>
         ))}
@@ -2680,7 +2769,10 @@ export const dynamic = "force-dynamic";
 
 export default async function NewPostPage() {
   const user = await requireUser();
-  const post = await createPost({ title: "Untitled", blocks: [], categoryIds: [], tagIds: [] }, user.id);
+  const post = await createPost(
+    { title: "Untitled", blocks: [], categoryIds: [], tagIds: [] },
+    user.id,
+  );
   redirect(`/admin/posts/${post.id}`);
 }
 ```
@@ -2713,7 +2805,12 @@ export default async function EditPostPage({ params }: { params: Promise<{ id: s
           <button className="rounded bg-green-600 px-3 py-1.5 text-sm text-white">Publish</button>
         </form>
       </header>
-      <BlockEditor postId={post.id} initialTitle={post.title} initialBlocks={post.blocks as []} saveAction={savePostAction} />
+      <BlockEditor
+        postId={post.id}
+        initialTitle={post.title}
+        initialBlocks={post.blocks as []}
+        saveAction={savePostAction}
+      />
       <section className="mt-12">
         <h2 className="text-lg font-semibold">Comments</h2>
         <CommentsList postId={post.id} />
@@ -2754,7 +2851,11 @@ export default async function CommentsPage({
       <h1 className="mb-4 text-2xl font-bold">Comments</h1>
       <nav className="mb-4 flex gap-2 text-sm">
         {(["pending", "approved", "spam", "trash"] as const).map((s) => (
-          <a key={s} href={`/admin/comments?status=${s}`} className="underline-offset-2 hover:underline">
+          <a
+            key={s}
+            href={`/admin/comments?status=${s}`}
+            className="underline-offset-2 hover:underline"
+          >
             {s}
           </a>
         ))}
@@ -2840,9 +2941,17 @@ export default async function TaxonomiesPage() {
 
       <section className="mb-8">
         <h2 className="mb-2 text-lg font-semibold">Categories</h2>
-        <form action={createTaxonomyAction.bind(null, undefined)} className="mb-4 flex gap-2 text-sm">
+        <form
+          action={createTaxonomyAction.bind(null, undefined)}
+          className="mb-4 flex gap-2 text-sm"
+        >
           <input type="hidden" name="type" value="category" />
-          <input name="name" required placeholder="New category" className="rounded border px-2 py-1" />
+          <input
+            name="name"
+            required
+            placeholder="New category"
+            className="rounded border px-2 py-1"
+          />
           <button className="rounded bg-black px-3 py-1 text-white">Add</button>
         </form>
         <ul className="space-y-1 text-sm">
@@ -2856,7 +2965,10 @@ export default async function TaxonomiesPage() {
 
       <section>
         <h2 className="mb-2 text-lg font-semibold">Tags</h2>
-        <form action={createTaxonomyAction.bind(null, undefined)} className="mb-4 flex gap-2 text-sm">
+        <form
+          action={createTaxonomyAction.bind(null, undefined)}
+          className="mb-4 flex gap-2 text-sm"
+        >
           <input type="hidden" name="type" value="tag" />
           <input name="name" required placeholder="New tag" className="rounded border px-2 py-1" />
           <button className="rounded bg-black px-3 py-1 text-white">Add</button>
@@ -2886,6 +2998,7 @@ git commit -m "feat(admin): posts list/edit, comments moderation, taxonomies UI"
 ## Task 14: Public routes — blog index, single post, archives, comments
 
 **Files:**
+
 - Create: `src/app/blog/page.tsx`
 - Create: `src/app/blog/[slug]/page.tsx`
 - Create: `src/app/blog/[slug]/CommentsThread.tsx`
@@ -2964,9 +3077,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
     <main className="mx-auto max-w-3xl p-6">
       <article>
         <h1 className="mb-2 text-3xl font-bold">{post.title}</h1>
-        <p className="mb-6 text-sm text-gray-500">
-          {post.publishedAt?.toISOString().slice(0, 10)}
-        </p>
+        <p className="mb-6 text-sm text-gray-500">{post.publishedAt?.toISOString().slice(0, 10)}</p>
         <BlockRenderer blocks={post.blocks as []} />
       </article>
       {post.commentsEnabled !== "off" && (
@@ -3041,7 +3152,11 @@ export function CommentForm({ postId }: { postId: string }) {
     undefined,
   );
   if (state?.ok) {
-    return <p className="mt-6 rounded bg-green-50 p-3 text-sm">Thanks — your comment is awaiting moderation.</p>;
+    return (
+      <p className="mt-6 rounded bg-green-50 p-3 text-sm">
+        Thanks — your comment is awaiting moderation.
+      </p>
+    );
   }
   return (
     <form action={action} className="mt-6 space-y-2">
@@ -3072,7 +3187,10 @@ export function CommentForm({ postId }: { postId: string }) {
         aria-invalid={state?.fieldErrors?.body ? true : undefined}
       />
       {state?.error && <p className="text-sm text-red-700">{state.error}</p>}
-      <button disabled={pending} className="rounded bg-black px-3 py-1.5 text-sm text-white disabled:opacity-50">
+      <button
+        disabled={pending}
+        className="rounded bg-black px-3 py-1.5 text-sm text-white disabled:opacity-50"
+      >
         {pending ? "Submitting…" : "Submit"}
       </button>
     </form>
@@ -3091,11 +3209,7 @@ import { findTaxonomy, postsInTaxonomy } from "@/taxonomies/service";
 
 export const revalidate = 300;
 
-export default async function CategoryArchive({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+export default async function CategoryArchive({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const tax = await findTaxonomy("category", slug);
   if (!tax) notFound();
@@ -3159,6 +3273,7 @@ git commit -m "feat(public): blog index, post, comments thread, archives"
 ## Task 15: RSS + sitemap (TDD)
 
 **Files:**
+
 - Create: `src/app/rss.xml/route.ts`
 - Create: `src/app/rss.xml/route.test.ts`
 - Create: `src/app/sitemap.xml/route.ts`
@@ -3225,7 +3340,9 @@ afterEach(() => listPosts.mockReset());
 describe("GET /sitemap.xml", () => {
   it("returns an XML sitemap including each published post", async () => {
     listPosts.mockResolvedValue({
-      items: [{ slug: "a", updatedAt: new Date("2026-01-01"), publishedAt: new Date("2026-01-01") }],
+      items: [
+        { slug: "a", updatedAt: new Date("2026-01-01"), publishedAt: new Date("2026-01-01") },
+      ],
       nextCursor: null,
     });
     const res = await GET();
@@ -3368,14 +3485,14 @@ Expected: all green.
 
 ## Out of Scope (handled by sibling sub-plans)
 
-| Sub-plan | What it adds |
-|---|---|
-| **ai-features** | Implements the real `classifyCommentSpam` body (Claude Haiku); auto-generates excerpt, SEO meta, og:image fallback for new posts. |
-| **multilingual** | Hreflang on post pages, language switcher in archives, AI-translate flow that creates translation rows linked by `translation_of`. |
-| **plugin-system** | Emits `post.created` / `post.updated` / `post.published` / `comment.added` / `comment.approved` webhook events. |
-| **importers** | Bulk-loads posts + comments + taxonomies from WordPress XML, Ghost JSON, markdown, CSV. |
-| **exporter-backups** | Round-trips posts + comments back out to the export ZIP. |
+| Sub-plan             | What it adds                                                                                                                       |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| **ai-features**      | Implements the real `classifyCommentSpam` body (Claude Haiku); auto-generates excerpt, SEO meta, og:image fallback for new posts.  |
+| **multilingual**     | Hreflang on post pages, language switcher in archives, AI-translate flow that creates translation rows linked by `translation_of`. |
+| **plugin-system**    | Emits `post.created` / `post.updated` / `post.published` / `comment.added` / `comment.approved` webhook events.                    |
+| **importers**        | Bulk-loads posts + comments + taxonomies from WordPress XML, Ghost JSON, markdown, CSV.                                            |
+| **exporter-backups** | Round-trips posts + comments back out to the export ZIP.                                                                           |
 
 ---
 
-*End of posts-taxonomies-comments plan.*
+_End of posts-taxonomies-comments plan._
