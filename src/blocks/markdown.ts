@@ -3,15 +3,17 @@ import remarkParse from "remark-parse";
 import remarkGfm from "remark-gfm";
 import remarkRehype from "remark-rehype";
 import rehypeRaw from "rehype-raw";
-import rehypeSanitize, { defaultSchema, type Options } from "rehype-sanitize";
+import rehypeSanitize, { type Options } from "rehype-sanitize";
 import rehypeStringify from "rehype-stringify";
+import { wpkSanitizeBase } from "@/lib/markdown-sanitize";
 
+const baseAttrs = wpkSanitizeBase.attributes ?? {};
 const schema: Options = {
-  ...defaultSchema,
+  ...wpkSanitizeBase,
   attributes: {
-    ...defaultSchema.attributes,
-    code: [...(defaultSchema.attributes?.code ?? []), ["className", /^language-[\w-]+$/]],
-    a: [...(defaultSchema.attributes?.a ?? []), ["rel"], ["target"]],
+    ...baseAttrs,
+    // Block content allows fenced-code language classes; comments don't need this.
+    code: [...(baseAttrs.code ?? []), ["className", /^language-[\w-]+$/]],
   },
 };
 

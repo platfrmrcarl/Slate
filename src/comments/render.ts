@@ -1,27 +1,15 @@
 import { unified } from "unified";
 import remarkParse from "remark-parse";
 import remarkRehype from "remark-rehype";
-import rehypeSanitize, { defaultSchema, type Options as Schema } from "rehype-sanitize";
+import rehypeSanitize from "rehype-sanitize";
 import rehypeStringify from "rehype-stringify";
 import { visit } from "unist-util-visit";
 import type { Element, Root } from "hast";
+import { wpkSanitizeBase } from "@/lib/markdown-sanitize";
 
-type PropertyDefinition =
-  | string
-  | [string, ...(string | number | boolean | RegExp | null | undefined)[]];
-
-const baseAttrs = (defaultSchema.attributes ?? {}) as Record<string, PropertyDefinition[]>;
-const schema: Schema = {
-  ...defaultSchema,
-  attributes: {
-    ...baseAttrs,
-    a: [...(baseAttrs.a ?? []), "rel", "target"],
-  },
-  protocols: {
-    ...(defaultSchema.protocols ?? {}),
-    href: ["http", "https", "mailto"],
-  },
-};
+// Comments use the shared sanitize base unchanged — the actual rel/target
+// VALUES are forced by the post-processor below, not the schema allowlist.
+const schema = wpkSanitizeBase;
 
 function rehypeAddNofollow() {
   return (tree: Root) => {
