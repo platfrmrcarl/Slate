@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import type * as SeedModule from "./seed";
 
 const discoverAllPlugins = vi.fn();
 const upsertPlugin = vi.fn();
@@ -14,7 +15,7 @@ vi.mock("@/lib/logger", () => ({
 }));
 
 // Re-import seed.ts fresh per test so the module-level cached promise resets.
-async function importSeedFresh(): Promise<typeof import("./seed")> {
+async function importSeedFresh(): Promise<typeof SeedModule> {
   vi.resetModules();
   return await import("./seed");
 }

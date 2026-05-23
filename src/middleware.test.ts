@@ -119,4 +119,37 @@ describe("middleware", () => {
     expect(res.headers.get("location")).toBeNull();
     expect(res.headers.get("x-middleware-rewrite")).toBeNull();
   });
+
+  it("attaches a per-request nonce CSP to /admin responses (no unsafe-inline in script-src)", async () => {
+    const res = await middleware(req("/admin", { cookie: "wpk_session=abc" }));
+    const csp = res.headers.get("Content-Security-Policy");
+    expect(csp).toBeTruthy();
+    // script-src directive includes a fresh nonce-… and does NOT include unsafe-inline
+    const scriptSrc = csp!.split(";").find((d) => d.trim().startsWith("script-src")) ?? "";
+    expect(scriptSrc).toMatch(/'nonce-[A-Za-z0-9+/=]{20,}'/);
+    expect(scriptSrc).not.toContain("unsafe-inline");
+  });
+
+  it("attaches CSP on the /admin -> /sign-in redirect (unauthenticated)", async () => {
+    const res = await middleware(req("/admin"));
+    expect(res.headers.get("Content-Security-Policy")).toMatch(/script-src[^;]*nonce-/);
+  });
+
+  it("does NOT set CSP for public pages (those keep the permissive default policy)", async () => {
+    const res = await middleware(req("/about"));
+    expect(res.headers.get("Content-Security-Policy")).toBeNull();
+  });
+
+  it("forwards the nonce to downstream as x-nonce request header", async () => {
+    const res = await middleware(req("/sign-in"));
+    // NextResponse.next({ request: { headers } }) surfaces the updated request
+    // headers via x-middleware-override-headers.
+    const override = res.headers.get("x-middleware-override-headers");
+    expect(override).toContain("x-nonce");
+    const csp = res.headers.get("Content-Security-Policy")!;
+    const nonceMatch = /'nonce-([A-Za-z0-9+/=]+)'/.exec(csp);
+    expect(nonceMatch).toBeTruthy();
+    const forwardedNonce = res.headers.get(`x-middleware-request-x-nonce`);
+    expect(forwardedNonce).toBe(nonceMatch![1]);
+  });
 });

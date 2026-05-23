@@ -1,7 +1,46 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { randomBytes } from "node:crypto";
 import { getI18nSettings } from "@/i18n/settings";
 import { extractLocaleFromPathname, buildLocalizedPath } from "@/i18n/url";
 import { take } from "@/lib/rate-limit";
+
+// Paths that get the strict per-request-nonce CSP. These are the same set that
+// next.config.ts used to header, minus the public-site routes (which need a
+// permissive CSP so themes can pull third-party assets).
+const CSP_NONCE_PATHS = [
+  /^\/admin(\/|$)/,
+  /^\/setup(\/|$)/,
+  /^\/sign-in(\/|$)/,
+  /^\/sign-up(\/|$)/,
+  /^\/forgot-password(\/|$)/,
+  /^\/reset-password(\/|$)/,
+  /^\/verify-email(\/|$)/,
+];
+
+function needsNonceCsp(pathname: string): boolean {
+  return CSP_NONCE_PATHS.some((rx) => rx.test(pathname));
+}
+
+function buildAdminCsp(nonce: string): string {
+  return [
+    "default-src 'self'",
+    // 'strict-dynamic' lets nonce-tagged scripts load further scripts without
+    // each one needing its own nonce/hash; safe because the top of the chain is
+    // gated by the per-request nonce. 'unsafe-inline' deliberately omitted —
+    // browsers ignore it when a nonce is present anyway, but excluding it makes
+    // the policy unambiguous when audited.
+    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'`,
+    // CSS modules + Tailwind 4 inject <style> tags at runtime; keep
+    // 'unsafe-inline' for style-src until we hash or nonce those too.
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data: blob: https:",
+    "font-src 'self' data:",
+    "connect-src 'self'",
+    "frame-ancestors 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+  ].join("; ");
+}
 
 // /api/* routes handle their own auth + are exempt from the setup-incomplete
 // redirect. Critically, the middleware below fetches /api/setup-status; if that
@@ -52,6 +91,24 @@ function ipOf(req: NextRequest): string {
 export async function middleware(req: NextRequest): Promise<NextResponse> {
   const { pathname } = req.nextUrl;
 
+  // Per-request CSP nonce for admin/setup/auth routes. The nonce travels in
+  // two places:
+  //  1. As an `x-nonce` request header on the forwarded request so Server
+  //     Components can read it via `headers().get("x-nonce")` and apply it to
+  //     <Script nonce={...}> / inline <style>.
+  //  2. In the `Content-Security-Policy` response header. React 19 will
+  //     forward this nonce onto its auto-injected runtime/hydration scripts.
+  const needsNonce = needsNonceCsp(pathname);
+  const nonce = needsNonce ? randomBytes(16).toString("base64") : null;
+  const csp = nonce ? buildAdminCsp(nonce) : null;
+
+  // Helper that stamps the CSP header (and nothing else) onto whatever
+  // response we end up returning. Safe to call with any NextResponse.
+  const withCsp = (res: NextResponse): NextResponse => {
+    if (csp) res.headers.set("Content-Security-Policy", csp);
+    return res;
+  };
+
   // CORS deny on machine-to-machine surfaces. Cloud Tasks (job push) and
   // the wpkiller CLI never send an `Origin` header. A request that does
   // carry one is by definition a cross-origin browser probe, and we don't
@@ -74,7 +131,7 @@ export async function middleware(req: NextRequest): Promise<NextResponse> {
     if (!session) {
       const url = new URL("/sign-in", req.url);
       url.searchParams.set("redirectTo", pathname);
-      return NextResponse.redirect(url);
+      return withCsp(NextResponse.redirect(url));
     }
   }
 
@@ -86,7 +143,7 @@ export async function middleware(req: NextRequest): Promise<NextResponse> {
       });
       if (setupRes.ok) {
         const { completed } = (await setupRes.json()) as { completed: boolean };
-        if (!completed) return NextResponse.redirect(new URL("/setup", req.url));
+        if (!completed) return withCsp(NextResponse.redirect(new URL("/setup", req.url)));
       }
     }
   }
@@ -120,7 +177,16 @@ export async function middleware(req: NextRequest): Promise<NextResponse> {
   }
 
   // Locale resolution for public-facing routes only.
-  if (bypassLocale(pathname)) return NextResponse.next();
+  if (bypassLocale(pathname)) {
+    if (nonce) {
+      // Forward the nonce as a request header so server components can read it
+      // via `headers().get("x-nonce")` and propagate to <Script nonce>.
+      const requestHeaders = new Headers(req.headers);
+      requestHeaders.set("x-nonce", nonce);
+      return withCsp(NextResponse.next({ request: { headers: requestHeaders } }));
+    }
+    return NextResponse.next();
+  }
 
   const settings = await getI18nSettings();
 

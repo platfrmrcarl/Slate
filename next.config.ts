@@ -33,10 +33,12 @@ const config: NextConfig = {
     NEXT_PUBLIC_OAUTH_GITHUB_ENABLED: process.env.GITHUB_OAUTH_CLIENT_ID ? "1" : "0",
   },
   async headers() {
-    // Defense-in-depth headers applied to every response. CSP is intentionally
-    // permissive on the public site (themes can pull fonts/images from
-    // arbitrary CDNs) but strict on `/admin/*` and `/api/*` where there's no
-    // legitimate third-party loading.
+    // Defense-in-depth headers applied to every response. The strict CSP for
+    // /admin, /setup, and /(auth)/* is built per-request in `src/middleware.ts`
+    // so each response carries a fresh nonce that React 19 forwards onto its
+    // auto-injected scripts. Setting it here too would either double-stamp the
+    // header (when middleware runs) or pin a static value (when it doesn't),
+    // both of which defeat the nonce.
     const baseHeaders = [
       { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
       { key: "X-Content-Type-Options", value: "nosniff" },
@@ -50,32 +52,10 @@ const config: NextConfig = {
         value: "camera=(), microphone=(), geolocation=(), interest-cohort=()",
       },
     ];
-    const adminCsp = [
-      "default-src 'self'",
-      // Next inlines a runtime + hashed scripts. `unsafe-inline` is the
-      // pragmatic v1 setting until we wire a per-request nonce.
-      "script-src 'self' 'unsafe-inline'",
-      "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data: blob: https:",
-      "font-src 'self' data:",
-      "connect-src 'self'",
-      "frame-ancestors 'none'",
-      "base-uri 'self'",
-      "form-action 'self'",
-    ].join("; ");
     return [
       {
         source: "/:path*",
         headers: baseHeaders,
-      },
-      {
-        // Strict CSP for the admin shell and auth pages.
-        source: "/(admin|setup|sign-in|sign-up|forgot-password|reset-password|verify-email)/:path*",
-        headers: [{ key: "Content-Security-Policy", value: adminCsp }],
-      },
-      {
-        source: "/admin",
-        headers: [{ key: "Content-Security-Policy", value: adminCsp }],
       },
     ];
   },
