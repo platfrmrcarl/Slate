@@ -4,23 +4,34 @@ resource "google_artifact_registry_repository" "slate" {
   format        = "DOCKER"
 }
 
-# Cloud Build trigger commented out for first deploy. The legacy
-# trigger_template requires a Cloud Source Repos mirror of the GitHub repo,
-# which adds an out-of-band setup step. To enable CI on push to main:
-#   1. In Cloud Console: Cloud Build → Triggers → Connect Repository (GitHub).
-#   2. Replace this block with a `github { owner, name, push { branch = "^main$" } }`
-#      trigger, or re-enable trigger_template after mirroring the repo.
-# resource "google_cloudbuild_trigger" "main" {
-#   name        = "slate-main"
-#   description = "Build, migrate, deploy on push to main"
-#   filename    = "cloudbuild.yaml"
-#
-#   trigger_template {
-#     branch_name = "^main$"
-#     repo_name   = "slate"
-#   }
-#
-#   substitutions = {
-#     _REGION = var.region
-#   }
-# }
+# Cloud Build trigger fired on push to main, runs cloudbuild.yaml (build →
+# migrate → deploy). Uses a Cloud Build 2nd-gen Repository binding — the
+# operator must first create a Cloud Build host connection + link the repo
+# (one-time, interactive, via Cloud Console → Cloud Build → Repositories →
+# 2nd gen). Connection + repository names below match what was created in
+# slate-497220 / us-east1.
+data "google_project" "current" {
+  project_id = var.project_id
+}
+
+resource "google_cloudbuild_trigger" "main" {
+  name        = "slate-main"
+  location    = var.region
+  description = "Build, migrate, deploy on push to main"
+  filename    = "cloudbuild.yaml"
+
+  # Cloud Build now requires an explicit service account; the legacy default
+  # behaviour is deprecated. Use the project's default Cloud Build SA.
+  service_account = "projects/${var.project_id}/serviceAccounts/${data.google_project.current.number}@cloudbuild.gserviceaccount.com"
+
+  repository_event_config {
+    repository = "projects/${var.project_id}/locations/${var.region}/connections/GitHub/repositories/platfrmrcarl-Slate"
+    push {
+      branch = "^main$"
+    }
+  }
+
+  substitutions = {
+    _REGION = var.region
+  }
+}

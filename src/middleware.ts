@@ -45,7 +45,13 @@ function buildAdminCsp(nonce: string): string {
 // /api/* routes handle their own auth + are exempt from the setup-incomplete
 // redirect. Critically, the middleware below fetches /api/setup-status; if that
 // path were gated by the setup check, the fetch would loop on itself and 500.
-const ALLOW_DURING_SETUP = ["/setup", "/api", "/_next", "/favicon.ico"];
+// When SLATE_MARKETING_HOME=1, "/" serves the editorial marketing landing
+// (a static, no-DB-at-render page); allow it pre-setup so visitors don't get
+// bounced to /setup before the operator has signed in.
+const ALLOW_DURING_SETUP =
+  process.env.SLATE_MARKETING_HOME === "1"
+    ? ["/", "/setup", "/api", "/_next", "/favicon.ico"]
+    : ["/setup", "/api", "/_next", "/favicon.ico"];
 const SESSION_COOKIE_NAME = "slate_session";
 
 // Paths that bypass locale resolution entirely (admin, api, assets, sitemaps).
