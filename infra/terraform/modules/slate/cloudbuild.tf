@@ -10,19 +10,17 @@ resource "google_artifact_registry_repository" "slate" {
 # (one-time, interactive, via Cloud Console → Cloud Build → Repositories →
 # 2nd gen). Connection + repository names below match what was created in
 # slate-497220 / us-east1.
-data "google_project" "current" {
-  project_id = var.project_id
-}
-
 resource "google_cloudbuild_trigger" "main" {
   name        = "slate-main"
   location    = var.region
   description = "Build, migrate, deploy on push to main"
   filename    = "cloudbuild.yaml"
 
-  # Cloud Build now requires an explicit service account; the legacy default
-  # behaviour is deprecated. Use the project's default Cloud Build SA.
-  service_account = "projects/${var.project_id}/serviceAccounts/${data.google_project.current.number}@cloudbuild.gserviceaccount.com"
+  # Cloud Build now requires a user-managed service account; the default
+  # 461828370900@cloudbuild.gserviceaccount.com is rejected at build time.
+  # Reuse slate-runtime (granted cloudbuild.builds.builder + related roles in
+  # iam.tf) so builds run under the same identity as the deployed service.
+  service_account = google_service_account.runtime.id
 
   repository_event_config {
     repository = "projects/${var.project_id}/locations/${var.region}/connections/GitHub/repositories/platfrmrcarl-Slate"

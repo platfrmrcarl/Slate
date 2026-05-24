@@ -11,6 +11,11 @@ vi.mock("@/i18n/settings", () => ({
   getI18nSettings: () => getI18nSettings(),
 }));
 
+const isSetupComplete = vi.fn();
+vi.mock("@/lib/settings", () => ({
+  isSetupComplete: () => isSetupComplete(),
+}));
+
 const fetchMock = vi.fn();
 vi.stubGlobal("fetch", fetchMock);
 
@@ -20,11 +25,13 @@ beforeEach(() => {
   take.mockReset();
   fetchMock.mockReset();
   getI18nSettings.mockReset();
+  isSetupComplete.mockReset();
   // Default: setup is complete + i18n English-only + default-prefix hidden.
   fetchMock.mockResolvedValue({
     ok: true,
     json: async () => ({ completed: true }),
   });
+  isSetupComplete.mockResolvedValue(true);
   getI18nSettings.mockResolvedValue({
     defaultLocale: "en",
     enabledLocales: ["en"],
@@ -65,10 +72,7 @@ describe("middleware", () => {
   });
 
   it("redirects to /setup when setup is incomplete on a public path", async () => {
-    fetchMock.mockResolvedValueOnce({
-      ok: true,
-      json: async () => ({ completed: false }),
-    });
+    isSetupComplete.mockResolvedValueOnce(false);
     const res = await middleware(req("/about"));
     expect(res.status).toBe(307);
     expect(new URL(res.headers.get("location")!).pathname).toBe("/setup");
