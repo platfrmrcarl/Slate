@@ -2,18 +2,23 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { env } from "@/env";
 import { ensureStripeCustomer, createCheckoutSession, BillingNotConfiguredError } from "@/billing/service";
+import { getOptionalUser } from "@/auth/context";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 const bodySchema = z.object({
-  userId: z.string().uuid(),
-  email: z.string().email(),
-  displayName: z.string().optional(),
   tier: z.enum(["essential", "premium", "enterprise"]),
 });
 
 export async function POST(req: Request): Promise<Response> {
+  // Authentication is required: caller must be signed in. We pull email +
+  // userId from the session so the client can't impersonate.
+  const user = await getOptionalUser();
+  if (!user) {
+    return NextResponse.json({ error: "Not signed in" }, { status: 401 });
+  }
+
   let parsed;
   try {
     parsed = bodySchema.parse(await req.json());
@@ -26,9 +31,9 @@ export async function POST(req: Request): Promise<Response> {
 
   try {
     const customerId = await ensureStripeCustomer({
-      userId: parsed.userId,
-      email: parsed.email,
-      ...(parsed.displayName ? { displayName: parsed.displayName } : {}),
+      userId: user.id,
+      email: user.email,
+      displayName: user.displayName,
     });
     const session = await createCheckoutSession({
       customerId,

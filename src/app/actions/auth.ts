@@ -79,6 +79,12 @@ export async function signUpAction(
     if (err instanceof EmailInUseError) return { error: "That email is already in use." };
     throw err;
   }
+  // If a tier was picked on the pricing page, hand off to embedded Stripe
+  // Checkout; otherwise go to the marketing root.
+  const tier = formData.get("tier");
+  if (tier === "essential" || tier === "premium" || tier === "enterprise") {
+    redirect(`/sign-up/checkout?tier=${tier}` as Route);
+  }
   redirect("/" as Route);
 }
 
