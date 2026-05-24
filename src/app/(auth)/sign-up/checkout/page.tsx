@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import type { Route } from "next";
@@ -27,7 +27,17 @@ function isTier(v: string | null): v is TierId {
   return v === "essential" || v === "premium" || v === "enterprise";
 }
 
+// useSearchParams forces CSR — wrap the consumer in Suspense so Next's
+// build-phase prerender doesn't bail out.
 export default function CheckoutPage() {
+  return (
+    <Suspense fallback={<section className="mx-auto max-w-xl p-6"><p className="text-sm text-gray-500">Loading secure checkout…</p></section>}>
+      <CheckoutInner />
+    </Suspense>
+  );
+}
+
+function CheckoutInner() {
   const router = useRouter();
   const search = useSearchParams();
   const tier = search.get("tier");

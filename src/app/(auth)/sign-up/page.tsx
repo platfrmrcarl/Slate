@@ -1,10 +1,20 @@
 "use client";
 
-import { useActionState } from "react";
+import { Suspense, useActionState } from "react";
 import { useSearchParams } from "next/navigation";
 import { signUpAction } from "@/app/actions/auth";
 
+// useSearchParams forces client-side rendering at this segment; Next's static
+// prerender bails out unless the consumer sits inside a Suspense boundary.
 export default function SignUpPage() {
+  return (
+    <Suspense fallback={null}>
+      <SignUpForm />
+    </Suspense>
+  );
+}
+
+function SignUpForm() {
   const [state, action, pending] = useActionState(signUpAction, undefined);
   const search = useSearchParams();
   const tierParam = search.get("tier");
