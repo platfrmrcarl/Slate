@@ -144,12 +144,17 @@ export async function middleware(req: NextRequest): Promise<NextResponse> {
   if (!ALLOW_DURING_SETUP.some((p) => pathname.startsWith(p))) {
     // Hot path: bypass middleware for static assets without DB hits.
     if (!pathname.startsWith("/_next") && !pathname.includes(".")) {
-      const setupRes = await fetch(new URL("/api/setup-status", req.url), {
-        headers: { "x-internal": "1" },
-      });
-      if (setupRes.ok) {
-        const { completed } = (await setupRes.json()) as { completed: boolean };
+      // Call the helper directly instead of fetching /api/setup-status: in
+      // Cloud Run the public URL from `req.url` would loop out through the LB
+      // and fail TLS validation. The helper reads `setup.completed` from the
+      // settings table (cheap, single-row lookup). Failures fall open so a
+      // transient DB blip doesn't redirect everyone to /setup.
+      try {
+        const { isSetupComplete } = await import("@/lib/settings");
+        const completed = await isSetupComplete();
         if (!completed) return withCsp(NextResponse.redirect(new URL("/setup", req.url)));
+      } catch {
+        // Fail-open: assume setup complete on lookup failure.
       }
     }
   }

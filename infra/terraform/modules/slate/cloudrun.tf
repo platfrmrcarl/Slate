@@ -1,10 +1,24 @@
 locals {
-  env_secrets = {
-    DATABASE_URL      = google_secret_manager_secret.secrets["DATABASE_URL"].secret_id
-    AUTH_SECRET       = google_secret_manager_secret.secrets["AUTH_SECRET"].secret_id
-    ANTHROPIC_API_KEY = google_secret_manager_secret.secrets["ANTHROPIC_API_KEY"].secret_id
-    RESEND_API_KEY    = google_secret_manager_secret.secrets["RESEND_API_KEY"].secret_id
+  # Always-mounted secrets. PREVIEW_TOKEN_SECRET and INTERNAL_JOB_SECRET are
+  # required by env.ts and are auto-generated in secrets.tf.
+  env_secrets_required = {
+    DATABASE_URL         = google_secret_manager_secret.secrets["DATABASE_URL"].secret_id
+    AUTH_SECRET          = google_secret_manager_secret.secrets["AUTH_SECRET"].secret_id
+    PREVIEW_TOKEN_SECRET = google_secret_manager_secret.secrets["PREVIEW_TOKEN_SECRET"].secret_id
+    INTERNAL_JOB_SECRET  = google_secret_manager_secret.secrets["INTERNAL_JOB_SECRET"].secret_id
   }
+  # Optional secrets — only mount when the operator has provided a real value.
+  # env.ts validates these with a regex when present (e.g. "sk-ant-" prefix),
+  # so binding an empty / placeholder value would fail Zod validation at boot.
+  env_secrets_optional = merge(
+    var.anthropic_api_key != "" ? {
+      ANTHROPIC_API_KEY = google_secret_manager_secret.secrets["ANTHROPIC_API_KEY"].secret_id
+    } : {},
+    var.resend_api_key != "" ? {
+      RESEND_API_KEY = google_secret_manager_secret.secrets["RESEND_API_KEY"].secret_id
+    } : {},
+  )
+  env_secrets = merge(local.env_secrets_required, local.env_secrets_optional)
 }
 
 resource "google_cloud_run_v2_service" "app" {
