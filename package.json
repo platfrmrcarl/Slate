@@ -43,6 +43,8 @@
     "@oslojs/encoding": "1",
     "@react-email/components": "0.0.31",
     "@react-email/render": "1.0.6",
+    "@stripe/react-stripe-js": "^6.4.0",
+    "@stripe/stripe-js": "^9.6.0",
     "arctic": "2",
     "drizzle-orm": "0.44",
     "fast-xml-parser": "4",
