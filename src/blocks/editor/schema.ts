@@ -45,7 +45,7 @@ const imageBlock = createBlockSpec(
         size: string;
       };
       const dom = document.createElement("div");
-      dom.className = "wpk-editor-block wpk-editor-image";
+      dom.className = "slate-editor-block slate-editor-image";
       dom.style.cssText =
         "border:1px dashed #d4d4d8;border-radius:6px;padding:8px;margin:4px 0;background:#fafafa;font-size:13px;";
       dom.textContent = props.mediaId
@@ -69,7 +69,7 @@ const galleryBlock = createBlockSpec(
     render: (block) => {
       const props = block.props as { mediaIds: string; layout: string };
       const dom = document.createElement("div");
-      dom.className = "wpk-editor-block wpk-editor-gallery";
+      dom.className = "slate-editor-block slate-editor-gallery";
       dom.style.cssText =
         "border:1px dashed #d4d4d8;border-radius:6px;padding:8px;margin:4px 0;background:#fafafa;font-size:13px;";
       const count = props.mediaIds.split(",").filter((s) => s.trim().length > 0).length;
@@ -96,7 +96,7 @@ const embedBlock = createBlockSpec(
     render: (block) => {
       const props = block.props as { provider: string; url: string; html: string };
       const dom = document.createElement("div");
-      dom.className = "wpk-editor-block wpk-editor-embed";
+      dom.className = "slate-editor-block slate-editor-embed";
       dom.style.cssText =
         "border:1px solid #e4e4e7;border-radius:6px;padding:10px;margin:4px 0;background:#ffffff;";
       const title = document.createElement("div");
@@ -126,7 +126,7 @@ const buttonBlock = createBlockSpec(
     render: (block) => {
       const props = block.props as { label: string; href: string; variant: string };
       const dom = document.createElement("div");
-      dom.className = "wpk-editor-block wpk-editor-button";
+      dom.className = "slate-editor-block slate-editor-button";
       dom.style.cssText = "margin:4px 0;";
       const btn = document.createElement("span");
       const bg =

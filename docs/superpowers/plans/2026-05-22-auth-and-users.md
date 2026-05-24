@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Build the user, session, and authorization layer for WordPressKiller — Argon2id passwords, signed-cookie sessions, OAuth (Google + GitHub), magic-link sign-in, WordPress-style roles with a permission matrix, and the first-run `/setup` wizard that bootstraps the Owner.
+**Goal:** Build the user, session, and authorization layer for Slate — Argon2id passwords, signed-cookie sessions, OAuth (Google + GitHub), magic-link sign-in, WordPress-style roles with a permission matrix, and the first-run `/setup` wizard that bootstraps the Owner.
 
 **Architecture:** Custom session management built on `@oslojs/crypto` and `@oslojs/encoding` (the primitives the original Lucia author created and now recommends). A session token is generated as cryptographically random bytes, base32-encoded into the cookie, and SHA-256-hashed before storage so a database leak does not yield session hijacking material. OAuth flows use `arctic` for PKCE and state generation. Magic links and password reset use single-use, expiring DB-backed tokens. Permissions are a pure-function matrix consulted by every Server Action and Route Handler that mutates state.
 
@@ -644,15 +644,15 @@ import { describe, expect, it, vi } from "vitest";
 import { buildSessionCookie, clearedSessionCookie, SESSION_COOKIE_NAME } from "./cookies";
 
 describe("session cookie", () => {
-  it("name is 'wpk_session'", () => {
-    expect(SESSION_COOKIE_NAME).toBe("wpk_session");
+  it("name is 'slate_session'", () => {
+    expect(SESSION_COOKIE_NAME).toBe("slate_session");
   });
 
   it("buildSessionCookie sets HttpOnly, Secure (prod), SameSite=Lax, Path=/, value", () => {
     const cookie = buildSessionCookie("token-value", new Date("2099-01-01T00:00:00Z"), {
       secure: true,
     });
-    expect(cookie.name).toBe("wpk_session");
+    expect(cookie.name).toBe("slate_session");
     expect(cookie.value).toBe("token-value");
     expect(cookie.httpOnly).toBe(true);
     expect(cookie.secure).toBe(true);
@@ -668,7 +668,7 @@ describe("session cookie", () => {
 
   it("clearedSessionCookie has empty value + maxAge 0", () => {
     const cookie = clearedSessionCookie({ secure: true });
-    expect(cookie.name).toBe("wpk_session");
+    expect(cookie.name).toBe("slate_session");
     expect(cookie.value).toBe("");
     expect(cookie.maxAge).toBe(0);
   });
@@ -686,7 +686,7 @@ Expected: module-not-found failure.
 - [ ] **Step 3: Implement `src/auth/cookies.ts`**
 
 ```ts
-export const SESSION_COOKIE_NAME = "wpk_session";
+export const SESSION_COOKIE_NAME = "slate_session";
 
 export interface CookieAttrs {
   name: string;
@@ -1848,7 +1848,7 @@ describe("signUpAction", () => {
       role: "subscriber",
     });
     expect(setCookie).toHaveBeenCalledWith(
-      expect.objectContaining({ name: "wpk_session", value: "t-1", secure: true }),
+      expect.objectContaining({ name: "slate_session", value: "t-1", secure: true }),
     );
     expect(redirect).toHaveBeenCalledWith("/");
   });
@@ -1934,7 +1934,7 @@ describe("signOutAction", () => {
     getCookie.mockReturnValue({ value: "t-9" });
     await signOutAction();
     expect(invalidateSession).toHaveBeenCalledWith("t-9");
-    expect(deleteCookie).toHaveBeenCalledWith("wpk_session");
+    expect(deleteCookie).toHaveBeenCalledWith("slate_session");
     expect(redirect).toHaveBeenCalledWith("/");
   });
 
@@ -2219,7 +2219,7 @@ export async function issueMagicLink(rawEmail: string): Promise<void> {
 
   await sendEmail({
     to: email,
-    subject: "Sign in to WordPressKiller",
+    subject: "Sign in to Slate",
     text: `Click to sign in: ${url}\n\nThis link expires in 15 minutes.`,
     html: `<p>Click to sign in: <a href="${url}">${url}</a></p><p>This link expires in 15 minutes.</p>`,
   });
@@ -2364,7 +2364,7 @@ describe("GET /api/auth/magic-link/verify", () => {
     });
     const res = await GET(req("https://app.test/api/auth/magic-link/verify?token=abc"));
     expect(setCookie).toHaveBeenCalledWith(
-      expect.objectContaining({ name: "wpk_session", value: "t-9" }),
+      expect.objectContaining({ name: "slate_session", value: "t-9" }),
     );
     expect(res.headers.get("location")).toBe("/");
   });
@@ -2518,7 +2518,7 @@ export async function fetchGitHubProfile(accessToken: string): Promise<GitHubPro
     headers: {
       Authorization: `Bearer ${accessToken}`,
       Accept: "application/vnd.github+json",
-      "User-Agent": "wordpresskiller",
+      "User-Agent": "slate",
     },
   });
   if (!res.ok) throw new Error(`github user failed: ${res.status}`);
@@ -2530,7 +2530,7 @@ export async function fetchPrimaryGitHubEmail(accessToken: string): Promise<stri
     headers: {
       Authorization: `Bearer ${accessToken}`,
       Accept: "application/vnd.github+json",
-      "User-Agent": "wordpresskiller",
+      "User-Agent": "slate",
     },
   });
   if (!res.ok) return null;
@@ -2703,8 +2703,8 @@ import { githubClient } from "@/auth/oauth/github";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-const STATE_COOKIE_PREFIX = "wpk_oauth_state_";
-const PKCE_COOKIE_PREFIX = "wpk_oauth_pkce_";
+const STATE_COOKIE_PREFIX = "slate_oauth_state_";
+const PKCE_COOKIE_PREFIX = "slate_oauth_pkce_";
 const STATE_TTL_SEC = 600;
 
 export async function GET(
@@ -2778,8 +2778,8 @@ import { SESSION_COOKIE_NAME } from "@/auth/cookies";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-const STATE_COOKIE_PREFIX = "wpk_oauth_state_";
-const PKCE_COOKIE_PREFIX = "wpk_oauth_pkce_";
+const STATE_COOKIE_PREFIX = "slate_oauth_state_";
+const PKCE_COOKIE_PREFIX = "slate_oauth_pkce_";
 
 export async function GET(
   req: Request,
@@ -3173,7 +3173,7 @@ export default async function SetupPage() {
   if ((await countOwners()) > 0) redirect("/sign-in");
   return (
     <main className="mx-auto max-w-md p-8">
-      <h1 className="text-2xl font-bold">Welcome to WordPressKiller</h1>
+      <h1 className="text-2xl font-bold">Welcome to Slate</h1>
       <p className="mt-2 text-gray-600">Set up your site and create the owner account.</p>
 
       <form action={runSetupAction} className="mt-6 grid gap-4">
@@ -3305,7 +3305,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="border-b bg-white p-4">
-        <h1 className="text-lg font-semibold">WordPressKiller</h1>
+        <h1 className="text-lg font-semibold">Slate</h1>
       </header>
       <main className="mx-auto max-w-md p-8">{children}</main>
     </div>
@@ -3529,7 +3529,7 @@ pnpm dev
 - Complete the wizard with `owner@example.com` / 12+ char password.
 - After redirect to `/`, the cookie is set; refreshing should not bounce to `/setup`.
 - Visit `/sign-up` and create a subscriber.
-- Sign out via a temporary button (or `document.cookie = "wpk_session=; Max-Age=0; Path=/"` in devtools).
+- Sign out via a temporary button (or `document.cookie = "slate_session=; Max-Age=0; Path=/"` in devtools).
 - Visit `/sign-in` and sign back in.
 - Visit `/magic-link`, enter an email, observe the magic link URL in the terminal logs (dry-run mode without `RESEND_API_KEY`). Paste the URL in the browser to complete sign-in.
 - Stop the dev server.

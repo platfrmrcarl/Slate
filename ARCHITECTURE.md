@@ -1,7 +1,7 @@
-# WordPressKiller Architecture
+# Slate Architecture
 
 A high-level map of the codebase. The design rationale lives in
-[`WordPressKiller.md`](./WordPressKiller.md) (the spec). This document
+[`Slate.md`](./Slate.md) (the spec). This document
 describes *what's actually in the tree* after the v1 implementation plans
 landed. When the two diverge, this file is wrong — file a PR.
 
@@ -30,7 +30,7 @@ landed. When the two diverge, this file is wrong — file a PR.
                      ▲
                      │ enqueue
        ┌─────────────┴──┐
-       │ Cloud Tasks    │   queues: wpk-default, wpk-ai, wpk-exports
+       │ Cloud Tasks    │   queues: slate-default, slate-ai, slate-exports
        └─────────────┬──┘
                      │ HTTPS POST + INTERNAL_JOB_SECRET
                      ▼
@@ -94,9 +94,9 @@ the new revision serves traffic. See `cloudbuild.yaml`.
 | `src/lib/` | Small utilities: logger (pino), slug, rate-limit (Postgres token bucket), OTel meter helpers, settings kv, SEO JSON-LD builders. |
 | `src/db/` | Drizzle schema (one file), migrations (tracked SQL + snapshot chain), client. |
 | `src/emails/` | React Email templates. |
-| `themes/wpk-default/` | Baseline theme (Layout, templates, primitives, CSS tokens). |
+| `themes/slate-default/` | Baseline theme (Layout, templates, primitives, CSS tokens). |
 | `plugins/example-webhook/` | Sample plugin (manifest + entry). |
-| `packages/cli/` | `wpkiller` CLI workspace package. |
+| `packages/cli/` | `slate` CLI workspace package (`@slate/cli`). |
 | `infra/terraform/` | GCP Terraform module (Cloud Run, SQL, Storage, Tasks, LB, monitoring). |
 | `instrumentation.ts` | OpenTelemetry SDK boot — traces to Cloud Trace, metrics to Cloud Monitoring (gated on `OTEL_ENABLED=true`). |
 
@@ -172,7 +172,7 @@ Postgres-backed token bucket (`src/lib/rate-limit.ts`). Applied by
 `cloudbuild.yaml` chains: install → lint+test+next-build (parallel) →
 two Docker builds (runtime + migration) → push → run migration job →
 deploy revision. Cloud Run ingress is owned by Terraform
-(`infra/terraform/modules/wpkiller/cloudrun.tf`); the deploy step
+(`infra/terraform/modules/slate/cloudrun.tf`); the deploy step
 **must not** pass `--allow-unauthenticated` (would silently flip
 ingress to public on every push).
 
@@ -187,7 +187,7 @@ ingress to public on every push).
 
 ## Where to start reading
 
-- `WordPressKiller.md` for the *why*.
+- `Slate.md` for the *why*.
 - `src/db/schema.ts` for the data model.
 - `src/app/[locale]/[[...slug]]/page.tsx` and
   `src/services/pages/service.ts` for the public read path.

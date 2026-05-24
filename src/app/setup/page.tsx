@@ -15,7 +15,7 @@ export default async function SetupPage() {
   if ((await countOwners()) > 0) redirect("/sign-in" as Route);
   return (
     <main className="mx-auto max-w-md p-8">
-      <h1 className="text-2xl font-bold">Welcome to WordPressKiller</h1>
+      <h1 className="text-2xl font-bold">Welcome to Slate</h1>
       <p className="mt-2 text-gray-600">Set up your site and create the owner account.</p>
 
       <form action={setupFormAction} className="mt-6 grid gap-4">

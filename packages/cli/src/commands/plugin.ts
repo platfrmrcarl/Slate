@@ -9,7 +9,7 @@ export function pluginCommand(): Command {
   const cmd = new Command("plugin");
   cmd
     .command("install <package>")
-    .description("Install a plugin npm package (e.g., wpkiller-plugin-mailchimp)")
+    .description("Install a plugin npm package (e.g., slate-plugin-mailchimp)")
     .action(async (pkg: string) => {
       const { stdout, stderr } = await sh(`pnpm add ${JSON.stringify(pkg)}`);
       if (stderr) process.stderr.write(stderr);

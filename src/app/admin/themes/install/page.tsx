@@ -11,7 +11,7 @@ export default async function InstallThemePage() {
       </p>
       <p>Use the CLI to scaffold a theme directory from a Git URL or a local folder:</p>
       <pre>
-        <code>{`wpkiller theme install https://github.com/you/your-theme`}</code>
+        <code>{`slate theme install https://github.com/you/your-theme`}</code>
       </pre>
       <p>
         Customizing tokens (colors, fonts, copy, layout choices) and switching template variants

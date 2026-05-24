@@ -53,7 +53,7 @@ describe("fetchGitHubProfile", () => {
       expect.objectContaining({
         headers: expect.objectContaining({
           Authorization: "Bearer tok",
-          "User-Agent": "wordpresskiller",
+          "User-Agent": "slate",
         }),
       }),
     );

@@ -10,7 +10,7 @@
     "skipLibCheck": true,
     "outDir": "dist",
     "rootDir": "src",
-    "paths": { "@wpk/*": ["../../src/*"] }
+    "paths": { "@slate/*": ["../../src/*"] }
   },
   "include": ["src/**/*"],
   "exclude": ["src/**/*.test.ts", "dist"]

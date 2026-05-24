@@ -9,8 +9,8 @@ import { SESSION_COOKIE_NAME } from "@/auth/cookies";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-const STATE_COOKIE_PREFIX = "wpk_oauth_state_";
-const PKCE_COOKIE_PREFIX = "wpk_oauth_pkce_";
+const STATE_COOKIE_PREFIX = "slate_oauth_state_";
+const PKCE_COOKIE_PREFIX = "slate_oauth_pkce_";
 
 function redirectTo(location: string): Response {
   return new Response(null, { status: 302, headers: { location } });

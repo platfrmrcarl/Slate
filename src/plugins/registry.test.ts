@@ -9,7 +9,7 @@ describe("discoverLocalPlugins", () => {
 });
 
 describe("discoverNpmPlugins", () => {
-  it("returns an empty list when no wpkiller-plugin-* packages are installed", async () => {
+  it("returns an empty list when no slate-plugin-* packages are installed", async () => {
     const found = await discoverNpmPlugins();
     // No matching npm packages installed in this repo; should be empty.
     expect(found.map((p) => p.manifest.slug)).not.toContain("example-webhook");

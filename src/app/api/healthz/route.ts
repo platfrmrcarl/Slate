@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 export function GET(): Response {
-  recordCounter("wpk.healthz.hit");
+  recordCounter("slate.healthz.hit");
   return NextResponse.json({
     status: "ok",
     uptime: process.uptime(),

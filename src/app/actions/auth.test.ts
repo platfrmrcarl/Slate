@@ -124,7 +124,7 @@ describe("signUpAction", () => {
       role: "subscriber",
     });
     expect(setCookie).toHaveBeenCalledWith(
-      expect.objectContaining({ name: "wpk_session", value: "t-1", secure: true }),
+      expect.objectContaining({ name: "slate_session", value: "t-1", secure: true }),
     );
     expect(redirect).toHaveBeenCalledWith("/");
   });
@@ -210,7 +210,7 @@ describe("signOutAction", () => {
     getCookie.mockReturnValue({ value: "t-9" });
     await signOutAction();
     expect(invalidateSession).toHaveBeenCalledWith("t-9");
-    expect(deleteCookie).toHaveBeenCalledWith("wpk_session");
+    expect(deleteCookie).toHaveBeenCalledWith("slate_session");
     expect(redirect).toHaveBeenCalledWith("/");
   });
 

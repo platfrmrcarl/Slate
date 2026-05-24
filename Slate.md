@@ -1,4 +1,4 @@
-# WordPressKiller — Design Specification
+# Slate — Design Specification
 
 **Status:** Draft v1 · **Date:** 2026-05-22 · **Owner:** carl@platfrmr.com
 
@@ -12,7 +12,7 @@ A modern, AI-native, self-hostable content management system. Delivers the WordP
 
 WordPress powers ~43% of the public web because three things compound: a forgiving content model, a thriving theme ecosystem, and a plugin marketplace that turns the CMS into a platform. It also drags around 20 years of accumulated complexity, a PHP runtime that punishes modern hosting, and a security surface that requires constant maintenance.
 
-WordPressKiller is a from-scratch reimplementation of that compounding triad on a 2026-era stack — Next.js 16 App Router, TypeScript end-to-end, Drizzle + Postgres, Cloud Run for serverless containers — with AI generation as a first-class authoring primitive rather than a bolt-on.
+Slate is a from-scratch reimplementation of that compounding triad on a 2026-era stack — Next.js 16 App Router, TypeScript end-to-end, Drizzle + Postgres, Cloud Run for serverless containers — with AI generation as a first-class authoring primitive rather than a bolt-on.
 
 ### 1.2 v1 Goals
 
@@ -429,7 +429,7 @@ Custom blocks ship as npm packages installed at build time (v1):
 
 ```ts
 // example-plugin/blocks/pricing.tsx
-import { defineBlock } from "wpkiller/blocks";
+import { defineBlock } from "slate/blocks";
 import { z } from "zod";
 
 export default defineBlock({
@@ -457,7 +457,7 @@ export default defineBlock({
 });
 ```
 
-The block registry is built into the bundle at compile time. Plugins are picked up by scanning `node_modules/wpkiller-plugin-*` and any `plugins/` directory.
+The block registry is built into the bundle at compile time. Plugins are picked up by scanning `node_modules/slate-plugin-*` and any `plugins/` directory.
 
 ### 6.4 Renderer
 
@@ -584,7 +584,7 @@ Admin "Customize" surface exposes these as form controls per the `customizations
 
 ### 8.1 v1 extension surfaces
 
-A plugin is an npm package matching `wpkiller-plugin-*` with a manifest:
+A plugin is an npm package matching `slate-plugin-*` with a manifest:
 
 ```ts
 // PluginManifest
@@ -615,7 +615,7 @@ A plugin is an npm package matching `wpkiller-plugin-*` with a manifest:
 }
 ```
 
-Plugins are installed by running `pnpm add wpkiller-plugin-mailchimp` and committing. The build picks up the manifest, registers blocks, webhooks, admin pages, and hook handlers.
+Plugins are installed by running `pnpm add slate-plugin-mailchimp` and committing. The build picks up the manifest, registers blocks, webhooks, admin pages, and hook handlers.
 
 ### 8.2 Webhook events (v1)
 
@@ -930,7 +930,7 @@ Markdown serialization uses a custom block-to-markdown writer that:
 The exporter ZIP is the portability primitive. To move to AWS / Azure / Fly / a bare VM:
 
 1. Provision Postgres + S3-compatible object store + a Node container host.
-2. Run `npx wpkiller migrate-import <export.zip> --target=<connection-string>` against the new database.
+2. Run `npx slate migrate-import <export.zip> --target=<connection-string>` against the new database.
 3. Update DNS, deploy the Docker image to the new host.
 
 Because the entire app is a single Docker container with externalized state (DB + object store), there's no GCP-specific code in the runtime. Cloud Run is the recommended host; nothing prevents running the same image on Fargate, App Runner, Container Apps, Fly Machines, Kubernetes, or `docker run` on a VPS.
@@ -978,12 +978,12 @@ export const comments = pgTable("comments", {
 
 ```hcl
 # infra/terraform/main.tf (sketch)
-module "wpkiller" {
-  source              = "./modules/wpkiller"
+module "slate" {
+  source              = "./modules/slate"
   project_id          = var.project_id
   region              = var.region                   # e.g., us-central1
   domain              = var.domain                   # e.g., example.com
-  image               = var.image                    # gcr.io/.../wpkiller:v1
+  image               = var.image                    # gcr.io/.../slate:v1
   db_tier             = "db-custom-2-7680"           # 2 vCPU, 7.5 GB
   cloud_run_min_inst  = 0
   cloud_run_max_inst  = 10
@@ -1060,7 +1060,7 @@ Cloud Run listens on `$PORT` (8080), Next.js standalone output handles that nati
 Drizzle migrations run as a Cloud Run **job** (separate from the main service) triggered before each deploy:
 
 ```bash
-gcloud run jobs execute wpkiller-migrate --region=us-central1
+gcloud run jobs execute slate-migrate --region=us-central1
 ```
 
 Cloud Build deploys the new revision only if migrations succeed.
@@ -1088,7 +1088,7 @@ Cost-reduction lever: replace Cloud SQL with self-managed Postgres on a small Co
 
 ```bash
 # Provision GCP resources + deploy
-npx create-wordpresskiller@latest my-site
+npx create-slate@latest my-site
 # prompts:
 #   GCP project ID:
 #   Region:
@@ -1098,7 +1098,7 @@ npx create-wordpresskiller@latest my-site
 # → runs Terraform → outputs Cloud Run URL → opens setup wizard
 ```
 
-The `create-wordpresskiller` CLI:
+The `create-slate` CLI:
 
 1. Asks for GCP project, region, optional custom domain.
 2. Authenticates via `gcloud auth application-default login` if no creds.
@@ -1121,7 +1121,7 @@ The `create-wordpresskiller` CLI:
 ### 17.4 CLI
 
 ```
-wpkiller <command>
+slate <command>
   setup                                  # interactive first-run config
   user create <email> --role=<role>
   user reset-password <email>
@@ -1186,7 +1186,7 @@ CLI talks to the running instance via internal admin API with a token issued at 
 - [ ] Posts CRUD + categories + tags
 - [ ] Media library (upload, list, delete, alt text)
 - [ ] Image transform endpoint
-- [ ] Default theme ("WPK Default") with full template set
+- [ ] Default theme ("Slate Default") with full template set
 - [ ] Theme install/activate (compose-time path)
 - [ ] Settings UI (site, reading, writing, theme customize)
 - [ ] User management
@@ -1200,14 +1200,14 @@ CLI talks to the running instance via internal admin API with a token issued at 
 - [ ] Exporter ZIP
 - [ ] Sitemap, robots, RSS
 - [ ] OpenGraph + JSON-LD
-- [ ] CLI (`wpkiller`)
+- [ ] CLI (`slate`)
 - [ ] Terraform module
 - [ ] Cloud Build pipeline
 - [ ] Dockerfile + Cloud Run deployment
 - [ ] Observability wiring (OpenTelemetry, Cloud Logging)
 - [ ] `/api/healthz` and `/api/readyz`
 - [ ] Threat model doc + security checklist
-- [ ] User docs site (built with WordPressKiller itself, naturally)
+- [ ] User docs site (built with Slate itself, naturally)
 
 ---
 

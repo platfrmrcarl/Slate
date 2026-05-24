@@ -1665,7 +1665,7 @@ export function Sidebar({ role }: { role: Role }) {
   return (
     <aside className="border-r bg-white p-4">
       <Link href="/admin" className="block text-lg font-semibold">
-        WordPressKiller
+        Slate
       </Link>
       <nav className="mt-6 grid gap-1 text-sm">
         {NAV.filter((n) => ROLE_RANK[role] >= ROLE_RANK[n.minRole]).map((n) => (
@@ -1729,7 +1729,7 @@ In `src/middleware.ts`, extend the `middleware()` body **before** the setup-stat
 
 ```ts
 if (pathname.startsWith("/admin")) {
-  const session = req.cookies.get("wpk_session");
+  const session = req.cookies.get("slate_session");
   if (!session) {
     const url = new URL("/sign-in", req.url);
     url.searchParams.set("redirectTo", pathname);

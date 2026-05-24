@@ -40,9 +40,9 @@ export function exportCommand(opts: TransportOpts, includeDb: boolean): Command 
       console.log(pc.gray(`waiting for job ${id}...`));
       const r = await poll(id, opts);
       if (r.status !== "completed") throw new Error(`export ended in status ${r.status}`);
-      const baseUrl = opts.url ?? process.env.WPK_URL;
-      if (!baseUrl) throw new Error("WPK_URL or --url required");
-      const token = opts.token ?? process.env.WPK_TOKEN;
+      const baseUrl = opts.url ?? process.env.SLATE_URL;
+      if (!baseUrl) throw new Error("SLATE_URL or --url required");
+      const token = opts.token ?? process.env.SLATE_TOKEN;
       const dl = await fetch(
         baseUrl.replace(/\/$/, "") + `/api/export/${id}/download`,
         { headers: { authorization: `Bearer ${token}` } },

@@ -37,18 +37,18 @@ describe("enqueueJob", () => {
   it("calls Cloud Tasks in production", async () => {
     vi.stubEnv("NODE_ENV", "production");
     vi.stubEnv("APP_URL", "https://app.example.com");
-    vi.stubEnv("GCP_PROJECT_ID", "wpk-prod");
+    vi.stubEnv("GCP_PROJECT_ID", "slate-prod");
     vi.stubEnv("GCP_REGION", "us-central1");
-    vi.stubEnv("CLOUD_TASKS_INVOKER_SA", "tasks-invoker@wpk-prod.iam.gserviceaccount.com");
+    vi.stubEnv("CLOUD_TASKS_INVOKER_SA", "tasks-invoker@slate-prod.iam.gserviceaccount.com");
     createTask.mockResolvedValue([{ name: "task-123" }]);
     const { enqueueJob } = await import("./enqueue");
     await enqueueJob("media-probe", { mediaId: "m-1" });
     expect(fetchMock).not.toHaveBeenCalled();
     const callArgs = createTask.mock.calls[0]![0];
-    expect(callArgs.parent).toContain("projects/wpk-prod/locations/us-central1/queues/");
+    expect(callArgs.parent).toContain("projects/slate-prod/locations/us-central1/queues/");
     expect(callArgs.task.httpRequest.url).toBe("https://app.example.com/api/jobs/media-probe");
     expect(callArgs.task.httpRequest.oidcToken.serviceAccountEmail).toBe(
-      "tasks-invoker@wpk-prod.iam.gserviceaccount.com",
+      "tasks-invoker@slate-prod.iam.gserviceaccount.com",
     );
   });
 

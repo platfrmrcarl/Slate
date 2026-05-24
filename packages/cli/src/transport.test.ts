@@ -4,7 +4,7 @@ const fetchMock = vi.fn();
 vi.stubGlobal("fetch", fetchMock);
 
 vi.mock("./credentials", () => ({
-  loadCredentials: vi.fn().mockResolvedValue({ url: "https://app.example", token: "wpk_test" }),
+  loadCredentials: vi.fn().mockResolvedValue({ url: "https://app.example", token: "slate_test" }),
 }));
 
 const { remoteRequest, resolveTransport } = await import("./transport");
@@ -25,7 +25,7 @@ describe("remoteRequest", () => {
       "https://app.example/api/cli/whoami",
       expect.objectContaining({
         method: "GET",
-        headers: expect.objectContaining({ authorization: "Bearer wpk_test" }),
+        headers: expect.objectContaining({ authorization: "Bearer slate_test" }),
       }),
     );
   });
@@ -40,8 +40,8 @@ describe("resolveTransport", () => {
   it("picks remote when --url flag is present", () => {
     expect(resolveTransport({ url: "https://x.example", token: "t" })).toBe("remote");
   });
-  it("picks remote when WPK_URL env is set", () => {
-    vi.stubEnv("WPK_URL", "https://x.example");
+  it("picks remote when SLATE_URL env is set", () => {
+    vi.stubEnv("SLATE_URL", "https://x.example");
     expect(resolveTransport({})).toBe("remote");
     vi.unstubAllEnvs();
   });

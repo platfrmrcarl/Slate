@@ -18,14 +18,14 @@ export function PasswordResetEmail({ resetUrl, displayName }: PasswordResetEmail
   return (
     <Html>
       <Head />
-      <Preview>Reset your WordPressKiller password</Preview>
+      <Preview>Reset your Slate password</Preview>
       <Body style={{ fontFamily: "system-ui, sans-serif", background: "#f9fafb", padding: "20px" }}>
         <Container
           style={{ background: "white", padding: "24px", borderRadius: "8px", maxWidth: "560px" }}
         >
           <Heading style={{ fontSize: "20px", margin: 0 }}>Hi {displayName},</Heading>
           <Text>
-            We received a request to reset the password on your WordPressKiller account. Click the
+            We received a request to reset the password on your Slate account. Click the
             button below to choose a new one. The link expires in 24 hours.
           </Text>
           <Button

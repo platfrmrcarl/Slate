@@ -1,6 +1,6 @@
 import { SignJWT, jwtVerify } from "jose";
 
-const ISSUER = "wpk-preview";
+const ISSUER = "slate-preview";
 
 function secret(): Uint8Array {
   const s = process.env.PREVIEW_TOKEN_SECRET;

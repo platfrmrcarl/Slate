@@ -78,7 +78,7 @@ describe("runImportRecords", () => {
       records: gen(),
       fallbackAuthorId: "u-fallback",
       defaultLocale: "en",
-      bucket: "wpk-media",
+      bucket: "slate-media",
     });
     expect(createPost).toHaveBeenCalled();
     expect(attachTaxonomyToPost).toHaveBeenCalledWith("p-1", "t-1");

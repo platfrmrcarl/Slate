@@ -59,7 +59,7 @@ export async function runImportRecords(input: RunInput): Promise<void> {
     taxonomyIdBySlug: new Map<string, string>(),
   };
   // Pre-seed the media id map from an export manifest so re-imports of
-  // wpkiller-produced ZIPs preserve original media IDs.
+  // Slate-produced ZIPs preserve original media IDs.
   if (input.mediaManifest) {
     for (const [externalId, entry] of Object.entries(input.mediaManifest)) {
       if (entry?.id) ctx.mediaIdByExternalId.set(externalId, entry.id);

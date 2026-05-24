@@ -1,11 +1,11 @@
 resource "google_service_account" "runtime" {
-  account_id   = "wpk-runtime"
-  display_name = "WordPressKiller runtime SA"
+  account_id   = "slate-runtime"
+  display_name = "Slate runtime SA"
 }
 
 resource "google_service_account" "tasks_invoker" {
-  account_id   = "wpk-tasks-invoker"
-  display_name = "WordPressKiller Cloud Tasks invoker"
+  account_id   = "slate-tasks-invoker"
+  display_name = "Slate Cloud Tasks invoker"
 }
 
 resource "google_project_iam_member" "runtime_sql" {
@@ -44,6 +44,18 @@ resource "google_cloud_run_v2_service_iam_member" "tasks_can_invoke" {
   name     = google_cloud_run_v2_service.app.name
   role     = "roles/run.invoker"
   member   = "serviceAccount:${google_service_account.tasks_invoker.email}"
+}
+
+# Public invoker for the Cloud Run service so the external HTTPS LB can route
+# requests through to the container. With ingress=internal-and-cloud-load-balancing
+# on the service itself, the *.run.app URL is still locked down — only requests
+# coming via the LB (or internal sources) are accepted.
+resource "google_cloud_run_v2_service_iam_member" "public_can_invoke" {
+  project  = var.project_id
+  location = var.region
+  name     = google_cloud_run_v2_service.app.name
+  role     = "roles/run.invoker"
+  member   = "allUsers"
 }
 
 output "service_account_email" {

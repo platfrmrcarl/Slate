@@ -1,16 +1,16 @@
 resource "google_compute_global_address" "ip" {
-  name = "wpk-ip"
+  name = "slate-ip"
 }
 
 resource "google_compute_managed_ssl_certificate" "cert" {
-  name = "wpk-cert"
+  name = "slate-cert"
   managed {
     domains = [var.domain]
   }
 }
 
 resource "google_compute_region_network_endpoint_group" "neg" {
-  name                  = "wpk-neg"
+  name                  = "slate-neg"
   region                = var.region
   network_endpoint_type = "SERVERLESS"
 
@@ -20,7 +20,7 @@ resource "google_compute_region_network_endpoint_group" "neg" {
 }
 
 resource "google_compute_backend_service" "backend" {
-  name                  = "wpk-backend"
+  name                  = "slate-backend"
   protocol              = "HTTPS"
   enable_cdn            = true
   load_balancing_scheme = "EXTERNAL_MANAGED"
@@ -43,18 +43,18 @@ resource "google_compute_backend_service" "backend" {
 }
 
 resource "google_compute_url_map" "urlmap" {
-  name            = "wpk-urlmap"
+  name            = "slate-urlmap"
   default_service = google_compute_backend_service.backend.id
 }
 
 resource "google_compute_target_https_proxy" "https" {
-  name             = "wpk-https"
+  name             = "slate-https"
   ssl_certificates = [google_compute_managed_ssl_certificate.cert.id]
   url_map          = google_compute_url_map.urlmap.id
 }
 
 resource "google_compute_global_forwarding_rule" "fr" {
-  name                  = "wpk-fr"
+  name                  = "slate-fr"
   target                = google_compute_target_https_proxy.https.id
   port_range            = "443"
   ip_address            = google_compute_global_address.ip.address

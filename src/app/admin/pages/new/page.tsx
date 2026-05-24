@@ -11,7 +11,7 @@ export const runtime = "nodejs";
 export default async function NewPageRoute(): Promise<React.ReactElement> {
   await requireRole("contributor");
   const active = await getActiveTheme();
-  const themeSlug = active?.slug ?? "wpk-default";
+  const themeSlug = active?.slug ?? "slate-default";
   const enabled = aiEnabled();
 
   return (

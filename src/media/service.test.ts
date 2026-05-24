@@ -44,7 +44,7 @@ describe.runIf(HAS_DB)("media service", () => {
   it("createMediaRecord inserts with status=pending", async () => {
     const u = await aUser();
     const m = await createMediaRecord({
-      bucket: "wpk-media-local",
+      bucket: "slate-media-local",
       objectPath: `media/2026/05/${u.id}-test.jpg`,
       mimeType: "image/jpeg",
       originalFilename: "test.jpg",
@@ -59,7 +59,7 @@ describe.runIf(HAS_DB)("media service", () => {
   it("setProbeResult stores width/height + probed_at", async () => {
     const u = await aUser();
     const m = await createMediaRecord({
-      bucket: "wpk-media-local",
+      bucket: "slate-media-local",
       objectPath: `media/2026/05/${u.id}-p.jpg`,
       mimeType: "image/jpeg",
       originalFilename: "p.jpg",
@@ -79,7 +79,7 @@ describe.runIf(HAS_DB)("media service", () => {
     const u = await aUser();
     for (let i = 0; i < 3; i++) {
       const m = await createMediaRecord({
-        bucket: "wpk-media-local",
+        bucket: "slate-media-local",
         objectPath: `media/2026/05/${u.id}-${i}.jpg`,
         mimeType: i === 2 ? "application/pdf" : "image/jpeg",
         originalFilename: `f${i}.jpg`,
@@ -95,7 +95,7 @@ describe.runIf(HAS_DB)("media service", () => {
   it("deleteMediaRecord returns true if it removed a row", async () => {
     const u = await aUser();
     const m = await createMediaRecord({
-      bucket: "wpk-media-local",
+      bucket: "slate-media-local",
       objectPath: `media/2026/05/${u.id}-d.jpg`,
       mimeType: "image/jpeg",
       originalFilename: "d.jpg",

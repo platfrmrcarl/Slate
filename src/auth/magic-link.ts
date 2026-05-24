@@ -24,7 +24,7 @@ export async function issueMagicLink(
   const action = purpose === "verify" ? "verify your email" : "sign in";
   await sendEmail({
     to: email,
-    subject: purpose === "verify" ? "Verify your email" : "Sign in to WordPressKiller",
+    subject: purpose === "verify" ? "Verify your email" : "Sign in to Slate",
     text: `Click to ${action}: ${url}\n\nThis link expires in 15 minutes.`,
     html: `<p>Click to ${action}: <a href="${url}">${url}</a></p><p>This link expires in 15 minutes.</p>`,
   });

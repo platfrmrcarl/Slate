@@ -1,7 +1,7 @@
-# Contributing to WordPressKiller
+# Contributing to Slate
 
 Thanks for your interest. This file covers the minimum mechanics — the design
-spec (`WordPressKiller.md`) and architecture overview (`ARCHITECTURE.md`)
+spec (`Slate.md`) and architecture overview (`ARCHITECTURE.md`)
 explain *what* and *why*.
 
 ## Quick start
@@ -97,9 +97,9 @@ next contributor's `db:generate` diff cleanly. See
   `src/export/`, `src/ai/`, `src/jobs/` — feature modules
 - `src/db/` — schema + migrations + meta snapshots
 - `src/lib/` — small utilities (logger, slug, otel, rate-limit, settings, seo)
-- `themes/wpk-default/` — baseline theme
+- `themes/slate-default/` — baseline theme
 - `plugins/example-webhook/` — example plugin
-- `packages/cli/` — `wpkiller` CLI (workspace package)
+- `packages/cli/` — `slate` CLI (workspace package, `@slate/cli`)
 - `infra/terraform/` — GCP module
 - `docs/superpowers/plans/` — historical implementation plans
 

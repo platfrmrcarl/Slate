@@ -108,7 +108,7 @@ export async function register() {
   const sdk = new NodeSDK({
     resource: new Resource({
       [semconv.SemanticResourceAttributes.SERVICE_NAME]: "wpkiller",
-      [semconv.SemanticResourceAttributes.SERVICE_VERSION]: process.env.WPK_VERSION ?? "0.0.0",
+      [semconv.SemanticResourceAttributes.SERVICE_VERSION]: process.env.SLATE_VERSION ?? "0.0.0",
       "deployment.environment": process.env.NODE_ENV ?? "development",
     }),
     traceExporter: new TraceExporter(),
@@ -737,12 +737,12 @@ variable "github_oauth"      { type = object({ client_id = string, client_secret
 ```hcl
 resource "google_service_account" "runtime" {
   account_id   = "wpk-runtime"
-  display_name = "WordPressKiller runtime SA"
+  display_name = "Slate runtime SA"
 }
 
 resource "google_service_account" "tasks_invoker" {
   account_id   = "wpk-tasks-invoker"
-  display_name = "WordPressKiller Cloud Tasks invoker"
+  display_name = "Slate Cloud Tasks invoker"
 }
 
 resource "google_project_iam_member" "runtime_sql" {
@@ -1182,7 +1182,7 @@ resource "google_cloudbuild_trigger" "main" {
 `infra/terraform/README.md`:
 
 ````markdown
-# WordPressKiller Terraform
+# Slate Terraform
 
 One-command provision of every GCP resource the app needs.
 

@@ -3,7 +3,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import os from "node:os";
 
-const dir = path.join(os.tmpdir(), `wpk-cred-${process.pid}-${Date.now()}`);
+const dir = path.join(os.tmpdir(), `slate-cred-${process.pid}-${Date.now()}`);
 vi.stubEnv("XDG_CONFIG_HOME", dir);
 
 const { saveCredentials, loadCredentials, clearCredentials, credentialsPath } = await import(

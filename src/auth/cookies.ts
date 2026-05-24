@@ -1,4 +1,4 @@
-export const SESSION_COOKIE_NAME = "wpk_session";
+export const SESSION_COOKIE_NAME = "slate_session";
 
 export interface CookieAttrs {
   name: string;

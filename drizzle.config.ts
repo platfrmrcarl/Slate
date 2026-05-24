@@ -5,7 +5,7 @@ export default {
   out: "./src/db/migrations",
   dialect: "postgresql",
   dbCredentials: {
-    url: process.env.DATABASE_URL ?? "postgres://wpk:wpk@localhost:5432/wpk",
+    url: process.env.DATABASE_URL ?? "postgres://slate:slate@localhost:5432/slate",
   },
   strict: true,
   verbose: true,

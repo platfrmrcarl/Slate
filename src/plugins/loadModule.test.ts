@@ -5,7 +5,7 @@ import fs from "node:fs/promises";
 import { loadModule, PluginPathTraversalError } from "./loadModule";
 
 async function tempRoot(): Promise<string> {
-  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "wpk-plugin-test-"));
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), "slate-plugin-test-"));
   return dir;
 }
 

@@ -4,6 +4,7 @@ import { env } from "@/env";
 import { defaultLocale, getI18nSettings } from "@/i18n/settings";
 import { buildLocalizedPath } from "@/i18n/url";
 
+export const dynamic = "force-dynamic";
 export const revalidate = 600;
 
 export async function GET(req: Request): Promise<Response> {

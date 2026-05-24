@@ -9,8 +9,8 @@ import { setupCommand } from "./commands/setup";
 import { shellCommand } from "./commands/shell";
 
 const program = new Command()
-  .name("wpkiller")
-  .description("WordPressKiller CLI")
+  .name("slate")
+  .description("Slate CLI")
   .version("0.1.0")
   .addOption(new Option("--url <url>", "remote instance URL"))
   .addOption(new Option("--token <token>", "admin token"));

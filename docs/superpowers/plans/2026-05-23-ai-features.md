@@ -835,7 +835,7 @@ describe("generatePage", () => {
     const result = await generatePage({
       prompt: "An about page",
       pageType: "about",
-      themeSlug: "wpk-default",
+      themeSlug: "slate-default",
       availableBlocks: ["heading", "paragraph"],
       userId: "u-1",
     });
@@ -853,7 +853,7 @@ describe("generatePage", () => {
     const result = await generatePage({
       prompt: "x",
       pageType: "landing",
-      themeSlug: "wpk-default",
+      themeSlug: "slate-default",
       availableBlocks: ["heading"],
       userId: null,
     });
@@ -868,7 +868,7 @@ describe("generatePage", () => {
     const result = await generatePage({
       prompt: "x",
       pageType: "landing",
-      themeSlug: "wpk-default",
+      themeSlug: "slate-default",
       availableBlocks: ["heading"],
       userId: null,
     });
@@ -1954,7 +1954,7 @@ describe("generatePageAction", () => {
     isOverBudget.mockResolvedValueOnce(true);
     const r = await generatePageAction(
       undefined,
-      fd({ prompt: "x", pageType: "about", themeSlug: "wpk-default" }),
+      fd({ prompt: "x", pageType: "about", themeSlug: "slate-default" }),
     );
     expect(r.error).toMatch(/budget/i);
   });
@@ -1969,7 +1969,7 @@ describe("generatePageAction", () => {
     });
     const r = await generatePageAction(
       undefined,
-      fd({ prompt: "x", pageType: "about", themeSlug: "wpk-default" }),
+      fd({ prompt: "x", pageType: "about", themeSlug: "slate-default" }),
     );
     expect(r.ok).toBe(true);
     expect(r.blocks).toHaveLength(1);

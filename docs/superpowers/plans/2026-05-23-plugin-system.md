@@ -789,7 +789,7 @@ mkdir -p plugins/example-webhook
   "slug": "example-webhook",
   "version": "0.1.0",
   "description": "Reference webhook plugin used by tests; ships no admin pages.",
-  "author": { "name": "WordPressKiller" },
+  "author": { "name": "Slate" },
   "webhooks": [{ "event": "post.published", "description": "Notify when a post is published" }]
 }
 ```

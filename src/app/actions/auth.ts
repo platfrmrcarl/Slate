@@ -79,7 +79,7 @@ export async function signUpAction(
     if (err instanceof EmailInUseError) return { error: "That email is already in use." };
     throw err;
   }
-  redirect("/");
+  redirect("/" as Route);
 }
 
 export async function signInAction(
@@ -117,7 +117,7 @@ export async function signOutAction(): Promise<void> {
     await invalidateSession(existing.value);
     cookieStore.delete(SESSION_COOKIE_NAME);
   }
-  redirect("/");
+  redirect("/" as Route);
 }
 
 const requestMagicLinkSchema = z.object({

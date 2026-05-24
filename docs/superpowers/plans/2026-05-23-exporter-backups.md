@@ -573,7 +573,7 @@ vi.mock("./queries", () => ({
       },
     ]),
   getActiveThemeMeta: () =>
-    Promise.resolve({ slug: "wpk-default", version: "1.0.0", customization: {} }),
+    Promise.resolve({ slug: "slate-default", version: "1.0.0", customization: {} }),
 }));
 const getObjectStream = vi.fn();
 vi.mock("@/media/storage", () => ({ getObjectStream: (...a: unknown[]) => getObjectStream(...a) }));

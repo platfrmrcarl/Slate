@@ -45,8 +45,14 @@ function buildAdminCsp(nonce: string): string {
 // /api/* routes handle their own auth + are exempt from the setup-incomplete
 // redirect. Critically, the middleware below fetches /api/setup-status; if that
 // path were gated by the setup check, the fetch would loop on itself and 500.
-const ALLOW_DURING_SETUP = ["/setup", "/api", "/_next", "/favicon.ico"];
-const SESSION_COOKIE_NAME = "wpk_session";
+// When SLATE_MARKETING_HOME=1, "/" serves the editorial marketing landing
+// (a static, no-DB-at-render page); allow it pre-setup so visitors don't get
+// bounced to /setup before the operator has signed in.
+const ALLOW_DURING_SETUP =
+  process.env.SLATE_MARKETING_HOME === "1"
+    ? ["/", "/setup", "/api", "/_next", "/favicon.ico"]
+    : ["/setup", "/api", "/_next", "/favicon.ico"];
+const SESSION_COOKIE_NAME = "slate_session";
 
 // Paths that bypass locale resolution entirely (admin, api, assets, sitemaps).
 const LOCALE_BYPASS = [
@@ -66,6 +72,12 @@ function bypassLocale(pathname: string): boolean {
   if (LOCALE_BYPASS.some((rx) => rx.test(pathname))) return true;
   // Static asset shortcut — anything with a file extension.
   if (pathname.includes(".")) return true;
+  // Marketing landing at "/" and its OG image — only when the deployment opts
+  // in via env flag. The OG image lives at /opengraph-image (Next's file-based
+  // metadata convention) and must skip the locale rewriter to resolve.
+  if (process.env.SLATE_MARKETING_HOME === "1") {
+    if (pathname === "/" || pathname === "/opengraph-image") return true;
+  }
   return false;
 }
 
@@ -110,7 +122,7 @@ export async function middleware(req: NextRequest): Promise<NextResponse> {
   };
 
   // CORS deny on machine-to-machine surfaces. Cloud Tasks (job push) and
-  // the wpkiller CLI never send an `Origin` header. A request that does
+  // the slate CLI never send an `Origin` header. A request that does
   // carry one is by definition a cross-origin browser probe, and we don't
   // want either surface reachable that way regardless of auth state.
   if (
@@ -138,12 +150,17 @@ export async function middleware(req: NextRequest): Promise<NextResponse> {
   if (!ALLOW_DURING_SETUP.some((p) => pathname.startsWith(p))) {
     // Hot path: bypass middleware for static assets without DB hits.
     if (!pathname.startsWith("/_next") && !pathname.includes(".")) {
-      const setupRes = await fetch(new URL("/api/setup-status", req.url), {
-        headers: { "x-internal": "1" },
-      });
-      if (setupRes.ok) {
-        const { completed } = (await setupRes.json()) as { completed: boolean };
+      // Call the helper directly instead of fetching /api/setup-status: in
+      // Cloud Run the public URL from `req.url` would loop out through the LB
+      // and fail TLS validation. The helper reads `setup.completed` from the
+      // settings table (cheap, single-row lookup). Failures fall open so a
+      // transient DB blip doesn't redirect everyone to /setup.
+      try {
+        const { isSetupComplete } = await import("@/lib/settings");
+        const completed = await isSetupComplete();
         if (!completed) return withCsp(NextResponse.redirect(new URL("/setup", req.url)));
+      } catch {
+        // Fail-open: assume setup complete on lookup failure.
       }
     }
   }
@@ -221,4 +238,8 @@ export async function middleware(req: NextRequest): Promise<NextResponse> {
 
 export const config = {
   matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  // Next.js 16 defaults middleware to the Edge Runtime, which doesn't support
+  // node: imports. We use node:crypto for the per-request CSP nonce and pino
+  // transitively from the rate-limit module; opt into the Node.js runtime.
+  runtime: "nodejs",
 };

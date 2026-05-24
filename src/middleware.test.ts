@@ -55,7 +55,7 @@ describe("middleware", () => {
   });
 
   it("lets /admin through when the session cookie is set (no /sign-in redirect)", async () => {
-    const res = await middleware(req("/admin", { cookie: "wpk_session=abc" }));
+    const res = await middleware(req("/admin", { cookie: "slate_session=abc" }));
     // Either NextResponse.next() (no location) or a rewrite — not the /sign-in
     // redirect. The setup-status fetch is also skipped because /admin is in
     // ALLOW_DURING_SETUP via /_next exclusion? No — /admin is NOT in
@@ -108,6 +108,34 @@ describe("middleware", () => {
     expect(new URL(res.headers.get("location")!).pathname).toBe("/");
   });
 
+  it("bypasses locale rewriter at / when SLATE_MARKETING_HOME=1", async () => {
+    const original = process.env.SLATE_MARKETING_HOME;
+    process.env.SLATE_MARKETING_HOME = "1";
+    try {
+      const res = await middleware(req("/"));
+      // Pass-through: no redirect Location and no locale rewrite header.
+      expect(res.headers.get("location")).toBeNull();
+      expect(res.headers.get("x-middleware-rewrite")).toBeNull();
+    } finally {
+      if (original === undefined) delete process.env.SLATE_MARKETING_HOME;
+      else process.env.SLATE_MARKETING_HOME = original;
+    }
+  });
+
+  it("rewrites / to /<defaultLocale> when SLATE_MARKETING_HOME is unset", async () => {
+    const original = process.env.SLATE_MARKETING_HOME;
+    delete process.env.SLATE_MARKETING_HOME;
+    try {
+      const res = await middleware(req("/"));
+      // Existing behavior: rewrite "/" -> "/en" via x-middleware-rewrite header.
+      const rewrite = res.headers.get("x-middleware-rewrite");
+      expect(rewrite).toBeTruthy();
+      expect(new URL(rewrite!).pathname).toBe("/en");
+    } finally {
+      if (original !== undefined) process.env.SLATE_MARKETING_HOME = original;
+    }
+  });
+
   it("leaves non-default-locale paths alone", async () => {
     getI18nSettings.mockResolvedValueOnce({
       defaultLocale: "en",
@@ -121,7 +149,7 @@ describe("middleware", () => {
   });
 
   it("attaches a per-request nonce CSP to /admin responses (no unsafe-inline in script-src)", async () => {
-    const res = await middleware(req("/admin", { cookie: "wpk_session=abc" }));
+    const res = await middleware(req("/admin", { cookie: "slate_session=abc" }));
     const csp = res.headers.get("Content-Security-Policy");
     expect(csp).toBeTruthy();
     // script-src directive includes a fresh nonce-… and does NOT include unsafe-inline

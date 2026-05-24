@@ -33,7 +33,7 @@ export async function recordUsage(input: UsageInput): Promise<void> {
     ...(input.errorMessage !== undefined ? { errorMessage: input.errorMessage } : {}),
   };
   await db().insert(aiUsage).values(values);
-  recordCounter("wpk.ai.tokens", input.inputTokens + input.outputTokens, {
+  recordCounter("slate.ai.tokens", input.inputTokens + input.outputTokens, {
     feature: input.feature,
   });
 }

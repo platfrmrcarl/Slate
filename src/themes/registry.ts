@@ -37,11 +37,11 @@ export interface ThemeModule {
 type Loader = () => Promise<{ default: ThemeModule }>;
 
 const REGISTRY: Record<string, { slug: string; loader: Loader }> = {
-  "wpk-default": {
-    slug: "wpk-default",
-    loader: () => import("../../themes/wpk-default") as Promise<{ default: ThemeModule }>,
+  "slate-default": {
+    slug: "slate-default",
+    loader: () => import("../../themes/slate-default") as Promise<{ default: ThemeModule }>,
   },
-  // Plugins are appended here at build time by the cli sub-plan's `wpkiller theme install`.
+  // Plugins are appended here at build time by the cli sub-plan's `slate theme install`.
 };
 
 export function listRegisteredThemes(): Array<{ slug: string }> {

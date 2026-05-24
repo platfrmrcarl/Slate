@@ -13,15 +13,15 @@ afterAll(async () => {
     .where(sql`true`);
   await db()
     .delete(themes)
-    .where(sql`${themes.slug} = 'wpk-default'`);
+    .where(sql`${themes.slug} = 'slate-default'`);
   await closeDb();
 });
 
 describe.runIf(HAS_DB)("ensureDefaultThemeSeeded", () => {
-  it("inserts wpk-default and activates it on first call", async () => {
+  it("inserts slate-default and activates it on first call", async () => {
     await ensureDefaultThemeSeeded();
     const rows = await db().select().from(themes);
-    expect(rows.find((r) => r.slug === "wpk-default")).toBeTruthy();
+    expect(rows.find((r) => r.slug === "slate-default")).toBeTruthy();
     const active = await db().select().from(activeTheme);
     expect(active[0]?.themeId).toBeTruthy();
   });

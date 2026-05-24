@@ -10,10 +10,14 @@ terraform {
       version = "~> 3.6"
     }
   }
-  backend "gcs" {
-    # bucket = "your-project-tfstate"
-    # prefix = "wpkiller"
-  }
+  # GCS backend left commented for first deploy — state lives locally in
+  # terraform.tfstate. To move state to GCS later, create a bucket
+  # `${project}-tfstate`, uncomment the backend block below, and run
+  # `terraform init -migrate-state`.
+  # backend "gcs" {
+  #   bucket = "slate-497220-tfstate"
+  #   prefix = "slate"
+  # }
 }
 
 provider "google" {
@@ -21,8 +25,8 @@ provider "google" {
   region  = var.region
 }
 
-module "wpkiller" {
-  source            = "./modules/wpkiller"
+module "slate" {
+  source            = "./modules/slate"
   project_id        = var.project_id
   region            = var.region
   domain            = var.domain

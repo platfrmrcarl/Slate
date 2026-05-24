@@ -36,7 +36,7 @@ describe("POST /api/cli/users/create", () => {
     const res = await POST(
       req(
         { email: "a@b.com", displayName: "A", password: "x".repeat(12), role: "author" },
-        { authorization: "Bearer wpk_t" },
+        { authorization: "Bearer slate_t" },
       ),
     );
     expect(res.status).toBe(403);
@@ -48,7 +48,7 @@ describe("POST /api/cli/users/create", () => {
     const res = await POST(
       req(
         { email: "a@b.com", displayName: "A", password: "correct horse battery", role: "author" },
-        { authorization: "Bearer wpk_t" },
+        { authorization: "Bearer slate_t" },
       ),
     );
     expect(res.status).toBe(201);

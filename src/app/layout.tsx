@@ -5,8 +5,15 @@ import { resolveThemeContext } from "@/themes/context";
 import { ensurePluginsSeeded } from "@/plugins/seed";
 import { loadPluginBlocks } from "@/plugins/blocks";
 
+// Slate is a DB-backed CMS — this root layout queries themes + plugins to
+// decide what to render. Marking it `force-dynamic` opts every page out of
+// build-time prerendering so `next build` doesn't require a running Postgres.
+// Static pages (e.g. the marketing landing) can still opt back in via their
+// own `export const dynamic = "force-static"`.
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
-  title: "WordPressKiller",
+  title: "Slate",
   description: "AI-native CMS built on Next.js + GCP",
 };
 

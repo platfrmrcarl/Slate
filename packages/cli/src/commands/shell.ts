@@ -4,7 +4,7 @@ import pc from "picocolors";
 
 export function shellCommand(): Command {
   return new Command("shell")
-    .description("Open a Node REPL with @wpk/db, @wpk/auth, @wpk/posts preloaded (local only)")
+    .description("Open a Node REPL with @slate/db, @slate/auth, @slate/posts preloaded (local only)")
     .action(async () => {
       // Dynamic-string imports keep these out of the cli package's tsc rootDir.
       const dbPath = "../../../../src/db";

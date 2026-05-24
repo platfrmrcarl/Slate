@@ -24,10 +24,18 @@ export function invalidateI18nSettings(): void {
 
 export async function getI18nSettings(): Promise<I18nSettings> {
   if (cached && cached.expiresAt > Date.now()) return cached.value;
-  const rows = await db().select().from(settings).where(eq(settings.key, "i18n"));
-  const value = (rows[0]?.value as I18nSettings | undefined) ?? DEFAULTS;
-  cached = { value, expiresAt: Date.now() + TTL_MS };
-  return value;
+  // Fall back to DEFAULTS if the DB is unreachable. Important during
+  // Next.js's build phase where page-data collection runs before a real
+  // DATABASE_URL has been wired up. Once a real DB is connected at runtime
+  // the cache flushes after TTL_MS and the stored row is read.
+  try {
+    const rows = await db().select().from(settings).where(eq(settings.key, "i18n"));
+    const value = (rows[0]?.value as I18nSettings | undefined) ?? DEFAULTS;
+    cached = { value, expiresAt: Date.now() + TTL_MS };
+    return value;
+  } catch {
+    return DEFAULTS;
+  }
 }
 
 export async function defaultLocale(): Promise<string> {

@@ -1,6 +1,6 @@
 import { metrics } from "@opentelemetry/api";
 
-const meter = metrics.getMeter("wpkiller");
+const meter = metrics.getMeter("slate");
 
 const counters = new Map<string, ReturnType<typeof meter.createCounter>>();
 const histograms = new Map<string, ReturnType<typeof meter.createHistogram>>();

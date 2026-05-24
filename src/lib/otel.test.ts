@@ -23,9 +23,9 @@ const { recordCounter, recordHistogram } = await import("./otel");
 
 describe("recordCounter", () => {
   it("forwards name + value to OTel meter", () => {
-    recordCounter("wpk.page.publish", 1, { kind: "post" });
+    recordCounter("slate.page.publish", 1, { kind: "post" });
     expect(inc).toHaveBeenCalledWith({
-      name: "wpk.page.publish",
+      name: "slate.page.publish",
       n: 1,
       attrs: { kind: "post" },
     });
@@ -33,21 +33,21 @@ describe("recordCounter", () => {
 
   it("memoizes per-name: many calls for the same metric create exactly one Counter", () => {
     createCounter.mockClear();
-    recordCounter("wpk.cached.metric");
-    recordCounter("wpk.cached.metric", 5);
-    recordCounter("wpk.cached.metric", 1, { k: "v" });
+    recordCounter("slate.cached.metric");
+    recordCounter("slate.cached.metric", 5);
+    recordCounter("slate.cached.metric", 1, { k: "v" });
     expect(
-      createCounter.mock.calls.filter(([n]) => n === "wpk.cached.metric").length,
+      createCounter.mock.calls.filter(([n]) => n === "slate.cached.metric").length,
     ).toBe(1);
   });
 
   it("creates a separate Counter per distinct name", () => {
     createCounter.mockClear();
-    recordCounter("wpk.metric.a");
-    recordCounter("wpk.metric.b");
+    recordCounter("slate.metric.a");
+    recordCounter("slate.metric.b");
     expect(
       createCounter.mock.calls.filter(([n]) =>
-        ["wpk.metric.a", "wpk.metric.b"].includes(n),
+        ["slate.metric.a", "slate.metric.b"].includes(n),
       ).length,
     ).toBe(2);
   });
@@ -55,9 +55,9 @@ describe("recordCounter", () => {
 
 describe("recordHistogram", () => {
   it("forwards name + value to OTel meter", () => {
-    recordHistogram("wpk.image.transform.ms", 120);
+    recordHistogram("slate.image.transform.ms", 120);
     expect(recordHist).toHaveBeenCalledWith({
-      name: "wpk.image.transform.ms",
+      name: "slate.image.transform.ms",
       n: 120,
       attrs: undefined,
     });
@@ -65,11 +65,11 @@ describe("recordHistogram", () => {
 
   it("memoizes per-name: repeated calls reuse the Histogram instance", () => {
     createHistogram.mockClear();
-    recordHistogram("wpk.cached.hist", 1);
-    recordHistogram("wpk.cached.hist", 2);
-    recordHistogram("wpk.cached.hist", 3);
+    recordHistogram("slate.cached.hist", 1);
+    recordHistogram("slate.cached.hist", 2);
+    recordHistogram("slate.cached.hist", 3);
     expect(
-      createHistogram.mock.calls.filter(([n]) => n === "wpk.cached.hist").length,
+      createHistogram.mock.calls.filter(([n]) => n === "slate.cached.hist").length,
     ).toBe(1);
   });
 });
