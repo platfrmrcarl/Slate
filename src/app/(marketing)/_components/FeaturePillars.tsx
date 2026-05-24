@@ -25,16 +25,16 @@ const PILLARS: Pillar[] = [
 
 export default function FeaturePillars() {
   return (
-    <section id="features" className="border-t border-[var(--slate-border)] px-6 py-20">
-      <div className="mx-auto max-w-[1100px]">
-        <p className="mb-12 text-center font-mono text-[11px] uppercase tracking-[0.16em] text-[var(--slate-fg-subtle)]">
+    <section id="features" className="border-t border-[var(--slate-border)] px-6 py-16 md:py-20">
+      <div className="mx-auto max-w-[1200px]">
+        <p className="mb-10 text-center font-mono text-[11px] uppercase tracking-[0.18em] text-[var(--slate-fg-subtle)]">
           — Features —
         </p>
-        <div className="grid grid-cols-1 gap-px overflow-hidden rounded-lg bg-[var(--slate-border)] md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-px overflow-hidden rounded-xl bg-[var(--slate-border)] sm:grid-cols-2 lg:grid-cols-4">
           {PILLARS.map((p) => (
-            <div key={p.title} className="bg-[var(--slate-bg)] p-8">
-              <div className="mb-3 text-2xl text-[#a8a3ff]" aria-hidden>{p.glyph}</div>
-              <h3 className="marketing-serif mb-2 text-xl text-[var(--slate-fg)]">{p.title}</h3>
+            <div key={p.title} className="bg-[var(--slate-bg)] p-7 transition hover:bg-[var(--slate-bg-soft)]">
+              <div className="mb-4 text-3xl text-[#a8a3ff]" aria-hidden>{p.glyph}</div>
+              <h3 className="marketing-serif mb-2 text-[20px] leading-tight text-[var(--slate-fg)]">{p.title}</h3>
               <p className="text-[14px] leading-relaxed text-[var(--slate-fg-muted)]">{p.body}</p>
             </div>
           ))}
