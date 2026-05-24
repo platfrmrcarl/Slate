@@ -118,15 +118,15 @@ steps:
           --cpu=1 \
           --memory=1Gi \
           --port=8080 \
-          --set-env-vars=NODE_ENV=production,LOG_LEVEL=info,OTEL_ENABLED=true,GCP_PROJECT_ID=${PROJECT_ID},GCP_REGION=${_REGION} \
-          --set-secrets=DATABASE_URL=DATABASE_URL:latest,AUTH_SECRET=AUTH_SECRET:latest,ANTHROPIC_API_KEY=ANTHROPIC_API_KEY:latest,RESEND_API_KEY=RESEND_API_KEY:latest,GOOGLE_OAUTH_CLIENT_ID=GOOGLE_OAUTH_CLIENT_ID:latest,GOOGLE_OAUTH_CLIENT_SECRET=GOOGLE_OAUTH_CLIENT_SECRET:latest,GITHUB_OAUTH_CLIENT_ID=GITHUB_OAUTH_CLIENT_ID:latest,GITHUB_OAUTH_CLIENT_SECRET=GITHUB_OAUTH_CLIENT_SECRET:latest \
+          --set-env-vars=NODE_ENV=production,LOG_LEVEL=info,OTEL_ENABLED=true,GCP_PROJECT_ID=${PROJECT_ID},GCP_REGION=${_REGION},APP_URL=https://slate.platfrmr.com,GCS_BUCKET_MEDIA=${PROJECT_ID}-wpk-media,GCS_BUCKET_THEMES=${PROJECT_ID}-wpk-themes,SLATE_MARKETING_HOME=1 \
+          --set-secrets=DATABASE_URL=DATABASE_URL:latest,AUTH_SECRET=AUTH_SECRET:latest,PREVIEW_TOKEN_SECRET=PREVIEW_TOKEN_SECRET:latest,INTERNAL_JOB_SECRET=INTERNAL_JOB_SECRET:latest \
           --quiet
     waitFor: ["run-migration"]
 
 substitutions:
-  _AR_HOST: us-central1-docker.pkg.dev
+  _AR_HOST: us-east1-docker.pkg.dev
   _AR_REPO: slate
-  _REGION: us-central1
+  _REGION: us-east1
 
 options:
   machineType: E2_HIGHCPU_8
