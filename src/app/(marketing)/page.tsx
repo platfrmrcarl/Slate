@@ -9,8 +9,11 @@ import HowItWorks from "./_components/HowItWorks";
 import SignUpCTA from "./_components/SignUpCTA";
 import LandingFooter from "./_components/LandingFooter";
 
-export const dynamic = "force-static";
-export const revalidate = false;
+// Render at request time so the SLATE_MARKETING_HOME env-flag check below is
+// evaluated per-request, not baked at build time. Cloud CDN at the LB layer
+// caches the response; revalidate=3600 is the hint for any future ISR fronting.
+export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 
 export default function MarketingHome() {
   if (process.env.SLATE_MARKETING_HOME !== "1") {
