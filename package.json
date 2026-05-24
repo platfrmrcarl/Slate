@@ -67,6 +67,7 @@
     "remark-rehype": "11",
     "resend": "4",
     "sharp": "0.34",
+    "stripe": "^22.1.1",
     "unified": "11",
     "unist-util-visit": "5",
     "unzipper": "0.12",

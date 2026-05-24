@@ -6,6 +6,7 @@ import ProductPeek from "./_components/ProductPeek";
 import AIDemo from "./_components/AIDemo";
 import StackStrip from "./_components/StackStrip";
 import HowItWorks from "./_components/HowItWorks";
+import PricingTiers from "./_components/PricingTiers";
 import SignUpCTA from "./_components/SignUpCTA";
 import LandingFooter from "./_components/LandingFooter";
 
@@ -29,6 +30,7 @@ export default function MarketingHome() {
         <AIDemo />
         <StackStrip />
         <HowItWorks />
+        <PricingTiers />
         <SignUpCTA />
       </main>
       <LandingFooter />

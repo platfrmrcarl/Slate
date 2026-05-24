@@ -44,6 +44,30 @@ const schema = z
     AI_MODEL_TRANSLATE: z.string().default("claude-sonnet-4-6"),
     AI_MODEL_CHAT: z.string().default("claude-sonnet-4-6"),
     AI_MODEL_SPAM: z.string().default("claude-haiku-4-5"),
+    // --- Stripe / billing ----------------------------------------------------
+    // Restricted Key (rk_*) or Secret Key (sk_*). Empty disables billing (the
+    // pricing surface still renders; checkout/portal endpoints return 503).
+    STRIPE_SECRET_KEY: z
+      .string()
+      .regex(/^(rk_|sk_)/, "STRIPE_SECRET_KEY must start with rk_ or sk_")
+      .optional(),
+    // Publishable key (pk_*). Optional — only required for client-side Stripe
+    // Elements; embedded Checkout fetches its config from the server.
+    STRIPE_PUBLISHABLE_KEY: z
+      .string()
+      .regex(/^pk_/, "STRIPE_PUBLISHABLE_KEY must start with pk_")
+      .optional(),
+    // Webhook endpoint signing secret (whsec_*). Required to verify incoming
+    // webhook events; if absent, the webhook handler 503s.
+    STRIPE_WEBHOOK_SECRET: z
+      .string()
+      .regex(/^whsec_/, "STRIPE_WEBHOOK_SECRET must start with whsec_")
+      .optional(),
+    // Stripe Price IDs for each tier (price_*). Created via the setup script
+    // (scripts/stripe/setup.ts) on first deploy; idempotent.
+    STRIPE_PRICE_ESSENTIAL: z.string().regex(/^price_/).optional(),
+    STRIPE_PRICE_PREMIUM: z.string().regex(/^price_/).optional(),
+    STRIPE_PRICE_ENTERPRISE: z.string().regex(/^price_/).optional(),
   })
   .superRefine((env, ctx) => {
     if (env.NODE_ENV === "production" && !env.APP_URL.startsWith("https://")) {

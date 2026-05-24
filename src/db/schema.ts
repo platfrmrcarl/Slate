@@ -131,6 +131,55 @@ export type NewUser = typeof users.$inferInsert;
 export type Session = typeof sessions.$inferSelect;
 export type Role = (typeof userRole.enumValues)[number];
 
+// --- Billing / Stripe subscriptions ------------------------------------------
+
+export const subscriptionTier = pgEnum("subscription_tier", [
+  "essential",
+  "premium",
+  "enterprise",
+]);
+
+// Mirrors Stripe's subscription.status enum so we can store it verbatim.
+export const subscriptionStatus = pgEnum("subscription_status", [
+  "incomplete",
+  "incomplete_expired",
+  "trialing",
+  "active",
+  "past_due",
+  "canceled",
+  "unpaid",
+  "paused",
+]);
+
+export const subscriptions = pgTable(
+  "subscriptions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    stripeCustomerId: text("stripe_customer_id").notNull(),
+    stripeSubscriptionId: text("stripe_subscription_id").notNull(),
+    tier: subscriptionTier("tier").notNull(),
+    status: subscriptionStatus("status").notNull(),
+    currentPeriodEnd: timestamp("current_period_end", { withTimezone: true }),
+    cancelAtPeriodEnd: boolean("cancel_at_period_end").notNull().default(false),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => ({
+    userUnique: uniqueIndex("subscriptions_user_unique").on(t.userId),
+    customerIdx: index("subscriptions_customer_idx").on(t.stripeCustomerId),
+    subscriptionUnique: uniqueIndex("subscriptions_stripe_sub_unique").on(t.stripeSubscriptionId),
+    statusIdx: index("subscriptions_status_idx").on(t.status),
+  }),
+);
+
+export type Subscription = typeof subscriptions.$inferSelect;
+export type NewSubscription = typeof subscriptions.$inferInsert;
+export type SubscriptionTier = (typeof subscriptionTier.enumValues)[number];
+export type SubscriptionStatus = (typeof subscriptionStatus.enumValues)[number];
+
 export const pageStatus = pgEnum("page_status", [
   "draft",
   "scheduled",
