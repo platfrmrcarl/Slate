@@ -72,11 +72,18 @@ function bypassLocale(pathname: string): boolean {
   if (LOCALE_BYPASS.some((rx) => rx.test(pathname))) return true;
   // Static asset shortcut — anything with a file extension.
   if (pathname.includes(".")) return true;
-  // Marketing landing at "/" and its OG image — only when the deployment opts
-  // in via env flag. The OG image lives at /opengraph-image (Next's file-based
-  // metadata convention) and must skip the locale rewriter to resolve.
+  // Marketing landing + adjacent product pages — only when the deployment
+  // opts in via env flag. These live under the (marketing) route group with
+  // no [locale] segment, so the locale rewriter would 404 them by sending
+  // requests to /<defaultLocale>/<path>.
   if (process.env.SLATE_MARKETING_HOME === "1") {
-    if (pathname === "/" || pathname === "/opengraph-image") return true;
+    if (
+      pathname === "/" ||
+      pathname === "/products" ||
+      pathname === "/opengraph-image"
+    ) {
+      return true;
+    }
   }
   return false;
 }
