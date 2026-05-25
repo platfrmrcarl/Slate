@@ -10,8 +10,7 @@ export const metadata: Metadata = {
     "Block-based authoring with AI drafts. Modern stack, fully managed. Slate runs the servers — you run the site.",
   openGraph: {
     title: "Slate — The CMS WordPress should have been",
-    description:
-      "Block-based authoring with AI drafts. Modern stack, fully managed.",
+    description: "Block-based authoring with AI drafts. Modern stack, fully managed.",
   },
 };
 

@@ -25,8 +25,8 @@ export function PasswordResetEmail({ resetUrl, displayName }: PasswordResetEmail
         >
           <Heading style={{ fontSize: "20px", margin: 0 }}>Hi {displayName},</Heading>
           <Text>
-            We received a request to reset the password on your Slate account. Click the
-            button below to choose a new one. The link expires in 24 hours.
+            We received a request to reset the password on your Slate account. Click the button
+            below to choose a new one. The link expires in 24 hours.
           </Text>
           <Button
             href={resetUrl}

@@ -38,9 +38,7 @@ vi.mock("next/cache", () => ({
 const redirect = vi.fn();
 vi.mock("next/navigation", () => ({ redirect: (...a: unknown[]) => redirect(...a) }));
 
-const { createUserAction, updateUserRoleAction, sendPasswordResetAction } = await import(
-  "./users"
-);
+const { createUserAction, updateUserRoleAction, sendPasswordResetAction } = await import("./users");
 
 beforeEach(() => {
   requireUser.mockReset();

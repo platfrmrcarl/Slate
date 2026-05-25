@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "bin": { "slate": "./bin/slate.mjs" },
+  "bin": {
+    "slate": "./bin/slate.mjs"
+  },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "start": "tsx src/index.ts",

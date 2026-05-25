@@ -118,9 +118,7 @@ describe("BlockRenderer", () => {
   });
 
   it("falls back to an empty fragment when the plugin type is unregistered", async () => {
-    const out = await html([
-      { id: id("c2"), type: "custom:not-installed" } as never,
-    ]);
+    const out = await html([{ id: id("c2"), type: "custom:not-installed" } as never]);
     expect(out).not.toContain("undefined");
   });
 });

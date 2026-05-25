@@ -15,8 +15,8 @@ export default function PricingTiers({ heading = true }: { heading?: boolean }) 
               Pick the tier that fits your sites.
             </h2>
             <p className="mx-auto mt-3 max-w-[520px] text-[14px] leading-relaxed text-[var(--slate-fg-muted)]">
-              All tiers include hosting, managed Postgres, automated SSL, and AI authoring.
-              Bring your domain anytime.
+              All tiers include hosting, managed Postgres, automated SSL, and AI authoring. Bring
+              your domain anytime.
             </p>
           </div>
         )}

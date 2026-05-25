@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { env } from "@/env";
-import { ensureStripeCustomer, createCheckoutSession, BillingNotConfiguredError } from "@/billing/service";
+import {
+  ensureStripeCustomer,
+  createCheckoutSession,
+  BillingNotConfiguredError,
+} from "@/billing/service";
 import { getOptionalUser } from "@/auth/context";
 
 export const dynamic = "force-dynamic";
@@ -24,7 +28,10 @@ export async function POST(req: Request): Promise<Response> {
     parsed = bodySchema.parse(await req.json());
   } catch (err) {
     return NextResponse.json(
-      { error: "Invalid request body", details: err instanceof z.ZodError ? err.issues : undefined },
+      {
+        error: "Invalid request body",
+        details: err instanceof z.ZodError ? err.issues : undefined,
+      },
       { status: 400 },
     );
   }

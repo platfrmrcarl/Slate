@@ -133,11 +133,7 @@ export type Role = (typeof userRole.enumValues)[number];
 
 // --- Billing / Stripe subscriptions ------------------------------------------
 
-export const subscriptionTier = pgEnum("subscription_tier", [
-  "essential",
-  "premium",
-  "enterprise",
-]);
+export const subscriptionTier = pgEnum("subscription_tier", ["essential", "premium", "enterprise"]);
 
 // Mirrors Stripe's subscription.status enum so we can store it verbatim.
 export const subscriptionStatus = pgEnum("subscription_status", [

@@ -25,10 +25,10 @@ export function EditUserForm({
     updateUserRoleAction,
     undefined,
   );
-  const [resetState, resetAction, resetPending] = useActionState<
-    FormState | undefined,
-    FormData
-  >(sendPasswordResetAction, undefined);
+  const [resetState, resetAction, resetPending] = useActionState<FormState | undefined, FormData>(
+    sendPasswordResetAction,
+    undefined,
+  );
 
   return (
     <div className="max-w-md space-y-8">
@@ -49,9 +49,7 @@ export function EditUserForm({
             ))}
           </select>
         </label>
-        {!canEditRole && (
-          <p className="text-xs text-gray-500">You cannot change your own role.</p>
-        )}
+        {!canEditRole && <p className="text-xs text-gray-500">You cannot change your own role.</p>}
         {roleState?.error && <p className="text-sm text-red-700">{roleState.error}</p>}
         {roleState?.ok && <p className="text-sm text-green-700">Role updated.</p>}
         <button

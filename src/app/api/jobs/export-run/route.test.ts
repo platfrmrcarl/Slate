@@ -43,14 +43,18 @@ function req(body: unknown): Request {
 describe("POST /api/jobs/export-run", () => {
   it("returns 401 when authorization fails", async () => {
     authorizeJobRequest.mockResolvedValue(false);
-    const res = await POST(req({ jobId: "11111111-1111-1111-1111-111111111111", includeDb: false }));
+    const res = await POST(
+      req({ jobId: "11111111-1111-1111-1111-111111111111", includeDb: false }),
+    );
     expect(res.status).toBe(401);
   });
 
   it("runs export, uploads ZIP, marks completed", async () => {
     where.mockResolvedValue([{ id: "j-1", objectPath: "exports/x.zip" }]);
     runExport.mockResolvedValue(Readable.from([Buffer.from("ZIP_BYTES")]));
-    const res = await POST(req({ jobId: "11111111-1111-1111-1111-111111111111", includeDb: false }));
+    const res = await POST(
+      req({ jobId: "11111111-1111-1111-1111-111111111111", includeDb: false }),
+    );
     expect(res.status).toBe(200);
     expect(putObject).toHaveBeenCalledWith("exports/x.zip", expect.any(Buffer), "application/zip");
   });
@@ -58,7 +62,9 @@ describe("POST /api/jobs/export-run", () => {
   it("marks failed when the runner throws", async () => {
     where.mockResolvedValue([{ id: "j-2", objectPath: "exports/y.zip" }]);
     runExport.mockRejectedValue(new Error("boom"));
-    const res = await POST(req({ jobId: "11111111-1111-1111-1111-111111111111", includeDb: false }));
+    const res = await POST(
+      req({ jobId: "11111111-1111-1111-1111-111111111111", includeDb: false }),
+    );
     expect(res.status).toBe(500);
   });
 });

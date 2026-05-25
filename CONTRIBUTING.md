@@ -2,7 +2,7 @@
 
 Thanks for your interest. This file covers the minimum mechanics — the design
 spec (`Slate.md`) and architecture overview (`ARCHITECTURE.md`)
-explain *what* and *why*.
+explain _what_ and _why_.
 
 ## Quick start
 
@@ -20,18 +20,18 @@ Run the setup wizard at `/setup` on first boot to create the owner account.
 
 ## Commands
 
-| Command | What |
-|---|---|
-| `pnpm dev` | Next.js dev server (Turbopack) |
-| `pnpm build` | Production build |
-| `pnpm test` | Vitest, single run |
-| `pnpm test:watch` | Vitest, watch |
-| `pnpm lint` | ESLint |
-| `pnpm typecheck` | `tsc --noEmit` |
-| `pnpm format` / `pnpm format:check` | Prettier |
-| `pnpm db:generate` | Generate a new migration from `src/db/schema.ts` |
-| `pnpm db:migrate` | Apply pending migrations |
-| `pnpm db:studio` | Drizzle Studio browser UI |
+| Command                             | What                                             |
+| ----------------------------------- | ------------------------------------------------ |
+| `pnpm dev`                          | Next.js dev server (Turbopack)                   |
+| `pnpm build`                        | Production build                                 |
+| `pnpm test`                         | Vitest, single run                               |
+| `pnpm test:watch`                   | Vitest, watch                                    |
+| `pnpm lint`                         | ESLint                                           |
+| `pnpm typecheck`                    | `tsc --noEmit`                                   |
+| `pnpm format` / `pnpm format:check` | Prettier                                         |
+| `pnpm db:generate`                  | Generate a new migration from `src/db/schema.ts` |
+| `pnpm db:migrate`                   | Apply pending migrations                         |
+| `pnpm db:studio`                    | Drizzle Studio browser UI                        |
 
 All test, lint, and typecheck must pass before a PR is mergeable. CI
 (`cloudbuild.yaml`) runs the same commands.
@@ -68,7 +68,7 @@ git add src/db/schema.ts src/db/migrations/
 git commit -m "feat(db): <summary>"
 ```
 
-The `meta/` snapshot chain is *tracked in git* — committing it lets the
+The `meta/` snapshot chain is _tracked in git_ — committing it lets the
 next contributor's `db:generate` diff cleanly. See
 `src/db/migrations/meta/README.md` for context.
 
@@ -77,7 +77,7 @@ next contributor's `db:generate` diff cleanly. See
 - TypeScript strict + `exactOptionalPropertyTypes`. No `any`; prefer
   `as unknown as X` only at well-defined boundaries (SDK responses,
   raw SQL, stream type bridging). Document the cast inline if non-obvious.
-- Comments: only when the *why* is non-obvious. Never narrate *what* —
+- Comments: only when the _why_ is non-obvious. Never narrate _what_ —
   identifiers do that.
 - Server Actions: `"use server"` directive on the file, Zod-validate the
   `FormData` body, return a typed `ActionResult`. See `src/app/actions/`

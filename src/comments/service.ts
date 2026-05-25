@@ -44,7 +44,10 @@ export async function createComment(input: CreateCommentInput): Promise<Comment>
   if (input.authorEmail) values.authorEmail = input.authorEmail;
   if (input.ipAddress) values.ipAddress = input.ipAddress;
   if (input.userAgent) values.userAgent = input.userAgent;
-  const [row] = await db().insert(comments).values(values as never).returning();
+  const [row] = await db()
+    .insert(comments)
+    .values(values as never)
+    .returning();
   const addedPayload: Record<string, unknown> = { commentId: row!.id };
   if (row!.postId) addedPayload.postId = row!.postId;
   if (row!.authorEmail) addedPayload.authorEmail = row!.authorEmail;

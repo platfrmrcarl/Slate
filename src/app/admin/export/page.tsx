@@ -38,11 +38,7 @@ export default async function ExportPage(): Promise<React.ReactElement> {
                   {r.status}
                   {r.errorMessage ? ` — ${r.errorMessage.slice(0, 80)}` : ""}
                 </td>
-                <td>
-                  {result?.sizeBytes
-                    ? `${Math.round(result.sizeBytes / 1024)} KB`
-                    : "—"}
-                </td>
+                <td>{result?.sizeBytes ? `${Math.round(result.sizeBytes / 1024)} KB` : "—"}</td>
                 <td>
                   {r.status === "completed" ? (
                     <a className="underline" href={`/api/export/${r.id}/download`}>

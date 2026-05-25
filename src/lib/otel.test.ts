@@ -36,9 +36,7 @@ describe("recordCounter", () => {
     recordCounter("slate.cached.metric");
     recordCounter("slate.cached.metric", 5);
     recordCounter("slate.cached.metric", 1, { k: "v" });
-    expect(
-      createCounter.mock.calls.filter(([n]) => n === "slate.cached.metric").length,
-    ).toBe(1);
+    expect(createCounter.mock.calls.filter(([n]) => n === "slate.cached.metric").length).toBe(1);
   });
 
   it("creates a separate Counter per distinct name", () => {
@@ -46,9 +44,8 @@ describe("recordCounter", () => {
     recordCounter("slate.metric.a");
     recordCounter("slate.metric.b");
     expect(
-      createCounter.mock.calls.filter(([n]) =>
-        ["slate.metric.a", "slate.metric.b"].includes(n),
-      ).length,
+      createCounter.mock.calls.filter(([n]) => ["slate.metric.a", "slate.metric.b"].includes(n))
+        .length,
     ).toBe(2);
   });
 });
@@ -68,8 +65,6 @@ describe("recordHistogram", () => {
     recordHistogram("slate.cached.hist", 1);
     recordHistogram("slate.cached.hist", 2);
     recordHistogram("slate.cached.hist", 3);
-    expect(
-      createHistogram.mock.calls.filter(([n]) => n === "slate.cached.hist").length,
-    ).toBe(1);
+    expect(createHistogram.mock.calls.filter(([n]) => n === "slate.cached.hist").length).toBe(1);
   });
 });

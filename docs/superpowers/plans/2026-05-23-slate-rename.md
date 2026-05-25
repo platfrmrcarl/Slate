@@ -16,16 +16,16 @@
 
 The rename touches roughly 114 source files across these categories:
 
-| Category                  | Example paths                                                                                                          |
-| ------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| Brand strings             | `README.md`, `WordPressKiller.md` → `Slate.md`, `package.json` `name`, code comments, JSX strings                      |
-| Theme directory           | `themes/slate-default/` → `themes/slate-default/` (entire directory tree + `manifest.json`)                              |
-| pnpm workspace package    | `packages/cli/package.json`, `pnpm-lock.yaml`, root `package.json` `cli` script                                        |
-| Cookie names              | `src/auth/cookies.ts`, `src/auth/cookies.test.ts`, `src/auth/admin-token.ts`, `src/middleware.ts`, OAuth callback code |
-| Env vars                  | `.env.example`, `src/auth/admin-token.ts`, `packages/cli/src/transport.ts`, Terraform var names                        |
-| Terraform                 | `infra/terraform/**/*.tf` (module name, resource IDs, SA prefixes, queue names, AR repo)                               |
-| Spec doc                  | `WordPressKiller.md` → `Slate.md`, `README.md` link                                                                    |
-| CHANGELOG (new)           | Top-level `CHANGELOG.md`                                                                                               |
+| Category               | Example paths                                                                                                          |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Brand strings          | `README.md`, `WordPressKiller.md` → `Slate.md`, `package.json` `name`, code comments, JSX strings                      |
+| Theme directory        | `themes/slate-default/` → `themes/slate-default/` (entire directory tree + `manifest.json`)                            |
+| pnpm workspace package | `packages/cli/package.json`, `pnpm-lock.yaml`, root `package.json` `cli` script                                        |
+| Cookie names           | `src/auth/cookies.ts`, `src/auth/cookies.test.ts`, `src/auth/admin-token.ts`, `src/middleware.ts`, OAuth callback code |
+| Env vars               | `.env.example`, `src/auth/admin-token.ts`, `packages/cli/src/transport.ts`, Terraform var names                        |
+| Terraform              | `infra/terraform/**/*.tf` (module name, resource IDs, SA prefixes, queue names, AR repo)                               |
+| Spec doc               | `WordPressKiller.md` → `Slate.md`, `README.md` link                                                                    |
+| CHANGELOG (new)        | Top-level `CHANGELOG.md`                                                                                               |
 
 ---
 
@@ -50,6 +50,7 @@ These notes go in the PR description and `CHANGELOG.md`:
 **Goal:** Replace `WordPressKiller` / `wordpresskiller` / `WORDPRESSKILLER` everywhere they appear as brand strings (display text, package `name`, docs) with `Slate` / `slate` / `SLATE`. Excludes identifiers prefixed `wpk-`, `wpk_`, `wpkiller`, `@wpkiller` — those are separate tasks.
 
 **Files:**
+
 - Modify: `package.json` (root `name` field)
 - Modify: `README.md` (heading and prose)
 - Modify: `WordPressKiller.md` content (renamed in Task 7)
@@ -100,6 +101,7 @@ git commit -m "refactor: rename WordPressKiller -> Slate brand strings"
 **Goal:** Rename `themes/slate-default/` to `themes/slate-default/` and update its manifest plus any references.
 
 **Files:**
+
 - Move: `themes/slate-default/` → `themes/slate-default/`
 - Modify: `themes/slate-default/manifest.json` (`slug` field: `"slate-default"` → `"slate-default"`; `name` field: `"WPK Default"` → `"Slate Default"` if not already changed)
 - Modify: any file referencing `slate-default` (theme loader code, tests, seeds, docs)
@@ -121,6 +123,7 @@ git mv themes/slate-default themes/slate-default
 - [ ] **Step 3: Update the manifest**
 
 Edit `themes/slate-default/manifest.json`:
+
 - `"name": "WPK Default"` → `"name": "Slate Default"` (if not already replaced in Task 1)
 - `"slug": "slate-default"` → `"slug": "slate-default"`
 
@@ -162,6 +165,7 @@ git commit -m "refactor(themes): rename slate-default to slate-default"
 **Goal:** Rename `@wpkiller/cli` to `@slate/cli` everywhere it appears, regenerate `pnpm-lock.yaml`.
 
 **Files:**
+
 - Modify: `packages/cli/package.json` (`"name"` field)
 - Modify: root `package.json` (`scripts.cli` value)
 - Modify: any file with `@wpkiller/cli` (find via grep)
@@ -219,12 +223,14 @@ git commit -m "refactor(cli): rename @wpkiller/cli to @slate/cli"
 **Goal:** Rename `wpk_*` cookie names to `slate_*`. This logs everyone out on deploy — accept that, document it in CHANGELOG (Task 7).
 
 **Cookie name inventory:**
+
 - `wpk_session` → `slate_session`
 - `wpk_oauth_state_<provider>` → `slate_oauth_state_<provider>`
 - `wpk_oauth_pkce_<provider>` → `slate_oauth_pkce_<provider>`
 - Test-only / unknown variants in test files: `wpk_test`, `wpk_unknown` → `slate_test`, `slate_unknown`
 
 **Files:**
+
 - Modify: `src/auth/cookies.ts` (constants and `set/get/clear` helpers)
 - Modify: `src/auth/cookies.test.ts` (assertions on new names)
 - Modify: `src/auth/admin-token.ts`
@@ -275,12 +281,14 @@ git commit -m "refactor(auth): rename wpk_ cookie names to slate_"
 **Goal:** Rename `WPK_*` env vars to `SLATE_*`.
 
 **Env var inventory:**
+
 - `WPK_SESSION` → `SLATE_SESSION` (referenced by CLI transport)
 - `WPK_TOKEN` → `SLATE_TOKEN` (admin token)
 - `WPK_URL` → `SLATE_URL` (CLI base URL)
 - `WPK_VERSION` → `SLATE_VERSION` (build/runtime version stamp)
 
 **Files:**
+
 - Modify: `.env.example` (the only one currently with `WPK_VERSION`)
 - Modify: `src/auth/admin-token.ts` (reads `WPK_TOKEN`)
 - Modify: `src/auth/admin-token.test.ts`
@@ -338,6 +346,7 @@ git commit -m "refactor(env): rename WPK_ env vars to SLATE_"
 **Goal:** Rename the Terraform module, resource IDs, service-account IDs, queue names, and artifact registry repo. Document the `terraform state mv` migration in CHANGELOG.
 
 **Inventory (from `grep "wpk\|WPK\|WordPress" infra/terraform`):**
+
 - Module path/dir: `infra/terraform/modules/wpkiller/` → `infra/terraform/modules/slate/`
 - Module reference: `module "wpkiller"` → `module "slate"`, `source = "./modules/wpkiller"` → `source = "./modules/slate"`
 - Service accounts:
@@ -401,6 +410,7 @@ git commit -m "refactor(infra): rename WordPressKiller Terraform module + resour
 **Goal:** Rename the master spec file, write the CHANGELOG entry, run the full verification gate, sweep for missed references.
 
 **Files:**
+
 - Move: `WordPressKiller.md` → `Slate.md`
 - Modify: `README.md` (cross-reference to spec)
 - Create or modify: `CHANGELOG.md`
@@ -426,7 +436,7 @@ The body of `Slate.md` already had its `WordPressKiller` mentions replaced in Ta
 
 Create (or prepend to) `CHANGELOG.md`:
 
-```markdown
+````markdown
 # Changelog
 
 ## Unreleased
@@ -449,14 +459,17 @@ The product was renamed from WordPressKiller to Slate. This is a breaking change
   terraform state mv 'google_artifact_registry_repository.wpk' 'google_artifact_registry_repository.slate'
   # plus any other previously-applied resources (SAs, queues, etc.)
   ```
+````
+
 - **Spec file.** `WordPressKiller.md` → `Slate.md`.
-```
+
+````
 
 - [ ] **Step 4: Final sweep**
 
 ```bash
 grep -rIn --exclude-dir=node_modules --exclude-dir=.next --exclude-dir=.git --exclude-dir=.terraform --exclude=CHANGELOG.md "WordPressKiller\|wordpresskiller\|WORDPRESSKILLER\|wpkiller\|@wpkiller\|wpk-\|wpk_\|WPK_" . 2>/dev/null
-```
+````
 
 Expected: empty (or only `CHANGELOG.md` mentions, which are intentional and already excluded). If anything else turns up, investigate — likely a string the targeted sed sweeps missed (e.g., a file extension we didn't include).
 

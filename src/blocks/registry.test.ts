@@ -39,9 +39,9 @@ describe("blockRegistry", () => {
 
   it("throws when type is empty or not a string", () => {
     expect(() => blockRegistry.register({ type: "" })).toThrow(/non-empty string/);
-    expect(() =>
-      blockRegistry.register({ type: undefined as unknown as string }),
-    ).toThrow(/non-empty string/);
+    expect(() => blockRegistry.register({ type: undefined as unknown as string })).toThrow(
+      /non-empty string/,
+    );
   });
 
   it("_reset clears all registered definitions", () => {

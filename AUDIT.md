@@ -23,6 +23,7 @@ Test discipline is solid — 603 tests, real DB-backed integration coverage for 
 **Fix (lowest blast radius):** add `"unzipper"` to `serverExternalPackages` in `next.config.ts:8-18`. The s3 branch never executes — it's tree-unreachable at runtime.
 
 **Alternatives:**
+
 - Move the importer behind `await import("unzipper")` so it resolves only at request time.
 - Swap `unzipper` for `yauzl` (we already use its sibling `yazl`).
 
@@ -64,13 +65,13 @@ Terraform sets `ingress = "INGRESS_TRAFFIC_INTERNAL_LOAD_BALANCER"` (`infra/terr
 
 ### 2.4 P1 — Other security findings
 
-| # | Risk | Location | Fix |
-|---|---|---|---|
-| 4 | Job-auth bearer comparison not timing-safe | `src/jobs/authorize.ts:5-9`, `src/app/api/jobs/revalidate/route.ts:14` | `crypto.timingSafeEqual` on equal-length Buffers |
-| 5 | No SSRF protection on webhook delivery | `src/plugins/deliver.ts:55` | Block private IPs / loopback / link-local; restrict scheme to `https:` |
-| 6 | No security headers / CSP | `next.config.ts` | Add HSTS, X-Content-Type-Options, X-Frame-Options (admin), starter CSP |
-| 7 | Sign-in timing oracle (email existence) | `src/auth/users.ts:72-76` | Hash a dummy password when user is missing |
-| 8 | 24-hour password-reset TTL | `src/auth/password-reset.tsx:11` | Drop to 60 min |
+| #   | Risk                                       | Location                                                               | Fix                                                                    |
+| --- | ------------------------------------------ | ---------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| 4   | Job-auth bearer comparison not timing-safe | `src/jobs/authorize.ts:5-9`, `src/app/api/jobs/revalidate/route.ts:14` | `crypto.timingSafeEqual` on equal-length Buffers                       |
+| 5   | No SSRF protection on webhook delivery     | `src/plugins/deliver.ts:55`                                            | Block private IPs / loopback / link-local; restrict scheme to `https:` |
+| 6   | No security headers / CSP                  | `next.config.ts`                                                       | Add HSTS, X-Content-Type-Options, X-Frame-Options (admin), starter CSP |
+| 7   | Sign-in timing oracle (email existence)    | `src/auth/users.ts:72-76`                                              | Hash a dummy password when user is missing                             |
+| 8   | 24-hour password-reset TTL                 | `src/auth/password-reset.tsx:11`                                       | Drop to 60 min                                                         |
 
 ### 2.5 What's done right
 
@@ -86,40 +87,40 @@ Terraform sets `ingress = "INGRESS_TRAFFIC_INTERNAL_LOAD_BALANCER"` (`infra/terr
 
 ## 3. Spec Coverage (Slate.md §20)
 
-| Item | Status | Notes |
-|---|---|---|
-| Drizzle schema + migrations | ✅ | 14 migrations, 0000–0013 |
-| Auth (email/pw, Google, GitHub, magic link) | ✅ | Custom session impl, not Lucia (intentional) |
-| Setup wizard at `/setup` | ✅ | Writes `site.title/tagline/defaultLocale/setup.completed` |
-| Admin shell | ⚠️ Partial | Sidebar shows **4 of ~13** sections (`Dashboard/Pages/Media/Plugins` only). Posts/Comments/Taxonomies/Themes/Import/Export/Settings/Profile/AI usage all missing from nav. No top bar, no breadcrumbs. |
-| BlockNote editor + blocks | ⚠️ Partial | Editor schema registers **6 of 10** block types. Image/gallery/embed/button cannot be inserted from the UI even though the renderer + adapter handle them. |
-| Server-side block renderer | ✅ | All 10 block components implemented |
-| Pages CRUD + revisions | ✅ | |
-| Posts CRUD + taxonomies | ✅ | |
-| Media library | ✅ | |
-| Image transform endpoint | ✅ | But see §2.1 |
-| Default theme | ✅ | `themes/slate-default/` |
-| Theme install/activate | ✅ | Compose-time only (v2 = runtime per spec) |
-| Settings UI | ❌ Mostly missing | Only `/admin/settings/locales` and theme customizer exist. No site/reading/writing settings. |
-| User management UI | ❌ Missing | No `/admin/users` route. Roles + permission matrix exist but unassignable via UI. |
-| Roles + permissions | ✅ | `src/auth/permissions.ts` |
-| Comments + moderation | ✅ | Threaded, queue, classifier wired |
-| Spam classifier (Haiku) | ✅ | |
-| Webhook delivery | ✅ | HMAC + retries |
-| **AI features (7)** | ⚠️ Partial | Server actions exist for all 7. **No UI for `generatePageAction`, `rewriteAction`, `autoSeoAction`, `autoAltAction`.** Translate has UI (`TranslateButton`); chat has UI (`SidebarChat`); alt-text/SEO/spam run only via jobs. |
-| Multilingual | ✅ | |
-| Importers (WP/Ghost/MD/CSV) | ✅ | |
-| Exporter ZIP | ✅ | |
-| Sitemap / robots / RSS | ⚠️ Partial | **Sitemap excludes pages** (`src/app/sitemap.xml/route.ts:13` lists only posts). **robots.txt is missing entirely.** RSS works. |
-| OpenGraph + JSON-LD | ❌ Missing | No `openGraph` key in any `generateMetadata`; no `application/ld+json` anywhere |
-| CLI (`slate`) | ✅ | `packages/cli/` |
-| Terraform module | ✅ | But see §1.4–1.5 |
-| Cloud Build pipeline | ✅ | But see §1.5 |
-| Dockerfile + Cloud Run | ✅ | |
-| Observability | ⚠️ Partial | Traces wired but **metrics dead** (§1.3); no Cloud Logging-specific formatting verified |
-| `/api/healthz` + `/api/readyz` | ✅ | `readyz` runs `select 1` |
-| Threat model doc | ❌ Missing | |
-| User docs site | ❌ Missing | |
+| Item                                        | Status            | Notes                                                                                                                                                                                                                          |
+| ------------------------------------------- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Drizzle schema + migrations                 | ✅                | 14 migrations, 0000–0013                                                                                                                                                                                                       |
+| Auth (email/pw, Google, GitHub, magic link) | ✅                | Custom session impl, not Lucia (intentional)                                                                                                                                                                                   |
+| Setup wizard at `/setup`                    | ✅                | Writes `site.title/tagline/defaultLocale/setup.completed`                                                                                                                                                                      |
+| Admin shell                                 | ⚠️ Partial        | Sidebar shows **4 of ~13** sections (`Dashboard/Pages/Media/Plugins` only). Posts/Comments/Taxonomies/Themes/Import/Export/Settings/Profile/AI usage all missing from nav. No top bar, no breadcrumbs.                         |
+| BlockNote editor + blocks                   | ⚠️ Partial        | Editor schema registers **6 of 10** block types. Image/gallery/embed/button cannot be inserted from the UI even though the renderer + adapter handle them.                                                                     |
+| Server-side block renderer                  | ✅                | All 10 block components implemented                                                                                                                                                                                            |
+| Pages CRUD + revisions                      | ✅                |                                                                                                                                                                                                                                |
+| Posts CRUD + taxonomies                     | ✅                |                                                                                                                                                                                                                                |
+| Media library                               | ✅                |                                                                                                                                                                                                                                |
+| Image transform endpoint                    | ✅                | But see §2.1                                                                                                                                                                                                                   |
+| Default theme                               | ✅                | `themes/slate-default/`                                                                                                                                                                                                        |
+| Theme install/activate                      | ✅                | Compose-time only (v2 = runtime per spec)                                                                                                                                                                                      |
+| Settings UI                                 | ❌ Mostly missing | Only `/admin/settings/locales` and theme customizer exist. No site/reading/writing settings.                                                                                                                                   |
+| User management UI                          | ❌ Missing        | No `/admin/users` route. Roles + permission matrix exist but unassignable via UI.                                                                                                                                              |
+| Roles + permissions                         | ✅                | `src/auth/permissions.ts`                                                                                                                                                                                                      |
+| Comments + moderation                       | ✅                | Threaded, queue, classifier wired                                                                                                                                                                                              |
+| Spam classifier (Haiku)                     | ✅                |                                                                                                                                                                                                                                |
+| Webhook delivery                            | ✅                | HMAC + retries                                                                                                                                                                                                                 |
+| **AI features (7)**                         | ⚠️ Partial        | Server actions exist for all 7. **No UI for `generatePageAction`, `rewriteAction`, `autoSeoAction`, `autoAltAction`.** Translate has UI (`TranslateButton`); chat has UI (`SidebarChat`); alt-text/SEO/spam run only via jobs. |
+| Multilingual                                | ✅                |                                                                                                                                                                                                                                |
+| Importers (WP/Ghost/MD/CSV)                 | ✅                |                                                                                                                                                                                                                                |
+| Exporter ZIP                                | ✅                |                                                                                                                                                                                                                                |
+| Sitemap / robots / RSS                      | ⚠️ Partial        | **Sitemap excludes pages** (`src/app/sitemap.xml/route.ts:13` lists only posts). **robots.txt is missing entirely.** RSS works.                                                                                                |
+| OpenGraph + JSON-LD                         | ❌ Missing        | No `openGraph` key in any `generateMetadata`; no `application/ld+json` anywhere                                                                                                                                                |
+| CLI (`slate`)                               | ✅                | `packages/cli/`                                                                                                                                                                                                                |
+| Terraform module                            | ✅                | But see §1.4–1.5                                                                                                                                                                                                               |
+| Cloud Build pipeline                        | ✅                | But see §1.5                                                                                                                                                                                                                   |
+| Dockerfile + Cloud Run                      | ✅                |                                                                                                                                                                                                                                |
+| Observability                               | ⚠️ Partial        | Traces wired but **metrics dead** (§1.3); no Cloud Logging-specific formatting verified                                                                                                                                        |
+| `/api/healthz` + `/api/readyz`              | ✅                | `readyz` runs `select 1`                                                                                                                                                                                                       |
+| Threat model doc                            | ❌ Missing        |                                                                                                                                                                                                                                |
+| User docs site                              | ❌ Missing        |                                                                                                                                                                                                                                |
 
 ---
 
@@ -180,38 +181,38 @@ The codebase is unusually clean of inline debt markers — no `FIXME`/`XXX`/`HAC
 
 ## 8. Per-Plan Loose Ends
 
-| Plan | Notes |
-|---|---|
-| foundation | Manual smoke steps unchecked (lines 1197, 1311) |
-| auth-and-users | Manual smokes unchecked; password-reset spawned its own plan (done) |
-| block-editor-core | Plan explicitly defers image/gallery/columns/hero/html to an "advanced-blocks follow-up plan" that doesn't exist |
-| media-library | Manual smoke unchecked |
-| ai-features | No UI for 4 of 7 features (see §3) |
-| importers | Clean |
-| multilingual | Clean |
-| themes | Clean (runtime install correctly deferred to v2) |
-| plugin-system | Clean |
-| exporter-backups | Clean |
-| cli | Multi-token-management UI + OAuth login deferred (explicit) |
-| deployment-hardening | OTel metrics exporter never wired (§1.3) |
-| password-reset-polish | Manual smoke unchecked |
+| Plan                  | Notes                                                                                                            |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| foundation            | Manual smoke steps unchecked (lines 1197, 1311)                                                                  |
+| auth-and-users        | Manual smokes unchecked; password-reset spawned its own plan (done)                                              |
+| block-editor-core     | Plan explicitly defers image/gallery/columns/hero/html to an "advanced-blocks follow-up plan" that doesn't exist |
+| media-library         | Manual smoke unchecked                                                                                           |
+| ai-features           | No UI for 4 of 7 features (see §3)                                                                               |
+| importers             | Clean                                                                                                            |
+| multilingual          | Clean                                                                                                            |
+| themes                | Clean (runtime install correctly deferred to v2)                                                                 |
+| plugin-system         | Clean                                                                                                            |
+| exporter-backups      | Clean                                                                                                            |
+| cli                   | Multi-token-management UI + OAuth login deferred (explicit)                                                      |
+| deployment-hardening  | OTel metrics exporter never wired (§1.3)                                                                         |
+| password-reset-polish | Manual smoke unchecked                                                                                           |
 
 ---
 
 ## 9. Top 10 Risks (Ranked)
 
-| # | Risk | Severity | Effort | Pointer |
-|---|---|---|---|---|
-| 1 | OTel crashes on prod boot | P0 | 15 min | `instrumentation.ts:17-18` |
-| 2 | `pnpm build` broken | P0 | 5 min | `next.config.ts` + `unzipper` |
-| 3 | `/api/img/[id]` leaks private media | P0 | 1 h | `src/app/api/img/[id]/route.ts:19-29` |
-| 4 | AI page-generation / rewrite / auto-SEO have no UI | P0 (feature) | 1-2 d | `src/app/actions/ai.ts` consumers |
-| 5 | Open comment submission, no rate limit | P0 | 30 min | `src/app/actions/comments.ts:29-70` |
-| 6 | Chat skips `isOverBudget` check | P1 | 15 min | `src/app/api/ai/chat/route.ts:16-50` |
-| 7 | OTel metrics dead (no `MeterProvider`) | P1 | 1 h | `instrumentation.ts`, `src/lib/otel.ts` |
-| 8 | Editor cannot insert image/gallery/embed/button | P1 | half day | `src/blocks/editor/schema.ts` |
-| 9 | Admin sidebar missing 9 of 13 sections | P1 | 1 h | `src/app/admin/_components/Sidebar.tsx` |
-| 10 | No user-management UI; no general settings UI | P1 | 1-2 d | net-new routes |
+| #   | Risk                                               | Severity     | Effort   | Pointer                                 |
+| --- | -------------------------------------------------- | ------------ | -------- | --------------------------------------- |
+| 1   | OTel crashes on prod boot                          | P0           | 15 min   | `instrumentation.ts:17-18`              |
+| 2   | `pnpm build` broken                                | P0           | 5 min    | `next.config.ts` + `unzipper`           |
+| 3   | `/api/img/[id]` leaks private media                | P0           | 1 h      | `src/app/api/img/[id]/route.ts:19-29`   |
+| 4   | AI page-generation / rewrite / auto-SEO have no UI | P0 (feature) | 1-2 d    | `src/app/actions/ai.ts` consumers       |
+| 5   | Open comment submission, no rate limit             | P0           | 30 min   | `src/app/actions/comments.ts:29-70`     |
+| 6   | Chat skips `isOverBudget` check                    | P1           | 15 min   | `src/app/api/ai/chat/route.ts:16-50`    |
+| 7   | OTel metrics dead (no `MeterProvider`)             | P1           | 1 h      | `instrumentation.ts`, `src/lib/otel.ts` |
+| 8   | Editor cannot insert image/gallery/embed/button    | P1           | half day | `src/blocks/editor/schema.ts`           |
+| 9   | Admin sidebar missing 9 of 13 sections             | P1           | 1 h      | `src/app/admin/_components/Sidebar.tsx` |
+| 10  | No user-management UI; no general settings UI      | P1           | 1-2 d    | net-new routes                          |
 
 ---
 

@@ -65,9 +65,18 @@ const schema = z
       .optional(),
     // Stripe Price IDs for each tier (price_*). Created via the setup script
     // (scripts/stripe/setup.ts) on first deploy; idempotent.
-    STRIPE_PRICE_ESSENTIAL: z.string().regex(/^price_/).optional(),
-    STRIPE_PRICE_PREMIUM: z.string().regex(/^price_/).optional(),
-    STRIPE_PRICE_ENTERPRISE: z.string().regex(/^price_/).optional(),
+    STRIPE_PRICE_ESSENTIAL: z
+      .string()
+      .regex(/^price_/)
+      .optional(),
+    STRIPE_PRICE_PREMIUM: z
+      .string()
+      .regex(/^price_/)
+      .optional(),
+    STRIPE_PRICE_ENTERPRISE: z
+      .string()
+      .regex(/^price_/)
+      .optional(),
   })
   .superRefine((env, ctx) => {
     if (env.NODE_ENV === "production" && !env.APP_URL.startsWith("https://")) {

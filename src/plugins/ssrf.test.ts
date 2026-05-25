@@ -63,9 +63,9 @@ describe("assertUrlSafeForOutboundFetch", () => {
     ).rejects.toBeInstanceOf(SsrfError);
   });
   it("rejects literal private IP", async () => {
-    await expect(
-      assertUrlSafeForOutboundFetch("https://10.0.0.5/x"),
-    ).rejects.toBeInstanceOf(SsrfError);
+    await expect(assertUrlSafeForOutboundFetch("https://10.0.0.5/x")).rejects.toBeInstanceOf(
+      SsrfError,
+    );
   });
   it("rejects cloud-metadata hostname after DNS resolve", async () => {
     await expect(
@@ -78,8 +78,8 @@ describe("assertUrlSafeForOutboundFetch", () => {
     ).rejects.toBeInstanceOf(SsrfError);
   });
   it("rejects unresolvable hostnames (fail closed)", async () => {
-    await expect(
-      assertUrlSafeForOutboundFetch("https://nx.example/hook"),
-    ).rejects.toBeInstanceOf(SsrfError);
+    await expect(assertUrlSafeForOutboundFetch("https://nx.example/hook")).rejects.toBeInstanceOf(
+      SsrfError,
+    );
   });
 });

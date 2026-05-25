@@ -26,11 +26,7 @@ export interface TakeResult {
  *
  * Concurrency: `SELECT … FOR UPDATE` inside a transaction prevents races.
  */
-export async function take(
-  key: string,
-  cfg: BucketConfig,
-  cost = 1,
-): Promise<TakeResult> {
+export async function take(key: string, cfg: BucketConfig, cost = 1): Promise<TakeResult> {
   return await db().transaction(async (tx) => {
     const existing = (await tx.execute<{
       tokens: number;
@@ -47,9 +43,7 @@ export async function take(
     let advanceSec: number;
     if (existing[0]) {
       const earned =
-        cfg.refillPerSec > 0
-          ? Math.floor(Number(existing[0].elapsed_sec) * cfg.refillPerSec)
-          : 0;
+        cfg.refillPerSec > 0 ? Math.floor(Number(existing[0].elapsed_sec) * cfg.refillPerSec) : 0;
       tokensBeforeSpend = Math.min(cfg.capacity, existing[0].tokens + earned);
       // Advance updated_at by the time that earned whole tokens, not all the
       // way to now() — preserves sub-token fractional progress.

@@ -11,11 +11,7 @@ const PAGE_TYPES = [
   { value: "custom", label: "Custom" },
 ] as const;
 
-export function GenerateWithAIForm({
-  themeSlug,
-}: {
-  themeSlug: string;
-}): React.ReactElement {
+export function GenerateWithAIForm({ themeSlug }: { themeSlug: string }): React.ReactElement {
   const [state, action, pending] = useActionState<GenerateWizardState | undefined, FormData>(
     generatePageWizardAction,
     undefined,

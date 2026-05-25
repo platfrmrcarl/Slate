@@ -33,9 +33,7 @@ export async function pgDump(): Promise<Readable> {
         ...args,
       ])
     : spawn("pg_dump", [env().DATABASE_URL, ...args]);
-  proc.stderr.on("data", (b: Buffer) =>
-    logger().debug({ stderr: b.toString() }, "pg_dump:stderr"),
-  );
+  proc.stderr.on("data", (b: Buffer) => logger().debug({ stderr: b.toString() }, "pg_dump:stderr"));
   proc.on("error", (err: unknown) => logger().warn({ err }, "pg_dump:error"));
   return proc.stdout as unknown as Readable;
 }

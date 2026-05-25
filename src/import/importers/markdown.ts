@@ -37,11 +37,7 @@ export async function* parseMarkdownZip(zipBytes: Buffer): AsyncGenerator<Import
       ...toArray(fm.categories).map((s) => ({ type: "category", slug: s })),
     ];
     const status: "draft" | "published" | "scheduled" =
-      fm.status === "published"
-        ? "published"
-        : fm.status === "scheduled"
-          ? "scheduled"
-          : "draft";
+      fm.status === "published" ? "published" : fm.status === "scheduled" ? "scheduled" : "draft";
     const record: Extract<ImportRecord, { kind: "post" | "page" }> = {
       kind,
       externalId: `md:${file.path}`,
