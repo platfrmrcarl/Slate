@@ -21,7 +21,7 @@ Every "re-skin" task below means: open the file, replace raw Tailwind-styled ele
 | `<input className="rounded border p-2" />` | `<Input />` from `@/components/ui/input` |
 | `<button className="rounded bg-black px-4 py-2 text-white">` | `<Button>` from `@/components/ui/button` |
 | `<button className="rounded border …">` (secondary) | `<Button variant="outline">` |
-| `<a className="rounded border px-4 py-2 text-center" href=…>` (OAuth provider link) | `<Button variant="outline" asChild><a href=…>…</a></Button>` |
+| `<a className="rounded border px-4 py-2 text-center" href=…>` (OAuth provider link) | `<Button variant="outline" render={<a href={…} />}>…</Button>` (Base UI render prop — see note below) |
 | `<p className="text-sm text-red-600">…error…</p>` | `<Alert variant="destructive"><AlertDescription>…</AlertDescription></Alert>` (or `<FormMessage>` inside a form context) |
 | Field labels (often absent) | Add `<Label htmlFor="…">…</Label>` above each input |
 | Section containers like `<section>` with raw padding | `<Card><CardHeader><CardTitle>…</CardTitle></CardHeader><CardContent>…</CardContent></Card>` for boxed forms; leave full-bleed sections alone |
@@ -30,6 +30,30 @@ Every "re-skin" task below means: open the file, replace raw Tailwind-styled ele
 | Inline icons | `lucide-react` icons |
 
 Preserve all `name`, `type`, `required`, `placeholder` attributes on inputs. Preserve all `useActionState`/form action wiring. Preserve all conditional rendering (e.g., env-flag gates).
+
+**IMPORTANT — Base UI primitives, not Radix.** The shadcn primitives in `src/components/ui/` in this repo are the **Base UI** variant (`@base-ui/react/*`), not Radix. There is **no `asChild` prop** on `Button`, `DropdownMenuTrigger`, or any other primitive. Use the **`render` prop** instead. Patterns:
+
+```tsx
+// OAuth link as button — Base UI:
+<Button variant="outline" render={<a href={googleHref} />} className="w-full">
+  Continue with Google
+</Button>
+
+// Internal link as ghost nav button — Base UI:
+<Button variant="ghost" render={<Link href={"/something" as Route} />}>
+  Label
+</Button>
+
+// DropdownMenuTrigger wrapping a styled icon Button — Base UI:
+<DropdownMenuTrigger render={<Button variant="ghost" size="icon" aria-label="…" />}>
+  <IconA />
+  <IconB />
+</DropdownMenuTrigger>
+```
+
+Children of the outer component go inside the outer tag; the inner element passed to `render` only carries routing/href attributes. Every `asChild` mention later in this plan should be substituted with `render={<… />}`.
+
+**Lint note:** the project's eslint picks up React 19's `react-hooks/set-state-in-effect` rule. The canonical `next-themes` mount-guard (calling `setState` inside `useEffect`) trips it. Add a targeted `// eslint-disable-next-line react-hooks/set-state-in-effect` with a one-line comment explaining the hydration guard when you encounter this. Don't disable it globally.
 
 For each re-skin task: read the file first, apply the above transforms, then `pnpm typecheck && pnpm lint --fix` and visually load the page in `pnpm dev` before committing.
 
@@ -327,11 +351,11 @@ export function ThemeToggle(): React.ReactElement | null {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label="Toggle theme">
-          <Sun className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
-          <Moon className="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
-        </Button>
+      <DropdownMenuTrigger
+        render={<Button variant="ghost" size="icon" aria-label="Toggle theme" />}
+      >
+        <Sun className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
+        <Moon className="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem onClick={() => setTheme("light")}>Light</DropdownMenuItem>
@@ -1053,15 +1077,23 @@ export default function SignInPage() {
           </div>
           <div className="grid gap-2">
             {process.env.NEXT_PUBLIC_OAUTH_GOOGLE_ENABLED === "1" && (
-              <Button variant="outline" asChild className="w-full">
-                {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
-                <a href="/api/auth/oauth/google/start">Continue with Google</a>
+              <Button
+                variant="outline"
+                className="w-full"
+                // eslint-disable-next-line @next/next/no-html-link-for-pages
+                render={<a href="/api/auth/oauth/google/start" />}
+              >
+                Continue with Google
               </Button>
             )}
             {process.env.NEXT_PUBLIC_OAUTH_GITHUB_ENABLED === "1" && (
-              <Button variant="outline" asChild className="w-full">
-                {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
-                <a href="/api/auth/oauth/github/start">Continue with GitHub</a>
+              <Button
+                variant="outline"
+                className="w-full"
+                // eslint-disable-next-line @next/next/no-html-link-for-pages
+                render={<a href="/api/auth/oauth/github/start" />}
+              >
+                Continue with GitHub
               </Button>
             )}
           </div>
@@ -1180,9 +1212,13 @@ function SignUpForm() {
             <span className="text-muted-foreground text-xs uppercase">or</span>
             <Separator className="flex-1" />
           </div>
-          <Button variant="outline" asChild className="w-full">
-            {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
-            <a href={googleHref}>Continue with Google</a>
+          <Button
+            variant="outline"
+            className="w-full"
+            // eslint-disable-next-line @next/next/no-html-link-for-pages
+            render={<a href={googleHref} />}
+          >
+            Continue with Google
           </Button>
         </>
       )}
@@ -1302,7 +1338,7 @@ cat 'src/app/(marketing)/layout.tsx'
 
 - [ ] **Step 2: Apply the recipe + mount ThemeToggle in the header**
 
-Add `<ThemeToggle />` somewhere visible in the header nav. Convert nav links to shadcn buttons where appropriate (e.g., a primary "Get started" CTA → `<Button>`, secondary nav links → `<Button variant="ghost" asChild>`). Apply the rest of the re-skin recipe.
+Add `<ThemeToggle />` somewhere visible in the header nav. Convert nav links to shadcn buttons where appropriate (e.g., a primary "Get started" CTA → `<Button>`, secondary nav links → `<Button variant="ghost" render={<Link href={…} />}>Label</Button>`). Apply the rest of the re-skin recipe.
 
 - [ ] **Step 3: Typecheck**
 
@@ -1415,7 +1451,7 @@ cat src/app/admin/_components/Sidebar.tsx
 - [ ] **Step 2: Apply the recipe**
 
 - Sidebar header row: brand on the left, `<ThemeToggle />` and `<UserMenu />` on the right.
-- Nav items: `<Button variant="ghost" asChild>` wrapping `<Link>` for inactive items; `variant="secondary"` for the active item (detect via `usePathname`).
+- Nav items: `<Button variant="ghost" render={<Link href={…} />}>Label</Button>` for inactive items; `variant="secondary"` for the active item (detect via `usePathname`).
 - Mobile: render the same nav inside a `<Sheet>` (`<SheetTrigger>` is a hamburger `<Button variant="ghost" size="icon">` with `Menu` icon from lucide).
 
 Import: `import { ThemeToggle } from "@/components/theme-toggle";`
