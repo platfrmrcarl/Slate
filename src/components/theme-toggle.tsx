@@ -16,6 +16,10 @@ export function ThemeToggle(): React.ReactElement | null {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    // Intentional: next-themes hydration guard. We must defer rendering until
+    // after mount so the server-rendered output ("") matches the first client
+    // render. See https://github.com/pacocoursey/next-themes#avoid-hydration-mismatch
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
 
@@ -23,11 +27,11 @@ export function ThemeToggle(): React.ReactElement | null {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label="Toggle theme">
-          <Sun className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
-          <Moon className="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
-        </Button>
+      <DropdownMenuTrigger
+        render={<Button variant="ghost" size="icon" aria-label="Toggle theme" />}
+      >
+        <Sun className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
+        <Moon className="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem onClick={() => setTheme("light")}>Light</DropdownMenuItem>
