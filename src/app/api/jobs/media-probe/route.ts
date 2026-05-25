@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { authorizeJobRequest } from "@/jobs/authorize";
 import { runProbeJob } from "@/media/probe";
 
 export const dynamic = "force-dynamic";
@@ -9,9 +10,7 @@ export const maxDuration = 60;
 const schema = z.object({ mediaId: z.string().uuid() });
 
 export async function POST(req: Request): Promise<Response> {
-  const auth = req.headers.get("authorization");
-  const expected = `Bearer ${process.env.INTERNAL_JOB_SECRET ?? ""}`;
-  if (!auth || auth !== expected) {
+  if (!(await authorizeJobRequest(req))) {
     return NextResponse.json({ error: "forbidden" }, { status: 403 });
   }
   let body: unknown;
