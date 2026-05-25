@@ -34,17 +34,22 @@ Preserve all `name`, `type`, `required`, `placeholder` attributes on inputs. Pre
 **IMPORTANT — Base UI primitives, not Radix.** The shadcn primitives in `src/components/ui/` in this repo are the **Base UI** variant (`@base-ui/react/*`), not Radix. There is **no `asChild` prop** on `Button`, `DropdownMenuTrigger`, or any other primitive. Use the **`render` prop** instead. Patterns:
 
 ```tsx
-// OAuth link as button — Base UI:
-<Button variant="outline" render={<a href={googleHref} />} className="w-full">
+// OAuth link as button — Base UI (note nativeButton={false} when rendering as <a>):
+<Button
+  variant="outline"
+  className="w-full"
+  nativeButton={false}
+  render={<a href={googleHref} />}
+>
   Continue with Google
 </Button>
 
 // Internal link as ghost nav button — Base UI:
-<Button variant="ghost" render={<Link href={"/something" as Route} />}>
+<Button variant="ghost" nativeButton={false} render={<Link href={"/something" as Route} />}>
   Label
 </Button>
 
-// DropdownMenuTrigger wrapping a styled icon Button — Base UI:
+// DropdownMenuTrigger wrapping a styled icon Button — Base UI (no nativeButton needed when render is itself a Button):
 <DropdownMenuTrigger render={<Button variant="ghost" size="icon" aria-label="…" />}>
   <IconA />
   <IconB />
@@ -52,6 +57,8 @@ Preserve all `name`, `type`, `required`, `placeholder` attributes on inputs. Pre
 ```
 
 Children of the outer component go inside the outer tag; the inner element passed to `render` only carries routing/href attributes. Every `asChild` mention later in this plan should be substituted with `render={<… />}`.
+
+**`nativeButton={false}` rule.** Base UI's `<Button>` defaults to rendering as a native `<button>` and warns at runtime if you slot in an `<a>` or `<Link>` instead. When you use `render={<a … />}` or `render={<Link … />}` on a `<Button>`, **always add `nativeButton={false}`** to silence the warning and produce semantically correct HTML. When the render target is itself another Button (or any element that already participates as a button), don't add the prop.
 
 **Lint note:** the project's eslint picks up React 19's `react-hooks/set-state-in-effect` rule. The canonical `next-themes` mount-guard (calling `setState` inside `useEffect`) trips it. Add a targeted `// eslint-disable-next-line react-hooks/set-state-in-effect` with a one-line comment explaining the hydration guard when you encounter this. Don't disable it globally.
 
