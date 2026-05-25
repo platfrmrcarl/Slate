@@ -32,57 +32,44 @@ steps:
     env:
       - "NODE_ENV=test"
 
-  - id: next-build
-    name: node:22
+  # Docker build produces the runner image. The Dockerfile's `build` stage
+  # runs `pnpm build` internally, so we don't run it separately in Cloud Build
+  # (it would just be thrown away). Layer cache is pulled from / pushed to
+  # `slate-buildcache:latest` in Artifact Registry, so the `deps` stage
+  # (pnpm install) is reused across builds when pnpm-lock.yaml is unchanged.
+  - id: build-image
+    name: gcr.io/cloud-builders/docker
     entrypoint: bash
     args:
       - -lc
       - |
-        corepack enable
-        pnpm build
+        docker buildx create --use --name slate-builder --driver docker-container >/dev/null
+        docker buildx build \
+          --target=runner \
+          --cache-from=type=registry,ref=${_AR_HOST}/${PROJECT_ID}/${_AR_REPO}/slate-buildcache:latest \
+          --cache-to=type=registry,ref=${_AR_HOST}/${PROJECT_ID}/${_AR_REPO}/slate-buildcache:latest,mode=max \
+          --tag=${_AR_HOST}/${PROJECT_ID}/${_AR_REPO}/slate:${SHORT_SHA} \
+          --tag=${_AR_HOST}/${PROJECT_ID}/${_AR_REPO}/slate:latest \
+          --push \
+          .
     waitFor: ["lint", "test"]
-    env:
-      - "NODE_ENV=production"
-      - "APP_URL=https://example.invalid"
-      - "AUTH_SECRET=ci-build-only-not-used-at-runtime-padding-padding"
-      - "PREVIEW_TOKEN_SECRET=ci-build-only-not-used-at-runtime-padding-padding"
-      - "INTERNAL_JOB_SECRET=ci-build-only-not-used-at-runtime-padding-padding"
-      - "DATABASE_URL=postgres://ci:ci@localhost:5432/ci"
-      - "GCS_BUCKET_MEDIA=ci-bucket"
 
-  - id: build-image
-    name: gcr.io/cloud-builders/docker
-    args:
-      - build
-      - "--target=runner"
-      - "--tag=${_AR_HOST}/${PROJECT_ID}/${_AR_REPO}/slate:${SHORT_SHA}"
-      - "--tag=${_AR_HOST}/${PROJECT_ID}/${_AR_REPO}/slate:latest"
-      - "."
-    waitFor: ["lint", "test", "next-build"]
-
-  - id: push-image
-    name: gcr.io/cloud-builders/docker
-    args:
-      - push
-      - "--all-tags"
-      - "${_AR_HOST}/${PROJECT_ID}/${_AR_REPO}/slate"
-    waitFor: ["build-image"]
-
+  # Migration image reuses the same buildcache because the Dockerfile's
+  # `migration` stage shares the `build` stage via COPY --from=build.
   - id: build-migration-image
     name: gcr.io/cloud-builders/docker
+    entrypoint: bash
     args:
-      - build
-      - "--target=migration"
-      - "--tag=${_AR_HOST}/${PROJECT_ID}/${_AR_REPO}/slate-migration:${SHORT_SHA}"
-      - "."
+      - -lc
+      - |
+        docker buildx create --use --name slate-builder --driver docker-container >/dev/null 2>&1 || docker buildx use slate-builder
+        docker buildx build \
+          --target=migration \
+          --cache-from=type=registry,ref=${_AR_HOST}/${PROJECT_ID}/${_AR_REPO}/slate-buildcache:latest \
+          --tag=${_AR_HOST}/${PROJECT_ID}/${_AR_REPO}/slate-migration:${SHORT_SHA} \
+          --push \
+          .
     waitFor: ["lint", "test"]
-
-  - id: push-migration-image
-    name: gcr.io/cloud-builders/docker
-    args:
-      - push
-      - "${_AR_HOST}/${PROJECT_ID}/${_AR_REPO}/slate-migration:${SHORT_SHA}"
-    waitFor: ["build-migration-image"]
 
   - id: run-migration
     name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
@@ -98,7 +85,7 @@ steps:
           --max-retries=0 \
           --quiet
         gcloud run jobs execute slate-migrate --region=${_REGION} --wait --quiet
-    waitFor: ["push-migration-image", "push-image"]
+    waitFor: ["build-migration-image", "build-image"]
 
   - id: deploy
     name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
