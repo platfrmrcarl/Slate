@@ -21,10 +21,10 @@ export default function LandingHero() {
           servers. You run the site.
         </p>
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-          <Button size="lg" render={<Link href={"/sign-up" as Route} />}>
+          <Button size="lg" nativeButton={false} render={<Link href={"/sign-up" as Route} />}>
             Start free →
           </Button>
-          <Button variant="link" size="sm" render={<a href={WIKI_URL} />}>
+          <Button variant="link" size="sm" nativeButton={false} render={<a href={WIKI_URL} />}>
             Prefer to self-host? See the Wiki →
           </Button>
         </div>

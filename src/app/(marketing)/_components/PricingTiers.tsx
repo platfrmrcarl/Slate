@@ -68,6 +68,7 @@ export default function PricingTiers({ heading = true }: { heading?: boolean }) 
                 <Button
                   size="lg"
                   className="mt-8 w-full"
+                  nativeButton={false}
                   render={<Link href={`/sign-up?tier=${tier.id}` as Route} />}
                 >
                   Choose {tier.name}

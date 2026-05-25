@@ -19,19 +19,29 @@ export default function LandingNav() {
           <span>Slate</span>
         </Link>
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="sm" render={<a href="#features" />}>
+          <Button variant="ghost" size="sm" nativeButton={false} render={<a href="#features" />}>
             Features
           </Button>
-          <Button variant="ghost" size="sm" render={<Link href={"/products" as Route} />}>
+          <Button
+            variant="ghost"
+            size="sm"
+            nativeButton={false}
+            render={<Link href={"/products" as Route} />}
+          >
             Pricing
           </Button>
-          <Button variant="ghost" size="sm" render={<a href={WIKI_URL} />}>
+          <Button variant="ghost" size="sm" nativeButton={false} render={<a href={WIKI_URL} />}>
             Self-host →
           </Button>
-          <Button variant="ghost" size="sm" render={<Link href={"/sign-in" as Route} />}>
+          <Button
+            variant="ghost"
+            size="sm"
+            nativeButton={false}
+            render={<Link href={"/sign-in" as Route} />}
+          >
             Sign in
           </Button>
-          <Button size="sm" render={<Link href={"/sign-up" as Route} />}>
+          <Button size="sm" nativeButton={false} render={<Link href={"/sign-up" as Route} />}>
             Sign up
           </Button>
           <ThemeToggle />

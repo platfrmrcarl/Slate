@@ -90,7 +90,12 @@ function SignUpForm() {
             <span className="text-muted-foreground text-xs uppercase">or</span>
             <Separator className="flex-1" />
           </div>
-          <Button variant="outline" className="w-full" render={<a href={googleHref} />}>
+          <Button
+            variant="outline"
+            className="w-full"
+            nativeButton={false}
+            render={<a href={googleHref} />}
+          >
             Continue with Google
           </Button>
         </>

@@ -14,7 +14,7 @@ export default function SignUpCTA() {
         <p className="text-muted-foreground mb-7 text-[15px] leading-relaxed">
           Start free. Bring your own domain when you&rsquo;re ready.
         </p>
-        <Button size="lg" render={<Link href={"/sign-up" as Route} />}>
+        <Button size="lg" nativeButton={false} render={<Link href={"/sign-up" as Route} />}>
           Start free →
         </Button>
         <p className="text-muted-foreground mt-8 text-[12px]">

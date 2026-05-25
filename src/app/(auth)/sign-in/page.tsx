@@ -74,6 +74,7 @@ export default function SignInPage() {
               <Button
                 variant="outline"
                 className="w-full"
+                nativeButton={false}
                 // eslint-disable-next-line @next/next/no-html-link-for-pages
                 render={<a href="/api/auth/oauth/google/start" />}
               >
@@ -84,6 +85,7 @@ export default function SignInPage() {
               <Button
                 variant="outline"
                 className="w-full"
+                nativeButton={false}
                 // eslint-disable-next-line @next/next/no-html-link-for-pages
                 render={<a href="/api/auth/oauth/github/start" />}
               >
