@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 
 export default function MarketingLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen marketing-aurora text-[var(--slate-fg)] antialiased">
+    <div className="marketing-aurora bg-background text-foreground min-h-screen antialiased">
       {children}
     </div>
   );

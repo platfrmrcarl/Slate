@@ -1,3 +1,5 @@
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+
 type Pillar = { glyph: string; title: string; body: string };
 
 const PILLARS: Pillar[] = [
@@ -25,20 +27,26 @@ const PILLARS: Pillar[] = [
 
 export default function FeaturePillars() {
   return (
-    <section id="features" className="border-t border-[var(--slate-border)] px-6 py-20">
+    <section id="features" className="border-border border-t px-6 py-20">
       <div className="mx-auto max-w-[1100px]">
-        <p className="mb-12 text-center font-mono text-[11px] uppercase tracking-[0.16em] text-[var(--slate-fg-subtle)]">
+        <p className="text-muted-foreground mb-12 text-center font-mono text-[11px] uppercase tracking-[0.16em]">
           — Features —
         </p>
-        <div className="grid grid-cols-1 gap-px overflow-hidden rounded-lg bg-[var(--slate-border)] md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {PILLARS.map((p) => (
-            <div key={p.title} className="bg-[var(--slate-bg)] p-8">
-              <div className="mb-3 text-2xl text-[#a8a3ff]" aria-hidden>
-                {p.glyph}
-              </div>
-              <h3 className="marketing-serif mb-2 text-xl text-[var(--slate-fg)]">{p.title}</h3>
-              <p className="text-[14px] leading-relaxed text-[var(--slate-fg-muted)]">{p.body}</p>
-            </div>
+            <Card key={p.title} className="p-2">
+              <CardHeader>
+                <div className="mb-3 text-2xl text-[#a8a3ff]" aria-hidden>
+                  {p.glyph}
+                </div>
+                <CardTitle className="marketing-serif text-foreground text-xl">
+                  {p.title}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription className="text-[14px] leading-relaxed">{p.body}</CardDescription>
+              </CardContent>
+            </Card>
           ))}
         </div>
       </div>
