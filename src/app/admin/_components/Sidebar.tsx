@@ -7,13 +7,7 @@ import { usePathname } from "next/navigation";
 import { Menu } from "lucide-react";
 import type { Role, User } from "@/db/schema";
 import { Button } from "@/components/ui/button";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { UserMenu } from "./UserMenu";
 
@@ -103,11 +97,7 @@ export function Sidebar({
   if (mobile) {
     return (
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetTrigger
-          render={
-            <Button variant="ghost" size="icon" aria-label="Open navigation" />
-          }
-        >
+        <SheetTrigger render={<Button variant="ghost" size="icon" aria-label="Open navigation" />}>
           <Menu />
         </SheetTrigger>
         <SheetContent side="left" className="bg-sidebar p-0 text-sidebar-foreground">
@@ -122,11 +112,7 @@ export function Sidebar({
               </Link>
             </SheetTitle>
           </SheetHeader>
-          <SidebarNav
-            role={role}
-            pluginMenu={pluginMenu}
-            onNavigate={() => setOpen(false)}
-          />
+          <SidebarNav role={role} pluginMenu={pluginMenu} onNavigate={() => setOpen(false)} />
         </SheetContent>
       </Sheet>
     );
@@ -195,9 +181,7 @@ function SidebarNav({
       })}
       {pluginMenu.length > 0 && (
         <div className="mt-3">
-          <p className="px-2 text-xs font-semibold uppercase text-muted-foreground">
-            Plugin pages
-          </p>
+          <p className="px-2 text-xs font-semibold uppercase text-muted-foreground">Plugin pages</p>
           <div className="mt-1 grid gap-0.5">
             {pluginMenu.map((e) => {
               const href = `/admin/plugins/${e.pluginSlug}${e.path}` as Route;

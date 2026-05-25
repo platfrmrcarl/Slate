@@ -1,13 +1,7 @@
 import { requireRole } from "@/auth/context";
 import { usageThisMonth } from "@/ai/usage";
 import { env } from "@/env";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -24,8 +18,7 @@ export default async function AiUsagePage() {
   const summary = await usageThisMonth({});
   const budget = env().AI_MONTHLY_TOKEN_BUDGET;
   const pct = Math.min(100, Math.round((summary.totalTokens / budget) * 100));
-  const barColor =
-    pct >= 90 ? "bg-destructive" : pct >= 70 ? "bg-yellow-500" : "bg-primary";
+  const barColor = pct >= 90 ? "bg-destructive" : pct >= 70 ? "bg-yellow-500" : "bg-primary";
   return (
     <div className="space-y-6">
       <header className="space-y-1">
@@ -68,9 +61,7 @@ export default async function AiUsagePage() {
                 .map(([feature, n]) => (
                   <TableRow key={feature}>
                     <TableCell>{feature}</TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {n.toLocaleString()}
-                    </TableCell>
+                    <TableCell className="text-muted-foreground">{n.toLocaleString()}</TableCell>
                   </TableRow>
                 ))}
               {Object.keys(summary.byFeature).length === 0 && (

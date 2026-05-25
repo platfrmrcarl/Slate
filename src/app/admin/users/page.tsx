@@ -6,13 +6,7 @@ import type { Role } from "@/db/schema";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -66,9 +60,7 @@ export default async function UsersPage({
       <header className="flex items-center justify-between gap-4">
         <div className="space-y-1">
           <h1 className="text-2xl font-semibold tracking-tight">Users</h1>
-          <p className="text-muted-foreground text-sm">
-            Manage user accounts, roles, and access.
-          </p>
+          <p className="text-muted-foreground text-sm">Manage user accounts, roles, and access.</p>
         </div>
         <Button nativeButton={false} render={<Link href={"/admin/users/new" as Route} />}>
           New user

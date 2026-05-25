@@ -12,10 +12,7 @@ interface ActionResult {
   fieldErrors?: Record<string, string>;
 }
 
-type SetupAction = (
-  prev: ActionResult | undefined,
-  formData: FormData,
-) => Promise<ActionResult>;
+type SetupAction = (prev: ActionResult | undefined, formData: FormData) => Promise<ActionResult>;
 
 export function SetupForm({ action }: { action: SetupAction }) {
   const [state, formAction, pending] = useActionState(action, undefined);
@@ -66,9 +63,7 @@ export function SetupForm({ action }: { action: SetupAction }) {
       <Card>
         <CardHeader>
           <CardTitle>Owner account</CardTitle>
-          <CardDescription>
-            This account will have full administrative access.
-          </CardDescription>
+          <CardDescription>This account will have full administrative access.</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4">
           <div className="grid gap-2">

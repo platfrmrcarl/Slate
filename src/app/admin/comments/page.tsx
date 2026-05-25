@@ -6,13 +6,7 @@ import { approveCommentAction, markSpamAction, deleteCommentAction } from "@/app
 import { renderCommentMarkdown } from "@/comments/render";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 async function approveAction(fd: FormData): Promise<void> {
   "use server";
@@ -31,9 +25,7 @@ export const dynamic = "force-dynamic";
 
 const STATUSES = ["pending", "approved", "spam", "trash"] as const;
 
-function statusVariant(
-  status: string,
-): "default" | "secondary" | "outline" | "destructive" {
+function statusVariant(status: string): "default" | "secondary" | "outline" | "destructive" {
   switch (status) {
     case "approved":
       return "default";

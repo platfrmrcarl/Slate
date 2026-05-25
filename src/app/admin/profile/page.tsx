@@ -4,13 +4,7 @@ import { requireUser } from "@/auth/context";
 import { requestEmailVerificationAction } from "@/app/actions/auth";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export const dynamic = "force-dynamic";
 
@@ -58,9 +52,7 @@ export default async function ProfilePage() {
         <Card>
           <CardHeader>
             <CardTitle>Verify your email</CardTitle>
-            <CardDescription>
-              We can send another verification link to your inbox.
-            </CardDescription>
+            <CardDescription>We can send another verification link to your inbox.</CardDescription>
           </CardHeader>
           <CardContent>
             <form action={resendVerificationFormAction}>

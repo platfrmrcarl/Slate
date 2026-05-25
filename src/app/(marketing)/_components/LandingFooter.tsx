@@ -21,16 +21,10 @@ export default function LandingFooter() {
           <Link href={"/status" as Route} className="hover:text-foreground">
             Status
           </Link>
-          <a
-            href="https://github.com/platfrmrcarl/Slate"
-            className="hover:text-foreground"
-          >
+          <a href="https://github.com/platfrmrcarl/Slate" className="hover:text-foreground">
             GitHub ↗
           </a>
-          <a
-            href="https://github.com/platfrmrcarl/Slate/wiki"
-            className="hover:text-foreground"
-          >
+          <a href="https://github.com/platfrmrcarl/Slate/wiki" className="hover:text-foreground">
             Wiki ↗
           </a>
         </nav>

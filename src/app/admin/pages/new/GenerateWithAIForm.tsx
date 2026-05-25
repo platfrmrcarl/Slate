@@ -30,12 +30,7 @@ export function GenerateWithAIForm({ themeSlug }: { themeSlug: string }): React.
         <Label htmlFor="generate-title">
           Title <span className="text-muted-foreground text-xs">(optional)</span>
         </Label>
-        <Input
-          id="generate-title"
-          name="title"
-          placeholder="Page title"
-          maxLength={200}
-        />
+        <Input id="generate-title" name="title" placeholder="Page title" maxLength={200} />
       </div>
 
       <div className="grid gap-2">

@@ -28,9 +28,7 @@ export default function HowItWorks() {
           <p className="text-muted-foreground mb-3 font-mono text-[11px] uppercase tracking-[0.16em]">
             — How it works —
           </p>
-          <h2 className="marketing-serif text-foreground text-3xl tracking-tight">
-            Three steps.
-          </h2>
+          <h2 className="marketing-serif text-foreground text-3xl tracking-tight">Three steps.</h2>
         </div>
         <div className="mx-auto grid max-w-[920px] grid-cols-1 gap-6 md:grid-cols-3">
           {STEPS.map((s) => (

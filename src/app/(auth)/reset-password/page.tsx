@@ -28,9 +28,7 @@ function ResetPasswordForm() {
         <header className="space-y-1">
           <h2 className="text-2xl font-semibold tracking-tight">Password updated</h2>
         </header>
-        <p className="text-muted-foreground text-sm">
-          You can now sign in with your new password.
-        </p>
+        <p className="text-muted-foreground text-sm">You can now sign in with your new password.</p>
         <Link href={"/sign-in" as Route} className="text-sm underline-offset-4 hover:underline">
           Sign in
         </Link>

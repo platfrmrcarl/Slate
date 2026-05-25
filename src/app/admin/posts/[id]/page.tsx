@@ -9,9 +9,7 @@ import { Badge } from "@/components/ui/badge";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-function statusVariant(
-  status: string,
-): "default" | "secondary" | "outline" | "destructive" {
+function statusVariant(status: string): "default" | "secondary" | "outline" | "destructive" {
   switch (status) {
     case "published":
       return "default";
@@ -41,9 +39,7 @@ export default async function EditPostPage({
     <div className="space-y-6">
       <header className="flex items-center justify-between gap-4">
         <div className="space-y-1">
-          <h1 className="text-2xl font-semibold tracking-tight">
-            {post.title || "(untitled)"}
-          </h1>
+          <h1 className="text-2xl font-semibold tracking-tight">{post.title || "(untitled)"}</h1>
           <p className="text-muted-foreground flex items-center gap-2 text-sm">
             <Badge variant={statusVariant(post.status)}>{post.status}</Badge>
             <span>/{post.slug}</span>

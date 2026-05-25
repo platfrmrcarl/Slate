@@ -33,9 +33,7 @@ export function UserMenu({ user }: { user: User }): React.ReactElement {
         render={<Button variant="ghost" size="icon" aria-label="Account menu" />}
       >
         <Avatar size="sm">
-          {user.avatarUrl ? (
-            <AvatarImage src={user.avatarUrl} alt={user.displayName} />
-          ) : null}
+          {user.avatarUrl ? <AvatarImage src={user.avatarUrl} alt={user.displayName} /> : null}
           <AvatarFallback>{initials}</AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
@@ -47,14 +45,10 @@ export function UserMenu({ user }: { user: User }): React.ReactElement {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem
-          render={<Link href={"/admin/profile" as Route} />}
-        >
+        <DropdownMenuItem render={<Link href={"/admin/profile" as Route} />}>
           Profile
         </DropdownMenuItem>
-        <DropdownMenuItem
-          render={<Link href={"/admin/settings" as Route} />}
-        >
+        <DropdownMenuItem render={<Link href={"/admin/settings" as Route} />}>
           Settings
         </DropdownMenuItem>
         <DropdownMenuSeparator />

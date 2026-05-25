@@ -38,9 +38,7 @@ export default async function PluginSubRoute({
   }
   const Component = mod.default;
   if (!Component) {
-    return (
-      <p className="text-destructive p-6 text-sm">Plugin component missing default export.</p>
-    );
+    return <p className="text-destructive p-6 text-sm">Plugin component missing default export.</p>;
   }
   return <Component />;
 }

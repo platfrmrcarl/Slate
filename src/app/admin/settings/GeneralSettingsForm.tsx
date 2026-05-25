@@ -4,13 +4,7 @@ import { useActionState } from "react";
 import { saveGeneralSettingsAction } from "@/app/actions/settings";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -82,9 +76,7 @@ export function GeneralSettingsForm({
               rows={3}
               aria-invalid={fe.seoDescription ? true : undefined}
             />
-            {fe.seoDescription && (
-              <p className="text-destructive text-sm">{fe.seoDescription}</p>
-            )}
+            {fe.seoDescription && <p className="text-destructive text-sm">{fe.seoDescription}</p>}
           </div>
         </CardContent>
       </Card>
@@ -109,9 +101,7 @@ export function GeneralSettingsForm({
                 </option>
               ))}
             </select>
-            {fe.defaultLocale && (
-              <p className="text-destructive text-sm">{fe.defaultLocale}</p>
-            )}
+            {fe.defaultLocale && <p className="text-destructive text-sm">{fe.defaultLocale}</p>}
           </div>
 
           <div className="grid gap-2">
@@ -126,9 +116,7 @@ export function GeneralSettingsForm({
               className="w-32"
               aria-invalid={fe.postsPerPage ? true : undefined}
             />
-            {fe.postsPerPage && (
-              <p className="text-destructive text-sm">{fe.postsPerPage}</p>
-            )}
+            {fe.postsPerPage && <p className="text-destructive text-sm">{fe.postsPerPage}</p>}
           </div>
         </CardContent>
       </Card>

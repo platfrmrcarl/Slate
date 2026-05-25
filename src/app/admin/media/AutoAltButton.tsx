@@ -64,9 +64,7 @@ export function AutoAltButton({ mediaId }: Props): React.ReactElement {
       >
         {pending ? "Queuing…" : "Generate alt text"}
       </Button>
-      {status === "error" && error && (
-        <p className="text-destructive text-[10px]">{error}</p>
-      )}
+      {status === "error" && error && <p className="text-destructive text-[10px]">{error}</p>}
     </div>
   );
 }

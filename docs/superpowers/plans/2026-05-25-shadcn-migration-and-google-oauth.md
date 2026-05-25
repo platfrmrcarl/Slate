@@ -16,18 +16,18 @@
 
 Every "re-skin" task below means: open the file, replace raw Tailwind-styled elements with shadcn primitives, preserve all behavior, keep all `data-*` and accessibility attributes intact. Concretely:
 
-| Old | New |
-|---|---|
-| `<input className="rounded border p-2" />` | `<Input />` from `@/components/ui/input` |
-| `<button className="rounded bg-black px-4 py-2 text-white">` | `<Button>` from `@/components/ui/button` |
-| `<button className="rounded border …">` (secondary) | `<Button variant="outline">` |
-| `<a className="rounded border px-4 py-2 text-center" href=…>` (OAuth provider link) | `<Button variant="outline" render={<a href={…} />}>…</Button>` (Base UI render prop — see note below) |
-| `<p className="text-sm text-red-600">…error…</p>` | `<Alert variant="destructive"><AlertDescription>…</AlertDescription></Alert>` (or `<FormMessage>` inside a form context) |
-| Field labels (often absent) | Add `<Label htmlFor="…">…</Label>` above each input |
-| Section containers like `<section>` with raw padding | `<Card><CardHeader><CardTitle>…</CardTitle></CardHeader><CardContent>…</CardContent></Card>` for boxed forms; leave full-bleed sections alone |
-| Raw color utilities (`bg-black`, `text-gray-600`, `text-red-600`) | Use semantic tokens: `bg-primary`, `text-muted-foreground`, `text-destructive` |
-| Custom dividers | `<Separator />` (with optional inline label for "or" / "continue with") |
-| Inline icons | `lucide-react` icons |
+| Old                                                                                 | New                                                                                                                                           |
+| ----------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `<input className="rounded border p-2" />`                                          | `<Input />` from `@/components/ui/input`                                                                                                      |
+| `<button className="rounded bg-black px-4 py-2 text-white">`                        | `<Button>` from `@/components/ui/button`                                                                                                      |
+| `<button className="rounded border …">` (secondary)                                 | `<Button variant="outline">`                                                                                                                  |
+| `<a className="rounded border px-4 py-2 text-center" href=…>` (OAuth provider link) | `<Button variant="outline" render={<a href={…} />}>…</Button>` (Base UI render prop — see note below)                                         |
+| `<p className="text-sm text-red-600">…error…</p>`                                   | `<Alert variant="destructive"><AlertDescription>…</AlertDescription></Alert>` (or `<FormMessage>` inside a form context)                      |
+| Field labels (often absent)                                                         | Add `<Label htmlFor="…">…</Label>` above each input                                                                                           |
+| Section containers like `<section>` with raw padding                                | `<Card><CardHeader><CardTitle>…</CardTitle></CardHeader><CardContent>…</CardContent></Card>` for boxed forms; leave full-bleed sections alone |
+| Raw color utilities (`bg-black`, `text-gray-600`, `text-red-600`)                   | Use semantic tokens: `bg-primary`, `text-muted-foreground`, `text-destructive`                                                                |
+| Custom dividers                                                                     | `<Separator />` (with optional inline label for "or" / "continue with")                                                                       |
+| Inline icons                                                                        | `lucide-react` icons                                                                                                                          |
 
 Preserve all `name`, `type`, `required`, `placeholder` attributes on inputs. Preserve all `useActionState`/form action wiring. Preserve all conditional rendering (e.g., env-flag gates).
 
@@ -86,6 +86,7 @@ git checkout -b feat/shadcn-and-google-oauth
 ```bash
 git status
 ```
+
 Expected: `nothing to commit, working tree clean`.
 
 ---
@@ -95,6 +96,7 @@ Expected: `nothing to commit, working tree clean`.
 **Background:** shadcn v4 dropped `slate` from its base colors. The v4 CLI no longer accepts `--base-color` and defaults to `neutral`. We use `mist` (v4's cool blue-gray equivalent of slate, hues 213°–228°). Strategy: run init with defaults (gets `neutral`), then overwrite the token blocks in `globals.css` with `mist` values and patch `components.json`.
 
 **Files:**
+
 - Create: `components.json`
 - Modify: `src/app/globals.css`
 - Create: `src/lib/utils.ts` (if not present)
@@ -125,74 +127,76 @@ Expected: all four "OK" lines print.
 Open `src/app/globals.css`. Find the existing `:root { … }` block and the `.dark { … }` block (both written by `shadcn init`). Replace ONLY the token bodies (keep the selectors and any surrounding `@theme inline` / `@custom-variant` / `@import` lines untouched). Use these literal mist values:
 
 `:root` body:
+
 ```css
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.148 0.004 228.8);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.148 0.004 228.8);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.148 0.004 228.8);
-  --primary: oklch(0.218 0.008 223.9);
-  --primary-foreground: oklch(0.987 0.002 197.1);
-  --secondary: oklch(0.963 0.002 197.1);
-  --secondary-foreground: oklch(0.218 0.008 223.9);
-  --muted: oklch(0.963 0.002 197.1);
-  --muted-foreground: oklch(0.56 0.021 213.5);
-  --accent: oklch(0.963 0.002 197.1);
-  --accent-foreground: oklch(0.218 0.008 223.9);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.925 0.005 214.3);
-  --input: oklch(0.925 0.005 214.3);
-  --ring: oklch(0.723 0.014 214.4);
-  --chart-1: oklch(0.872 0.007 219.6);
-  --chart-2: oklch(0.56 0.021 213.5);
-  --chart-3: oklch(0.45 0.017 213.2);
-  --chart-4: oklch(0.378 0.015 216);
-  --chart-5: oklch(0.275 0.011 216.9);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.987 0.002 197.1);
-  --sidebar-foreground: oklch(0.148 0.004 228.8);
-  --sidebar-primary: oklch(0.218 0.008 223.9);
-  --sidebar-primary-foreground: oklch(0.987 0.002 197.1);
-  --sidebar-accent: oklch(0.963 0.002 197.1);
-  --sidebar-accent-foreground: oklch(0.218 0.008 223.9);
-  --sidebar-border: oklch(0.925 0.005 214.3);
-  --sidebar-ring: oklch(0.723 0.014 214.4);
+--background: oklch(1 0 0);
+--foreground: oklch(0.148 0.004 228.8);
+--card: oklch(1 0 0);
+--card-foreground: oklch(0.148 0.004 228.8);
+--popover: oklch(1 0 0);
+--popover-foreground: oklch(0.148 0.004 228.8);
+--primary: oklch(0.218 0.008 223.9);
+--primary-foreground: oklch(0.987 0.002 197.1);
+--secondary: oklch(0.963 0.002 197.1);
+--secondary-foreground: oklch(0.218 0.008 223.9);
+--muted: oklch(0.963 0.002 197.1);
+--muted-foreground: oklch(0.56 0.021 213.5);
+--accent: oklch(0.963 0.002 197.1);
+--accent-foreground: oklch(0.218 0.008 223.9);
+--destructive: oklch(0.577 0.245 27.325);
+--border: oklch(0.925 0.005 214.3);
+--input: oklch(0.925 0.005 214.3);
+--ring: oklch(0.723 0.014 214.4);
+--chart-1: oklch(0.872 0.007 219.6);
+--chart-2: oklch(0.56 0.021 213.5);
+--chart-3: oklch(0.45 0.017 213.2);
+--chart-4: oklch(0.378 0.015 216);
+--chart-5: oklch(0.275 0.011 216.9);
+--radius: 0.625rem;
+--sidebar: oklch(0.987 0.002 197.1);
+--sidebar-foreground: oklch(0.148 0.004 228.8);
+--sidebar-primary: oklch(0.218 0.008 223.9);
+--sidebar-primary-foreground: oklch(0.987 0.002 197.1);
+--sidebar-accent: oklch(0.963 0.002 197.1);
+--sidebar-accent-foreground: oklch(0.218 0.008 223.9);
+--sidebar-border: oklch(0.925 0.005 214.3);
+--sidebar-ring: oklch(0.723 0.014 214.4);
 ```
 
 `.dark` body:
+
 ```css
-  --background: oklch(0.148 0.004 228.8);
-  --foreground: oklch(0.987 0.002 197.1);
-  --card: oklch(0.218 0.008 223.9);
-  --card-foreground: oklch(0.987 0.002 197.1);
-  --popover: oklch(0.218 0.008 223.9);
-  --popover-foreground: oklch(0.987 0.002 197.1);
-  --primary: oklch(0.925 0.005 214.3);
-  --primary-foreground: oklch(0.218 0.008 223.9);
-  --secondary: oklch(0.275 0.011 216.9);
-  --secondary-foreground: oklch(0.987 0.002 197.1);
-  --muted: oklch(0.275 0.011 216.9);
-  --muted-foreground: oklch(0.723 0.014 214.4);
-  --accent: oklch(0.275 0.011 216.9);
-  --accent-foreground: oklch(0.987 0.002 197.1);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.56 0.021 213.5);
-  --chart-1: oklch(0.872 0.007 219.6);
-  --chart-2: oklch(0.56 0.021 213.5);
-  --chart-3: oklch(0.45 0.017 213.2);
-  --chart-4: oklch(0.378 0.015 216);
-  --chart-5: oklch(0.275 0.011 216.9);
-  --sidebar: oklch(0.218 0.008 223.9);
-  --sidebar-foreground: oklch(0.987 0.002 197.1);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.987 0.002 197.1);
-  --sidebar-accent: oklch(0.275 0.011 216.9);
-  --sidebar-accent-foreground: oklch(0.987 0.002 197.1);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.56 0.021 213.5);
+--background: oklch(0.148 0.004 228.8);
+--foreground: oklch(0.987 0.002 197.1);
+--card: oklch(0.218 0.008 223.9);
+--card-foreground: oklch(0.987 0.002 197.1);
+--popover: oklch(0.218 0.008 223.9);
+--popover-foreground: oklch(0.987 0.002 197.1);
+--primary: oklch(0.925 0.005 214.3);
+--primary-foreground: oklch(0.218 0.008 223.9);
+--secondary: oklch(0.275 0.011 216.9);
+--secondary-foreground: oklch(0.987 0.002 197.1);
+--muted: oklch(0.275 0.011 216.9);
+--muted-foreground: oklch(0.723 0.014 214.4);
+--accent: oklch(0.275 0.011 216.9);
+--accent-foreground: oklch(0.987 0.002 197.1);
+--destructive: oklch(0.704 0.191 22.216);
+--border: oklch(1 0 0 / 10%);
+--input: oklch(1 0 0 / 15%);
+--ring: oklch(0.56 0.021 213.5);
+--chart-1: oklch(0.872 0.007 219.6);
+--chart-2: oklch(0.56 0.021 213.5);
+--chart-3: oklch(0.45 0.017 213.2);
+--chart-4: oklch(0.378 0.015 216);
+--chart-5: oklch(0.275 0.011 216.9);
+--sidebar: oklch(0.218 0.008 223.9);
+--sidebar-foreground: oklch(0.987 0.002 197.1);
+--sidebar-primary: oklch(0.488 0.243 264.376);
+--sidebar-primary-foreground: oklch(0.987 0.002 197.1);
+--sidebar-accent: oklch(0.275 0.011 216.9);
+--sidebar-accent-foreground: oklch(0.987 0.002 197.1);
+--sidebar-border: oklch(1 0 0 / 10%);
+--sidebar-ring: oklch(0.56 0.021 213.5);
 ```
 
 - [ ] **Step 4: Patch components.json baseColor**
@@ -219,6 +223,7 @@ git commit -m "feat(ui): init shadcn with mist (v4 slate equivalent) palette"
 ### Task 3: Batch-add shadcn primitives
 
 **Files:**
+
 - Create: `src/components/ui/button.tsx`, `input.tsx`, `label.tsx`, `card.tsx`, `separator.tsx`, `alert.tsx`, `form.tsx`, `select.tsx`, `textarea.tsx`, `checkbox.tsx`, `radio-group.tsx`, `dropdown-menu.tsx`, `avatar.tsx`, `badge.tsx`, `tabs.tsx`, `dialog.tsx`, `sheet.tsx`, `table.tsx`, `tooltip.tsx`, `sonner.tsx`, `skeleton.tsx`
 - Modify: `package.json` (peer deps added per primitive)
 
@@ -261,6 +266,7 @@ git commit -m "feat(ui): add shadcn primitives (button, input, card, etc.)"
 ### Task 4: Install next-themes
 
 **Files:**
+
 - Modify: `package.json`
 
 - [ ] **Step 1: Add the dep**
@@ -289,6 +295,7 @@ git commit -m "feat(ui): add next-themes for dark mode"
 ### Task 5: Write the ThemeToggle test
 
 **Files:**
+
 - Test: `src/components/theme-toggle.test.tsx` (create)
 
 - [ ] **Step 1: Write the failing test**
@@ -327,6 +334,7 @@ Expected: FAIL with `Cannot find module './theme-toggle'`.
 ### Task 6: Implement ThemeToggle
 
 **Files:**
+
 - Create: `src/components/theme-toggle.tsx`
 
 - [ ] **Step 1: Write the component**
@@ -394,6 +402,7 @@ git commit -m "feat(ui): add ThemeToggle with mounted-state guard"
 ### Task 7: Wire ThemeProvider in root layout
 
 **Files:**
+
 - Modify: `src/app/layout.tsx`
 
 - [ ] **Step 1: Read the current layout to see its structure**
@@ -479,6 +488,7 @@ Expected: all four succeed. Do not proceed to Phase 2 if any step fails.
 ### Task 9: Extend upsertOAuthUser to return isNew
 
 **Files:**
+
 - Modify: `src/auth/oauth/index.ts`
 - Modify: `src/auth/oauth/oauth.test.ts`
 
@@ -668,6 +678,7 @@ git commit -m "feat(auth): upsertOAuthUser returns { user, isNew }"
 ### Task 10: Write failing tests for tier handling in start route
 
 **Files:**
+
 - Modify: `src/app/api/auth/oauth/[provider]/start/route.test.ts`
 
 - [ ] **Step 1: Append new test cases**
@@ -682,9 +693,7 @@ it("sets the tier cookie when a valid tier is supplied for google", async () => 
   await GET(new Request("http://x/api/auth/oauth/google/start?tier=premium"), {
     params: Promise.resolve({ provider: "google" }),
   });
-  const tierCall = cookieSet.mock.calls.find(
-    ([opts]) => opts?.name === "oauth_signup_tier",
-  );
+  const tierCall = cookieSet.mock.calls.find(([opts]) => opts?.name === "oauth_signup_tier");
   expect(tierCall).toBeDefined();
   expect(tierCall![0].value).toBe("premium");
   expect(tierCall![0].httpOnly).toBe(true);
@@ -699,9 +708,7 @@ it("does NOT set the tier cookie when tier is invalid", async () => {
   await GET(new Request("http://x/api/auth/oauth/google/start?tier=bogus"), {
     params: Promise.resolve({ provider: "google" }),
   });
-  const tierCall = cookieSet.mock.calls.find(
-    ([opts]) => opts?.name === "oauth_signup_tier",
-  );
+  const tierCall = cookieSet.mock.calls.find(([opts]) => opts?.name === "oauth_signup_tier");
   expect(tierCall).toBeUndefined();
 });
 
@@ -710,9 +717,7 @@ it("does NOT set the tier cookie when tier is absent", async () => {
     createAuthorizationURL: () => new URL("https://accounts.google.com/x"),
   });
   await call("google");
-  const tierCall = cookieSet.mock.calls.find(
-    ([opts]) => opts?.name === "oauth_signup_tier",
-  );
+  const tierCall = cookieSet.mock.calls.find(([opts]) => opts?.name === "oauth_signup_tier");
   expect(tierCall).toBeUndefined();
 });
 ```
@@ -730,6 +735,7 @@ Expected: 3 tests FAIL (the new ones). The first should fail with "tierCall is u
 ### Task 11: Implement tier handling in start route
 
 **Files:**
+
 - Modify: `src/app/api/auth/oauth/[provider]/start/route.ts`
 
 - [ ] **Step 1: Add the tier constants + cookie write**
@@ -791,6 +797,7 @@ git commit -m "feat(auth): persist sign-up tier through google oauth start"
 ### Task 12: Write failing tests for tier-driven callback redirect
 
 **Files:**
+
 - Modify: `src/app/api/auth/oauth/[provider]/callback/route.test.ts`
 
 - [ ] **Step 1: Append new test cases**
@@ -873,6 +880,7 @@ Expected: 3 new tests FAIL (the first because location is `/` instead of checkou
 ### Task 13: Implement tier-driven redirect in callback
 
 **Files:**
+
 - Modify: `src/app/api/auth/oauth/[provider]/callback/route.ts`
 
 - [ ] **Step 1: Add constants and redirect logic**
@@ -964,6 +972,7 @@ git commit -m "feat(auth): redirect new oauth signups to tier checkout"
 ### Task 14: Re-skin (auth)/layout.tsx
 
 **Files:**
+
 - Read first, then modify: `src/app/(auth)/layout.tsx`
 
 - [ ] **Step 1: Read the current file**
@@ -1005,6 +1014,7 @@ Expected: clean.
 ### Task 15: Re-skin sign-in page
 
 **Files:**
+
 - Modify: `src/app/(auth)/sign-in/page.tsx`
 
 - [ ] **Step 1: Replace the page contents**
@@ -1124,6 +1134,7 @@ Expected: clean.
 ### Task 16: Re-skin sign-up page + add Google OAuth button with tier
 
 **Files:**
+
 - Modify: `src/app/(auth)/sign-up/page.tsx`
 
 - [ ] **Step 1: Replace the page contents**
@@ -1167,8 +1178,9 @@ function SignUpForm() {
         <h2 className="text-2xl font-semibold tracking-tight">Create account</h2>
         {validTier && (
           <p className="text-muted-foreground text-sm">
-            You picked the <span className="text-foreground font-medium capitalize">{validTier}</span>{" "}
-            plan. Payment on the next step.
+            You picked the{" "}
+            <span className="text-foreground font-medium capitalize">{validTier}</span> plan.
+            Payment on the next step.
           </p>
         )}
       </header>
@@ -1247,6 +1259,7 @@ Expected: clean.
 ### Task 17: Re-skin remaining auth pages
 
 **Files (read each, then re-skin per the recipe at the top of this plan):**
+
 - `src/app/(auth)/magic-link/page.tsx`
 - `src/app/(auth)/forgot-password/page.tsx`
 - `src/app/(auth)/reset-password/page.tsx`
@@ -1303,6 +1316,7 @@ wait $DEV_PID 2>/dev/null
 Expected: each path prints `OK`.
 
 **For visual + behavior verification (you must open a browser):**
+
 - [ ] `/sign-in` — form renders inside Card; submit with wrong creds shows Alert; magic-link / sign-up / forgot-password links work; OAuth section hidden when flag off, shows buttons when on.
 - [ ] `/sign-up` — same; submit with weak password shows field error; with `?tier=premium` shows the tier banner and "Continue with Google" href includes `?tier=premium`.
 - [ ] `/sign-up?tier=premium` then click "Continue with Google" — should redirect to Google (if env configured) and on return land on `/sign-up/checkout?tier=premium` (new user) or `/` (existing user).
@@ -1335,6 +1349,7 @@ git commit -m "feat(ui): reskin auth pages with shadcn + add google oauth to sig
 ### Task 20: Re-skin marketing layout + add ThemeToggle
 
 **Files:**
+
 - Modify: `src/app/(marketing)/layout.tsx`
 
 - [ ] **Step 1: Read the existing layout**
@@ -1360,6 +1375,7 @@ Expected: clean.
 ### Task 21: Re-skin marketing pages
 
 **Files:**
+
 - Modify: `src/app/(marketing)/page.tsx`
 - Modify: `src/app/(marketing)/products/page.tsx`
 
@@ -1424,6 +1440,7 @@ git commit -m "feat(ui): reskin marketing with shadcn + theme toggle"
 ### Task 23: Re-skin admin layout
 
 **Files:**
+
 - Modify: `src/app/admin/layout.tsx`
 
 - [ ] **Step 1: Read the existing layout**
@@ -1447,6 +1464,7 @@ pnpm typecheck
 ### Task 24: Re-skin admin Sidebar + ThemeToggle
 
 **Files:**
+
 - Modify: `src/app/admin/_components/Sidebar.tsx`
 
 - [ ] **Step 1: Read the existing Sidebar**
@@ -1474,6 +1492,7 @@ pnpm typecheck
 ### Task 25: Re-skin UserMenu
 
 **Files:**
+
 - Modify: `src/app/admin/_components/UserMenu.tsx`
 
 - [ ] **Step 1: Read the existing UserMenu**
@@ -1520,6 +1539,7 @@ sleep 8
 ```
 
 Sign in as an admin user. Visit `/admin`. Confirm:
+
 - Sidebar renders on desktop, hamburger Sheet on mobile (resize browser to test).
 - ThemeToggle works.
 - UserMenu opens and items navigate.
@@ -1552,6 +1572,7 @@ git commit -m "feat(ui): reskin admin shell with shadcn sidebar + user menu"
 ### Task 27: Re-skin admin dashboard
 
 **Files:**
+
 - Modify: `src/app/admin/page.tsx`
 
 - [ ] **Step 1: Read + apply the recipe**
@@ -1573,6 +1594,7 @@ pnpm typecheck
 ### Task 28: Re-skin admin profile
 
 **Files:**
+
 - Modify: `src/app/admin/profile/page.tsx` (and any sibling components in that directory)
 
 - [ ] **Step 1: List the directory**
@@ -1596,6 +1618,7 @@ pnpm typecheck
 ### Task 29: Re-skin admin settings
 
 **Files:**
+
 - Modify: `src/app/admin/settings/page.tsx` and any sibling components
 
 - [ ] **Step 1: List + read**
@@ -1648,6 +1671,7 @@ git commit -m "feat(ui): reskin admin dashboard, profile, settings"
 ### Task 31: Re-skin admin posts pages
 
 **Files:**
+
 - Modify: `src/app/admin/posts/page.tsx` (index)
 - Modify: `src/app/admin/posts/new/page.tsx`
 - Modify: `src/app/admin/posts/[id]/page.tsx`
@@ -1672,6 +1696,7 @@ pnpm typecheck
 ### Task 32: Re-skin admin pages pages
 
 **Files:**
+
 - Modify: `src/app/admin/pages/*.tsx` (mirror the posts treatment)
 
 - [ ] **Step 1: List + read each file**
@@ -1711,6 +1736,7 @@ git commit -m "feat(ui): reskin admin posts + pages with shadcn"
 ### Task 34: Re-skin admin/media
 
 **Files:**
+
 - Modify: all `.tsx` under `src/app/admin/media/`
 
 - [ ] **Step 1: List + read each file**
@@ -1732,6 +1758,7 @@ pnpm typecheck
 ### Task 35: Re-skin admin/users
 
 **Files:**
+
 - Modify: all `.tsx` under `src/app/admin/users/`
 
 - [ ] **Step 1: List + read each file**
@@ -1753,6 +1780,7 @@ pnpm typecheck
 ### Task 36: Re-skin admin/taxonomies
 
 **Files:**
+
 - Modify: `src/app/admin/taxonomies/page.tsx` (and any siblings)
 
 - [ ] **Step 1: List + read**
@@ -1774,6 +1802,7 @@ pnpm typecheck
 ### Task 37: Re-skin admin/comments
 
 **Files:**
+
 - Modify: all `.tsx` under `src/app/admin/comments/`
 
 - [ ] **Step 1: List + read**
@@ -1812,6 +1841,7 @@ git commit -m "feat(ui): reskin admin media, users, taxonomies, comments"
 ### Task 39: Re-skin admin/plugins
 
 **Files:**
+
 - Modify: all `.tsx` under `src/app/admin/plugins/`
 
 - [ ] **Step 1: List + read**
@@ -1833,6 +1863,7 @@ pnpm typecheck
 ### Task 40: Re-skin admin/themes
 
 **Files:**
+
 - Modify: all `.tsx` under `src/app/admin/themes/`
 
 - [ ] **Step 1: List + read**
@@ -1854,6 +1885,7 @@ pnpm typecheck
 ### Task 41: Re-skin admin/ai, admin/import, admin/export
 
 **Files:**
+
 - Modify: all `.tsx` under `src/app/admin/ai/`, `src/app/admin/import/`, `src/app/admin/export/`
 
 - [ ] **Step 1: For each subdir, list + read + apply the recipe**
@@ -1872,9 +1904,10 @@ pnpm typecheck
 
 ---
 
-### Task 42: Re-skin admin _components
+### Task 42: Re-skin admin \_components
 
 **Files:**
+
 - Modify: `src/app/admin/_components/AutoSeoButton.tsx`
 - Modify: `src/app/admin/_components/RewritePanel.tsx`
 
@@ -1920,6 +1953,7 @@ git commit -m "feat(ui): reskin admin plugins/themes/ai/import/export + componen
 ### Task 44: Re-skin setup wizard
 
 **Files:**
+
 - Modify: `src/app/setup/page.tsx`
 
 - [ ] **Step 1: Read + apply the recipe**
@@ -1945,6 +1979,7 @@ pnpm typecheck
 ### Task 45: Re-skin [locale] app chrome
 
 **Files:**
+
 - Modify: `src/app/[locale]/layout.tsx`
 - Modify: `src/app/[locale]/page.tsx`
 - Modify: `src/app/[locale]/blog/page.tsx`

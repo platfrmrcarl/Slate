@@ -5,13 +5,7 @@ import { listPosts, type ListPostsInput } from "@/posts/service";
 import type { PostStatusValue } from "@/db/schema";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -25,9 +19,7 @@ export const dynamic = "force-dynamic";
 
 const STATUSES = ["draft", "scheduled", "published", "archived", "trash"] as const;
 
-function statusVariant(
-  status: string,
-): "default" | "secondary" | "outline" | "destructive" {
+function statusVariant(status: string): "default" | "secondary" | "outline" | "destructive" {
   switch (status) {
     case "published":
       return "default";

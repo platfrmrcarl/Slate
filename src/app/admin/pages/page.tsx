@@ -4,13 +4,7 @@ import { requireUser } from "@/auth/context";
 import { listPages } from "@/services/pages/service";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -31,9 +25,7 @@ const STATUS_LABEL: Record<string, string> = {
   trash: "Trash",
 };
 
-function statusVariant(
-  status: string,
-): "default" | "secondary" | "outline" | "destructive" {
+function statusVariant(status: string): "default" | "secondary" | "outline" | "destructive" {
   switch (status) {
     case "published":
       return "default";

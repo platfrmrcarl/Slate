@@ -6,13 +6,7 @@ import { desc, eq } from "drizzle-orm";
 import { rotateSecretAction } from "@/app/actions/plugins";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -29,9 +23,7 @@ async function rotateAction(fd: FormData): Promise<void> {
   await rotateSecretAction(undefined, fd);
 }
 
-function deliveryVariant(
-  status: string,
-): "default" | "secondary" | "outline" | "destructive" {
+function deliveryVariant(status: string): "default" | "secondary" | "outline" | "destructive" {
   switch (status) {
     case "success":
     case "delivered":
@@ -86,10 +78,7 @@ export default async function PluginDetail({
           ) : (
             <ul className="space-y-3">
               {hooks.map((h) => (
-                <li
-                  key={h.id}
-                  className="border-border rounded-lg border p-3 text-sm"
-                >
+                <li key={h.id} className="border-border rounded-lg border p-3 text-sm">
                   <code className="text-xs">{h.url}</code>
                   <p className="text-muted-foreground mt-1 text-xs">
                     events: {h.events.join(", ")}

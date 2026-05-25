@@ -2,13 +2,7 @@ import { requireRole } from "@/auth/context";
 import { listTaxonomies } from "@/taxonomies/service";
 import { createTaxonomyAction } from "@/app/actions/taxonomies";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -36,16 +30,16 @@ export default async function TaxonomiesPage(): Promise<React.ReactElement> {
     <div className="space-y-6">
       <header className="space-y-1">
         <h1 className="text-2xl font-semibold tracking-tight">Categories &amp; Tags</h1>
-        <p className="text-muted-foreground text-sm">
-          Manage taxonomies used to organize posts.
-        </p>
+        <p className="text-muted-foreground text-sm">Manage taxonomies used to organize posts.</p>
       </header>
 
       <Card>
         <CardHeader>
           <CardTitle>Categories</CardTitle>
           <CardDescription>
-            {cats.length === 0 ? "No categories yet." : `${cats.length} categor${cats.length === 1 ? "y" : "ies"}.`}
+            {cats.length === 0
+              ? "No categories yet."
+              : `${cats.length} categor${cats.length === 1 ? "y" : "ies"}.`}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -84,7 +78,9 @@ export default async function TaxonomiesPage(): Promise<React.ReactElement> {
         <CardHeader>
           <CardTitle>Tags</CardTitle>
           <CardDescription>
-            {tags.length === 0 ? "No tags yet." : `${tags.length} tag${tags.length === 1 ? "" : "s"}.`}
+            {tags.length === 0
+              ? "No tags yet."
+              : `${tags.length} tag${tags.length === 1 ? "" : "s"}.`}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">

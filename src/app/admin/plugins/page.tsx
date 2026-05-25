@@ -43,8 +43,8 @@ export default async function PluginsPage(): Promise<React.ReactElement> {
           <CardHeader>
             <CardTitle>No plugins discovered</CardTitle>
             <CardDescription>
-              Drop a directory under <code>plugins/</code> with a valid{" "}
-              <code>manifest.json</code> or install a <code>slate-plugin-*</code> npm package.
+              Drop a directory under <code>plugins/</code> with a valid <code>manifest.json</code>{" "}
+              or install a <code>slate-plugin-*</code> npm package.
             </CardDescription>
           </CardHeader>
         </Card>
@@ -78,11 +78,7 @@ export default async function PluginsPage(): Promise<React.ReactElement> {
                 <CardFooter>
                   <form action={p.enabled ? disableAction : enableAction}>
                     <input type="hidden" name="id" value={p.id} />
-                    <Button
-                      type="submit"
-                      size="sm"
-                      variant={p.enabled ? "outline" : "default"}
-                    >
+                    <Button type="submit" size="sm" variant={p.enabled ? "outline" : "default"}>
                       {p.enabled ? "Disable" : "Enable"}
                     </Button>
                   </form>

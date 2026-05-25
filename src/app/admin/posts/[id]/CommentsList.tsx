@@ -4,9 +4,7 @@ import { desc, eq } from "drizzle-orm";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 
-function statusVariant(
-  status: string,
-): "default" | "secondary" | "outline" | "destructive" {
+function statusVariant(status: string): "default" | "secondary" | "outline" | "destructive" {
   switch (status) {
     case "approved":
       return "default";

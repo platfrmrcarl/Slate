@@ -83,9 +83,7 @@ describe("GET /api/auth/oauth/[provider]/start", () => {
     await GET(new Request("http://x/api/auth/oauth/google/start?tier=premium"), {
       params: Promise.resolve({ provider: "google" }),
     });
-    const tierCall = cookieSet.mock.calls.find(
-      ([opts]) => opts?.name === "oauth_signup_tier",
-    );
+    const tierCall = cookieSet.mock.calls.find(([opts]) => opts?.name === "oauth_signup_tier");
     expect(tierCall).toBeDefined();
     expect(tierCall![0].value).toBe("premium");
     expect(tierCall![0].httpOnly).toBe(true);
@@ -100,9 +98,7 @@ describe("GET /api/auth/oauth/[provider]/start", () => {
     await GET(new Request("http://x/api/auth/oauth/google/start?tier=bogus"), {
       params: Promise.resolve({ provider: "google" }),
     });
-    const tierCall = cookieSet.mock.calls.find(
-      ([opts]) => opts?.name === "oauth_signup_tier",
-    );
+    const tierCall = cookieSet.mock.calls.find(([opts]) => opts?.name === "oauth_signup_tier");
     expect(tierCall).toBeUndefined();
   });
 
@@ -111,9 +107,7 @@ describe("GET /api/auth/oauth/[provider]/start", () => {
       createAuthorizationURL: () => new URL("https://accounts.google.com/x"),
     });
     await call("google");
-    const tierCall = cookieSet.mock.calls.find(
-      ([opts]) => opts?.name === "oauth_signup_tier",
-    );
+    const tierCall = cookieSet.mock.calls.find(([opts]) => opts?.name === "oauth_signup_tier");
     expect(tierCall).toBeUndefined();
   });
 });

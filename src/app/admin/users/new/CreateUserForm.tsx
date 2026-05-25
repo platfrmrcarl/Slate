@@ -5,13 +5,7 @@ import type { Role } from "@/db/schema";
 import { createUserAction } from "@/app/actions/users";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -53,13 +47,7 @@ export function CreateUserForm({
           </div>
           <div className="grid gap-2">
             <Label htmlFor="new-user-password">Password</Label>
-            <Input
-              id="new-user-password"
-              name="password"
-              type="password"
-              required
-              minLength={12}
-            />
+            <Input id="new-user-password" name="password" type="password" required minLength={12} />
             {fe.password && <p className="text-destructive text-xs">{fe.password}</p>}
           </div>
           <div className="grid gap-2">

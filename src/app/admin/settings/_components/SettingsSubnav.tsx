@@ -9,10 +9,7 @@ const TABS: { href: Route; label: string }[] = [
 
 export function SettingsSubnav({ current }: { current: string }): React.ReactElement {
   return (
-    <nav
-      aria-label="Settings sections"
-      className="border-border flex gap-1 border-b text-sm"
-    >
+    <nav aria-label="Settings sections" className="border-border flex gap-1 border-b text-sm">
       {TABS.map((t) => {
         const active = t.href === current;
         return (

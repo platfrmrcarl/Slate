@@ -8,13 +8,7 @@ import { RewritePanel } from "@/app/admin/_components/RewritePanel";
 import { AutoSeoButton } from "@/app/admin/_components/AutoSeoButton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogClose,
@@ -107,27 +101,15 @@ export function EditorClient(props: Props): React.ReactElement {
         <CardContent className="grid gap-4">
           <div className="grid gap-2">
             <Label htmlFor="page-title">Title</Label>
-            <Input
-              id="page-title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-            />
+            <Input id="page-title" value={title} onChange={(e) => setTitle(e.target.value)} />
           </div>
           <div className="grid gap-2">
             <Label htmlFor="page-slug">Slug</Label>
-            <Input
-              id="page-slug"
-              value={slug}
-              onChange={(e) => setSlug(e.target.value)}
-            />
+            <Input id="page-slug" value={slug} onChange={(e) => setSlug(e.target.value)} />
           </div>
           <div className="grid gap-2">
             <Label htmlFor="page-excerpt">Excerpt</Label>
-            <Input
-              id="page-excerpt"
-              value={excerpt}
-              onChange={(e) => setExcerpt(e.target.value)}
-            />
+            <Input id="page-excerpt" value={excerpt} onChange={(e) => setExcerpt(e.target.value)} />
           </div>
         </CardContent>
       </Card>
@@ -140,8 +122,8 @@ export function EditorClient(props: Props): React.ReactElement {
         <CardHeader>
           <CardTitle>SEO</CardTitle>
           <CardDescription>
-            Optional search-engine title and description. AI suggestions populate the
-            fields but don&apos;t auto-save.
+            Optional search-engine title and description. AI suggestions populate the fields but
+            don&apos;t auto-save.
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4">
@@ -205,8 +187,8 @@ export function EditorClient(props: Props): React.ReactElement {
             <DialogHeader>
               <DialogTitle>Move this page to trash?</DialogTitle>
               <DialogDescription>
-                The page will be hidden from your site. You can restore it later from the
-                trash list.
+                The page will be hidden from your site. You can restore it later from the trash
+                list.
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>

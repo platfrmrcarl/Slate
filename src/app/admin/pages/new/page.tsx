@@ -7,13 +7,7 @@ import { GenerateWithAIForm } from "./GenerateWithAIForm";
 import { createBlankPageAction } from "./actions";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -61,12 +55,9 @@ export default async function NewPageRoute(): Promise<React.ReactElement> {
             ) : (
               <Alert>
                 <AlertDescription>
-                  AI is disabled. Set <code className="font-mono">ANTHROPIC_API_KEY</code> in
-                  your environment to enable page generation. See{" "}
-                  <Link
-                    href={"/admin/settings" as Route}
-                    className="underline underline-offset-2"
-                  >
+                  AI is disabled. Set <code className="font-mono">ANTHROPIC_API_KEY</code> in your
+                  environment to enable page generation. See{" "}
+                  <Link href={"/admin/settings" as Route} className="underline underline-offset-2">
                     settings
                   </Link>
                   .

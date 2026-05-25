@@ -39,9 +39,7 @@ export default function FeaturePillars() {
                 <div className="mb-3 text-2xl text-[#a8a3ff]" aria-hidden>
                   {p.glyph}
                 </div>
-                <CardTitle className="marketing-serif text-foreground text-xl">
-                  {p.title}
-                </CardTitle>
+                <CardTitle className="marketing-serif text-foreground text-xl">{p.title}</CardTitle>
               </CardHeader>
               <CardContent>
                 <CardDescription className="text-[14px] leading-relaxed">{p.body}</CardDescription>

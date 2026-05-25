@@ -5,13 +5,7 @@ import type { Role } from "@/db/schema";
 import { updateUserRoleAction, sendPasswordResetAction } from "@/app/actions/users";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 
 interface FormState {
@@ -66,9 +60,7 @@ export function EditUserForm({
                 ))}
               </select>
               {!canEditRole && (
-                <p className="text-muted-foreground text-xs">
-                  You cannot change your own role.
-                </p>
+                <p className="text-muted-foreground text-xs">You cannot change your own role.</p>
               )}
             </div>
             {roleState?.error && (
@@ -104,9 +96,7 @@ export function EditUserForm({
               </Alert>
             )}
             {resetState?.ok && (
-              <p className="text-sm text-emerald-600 dark:text-emerald-500">
-                Reset email sent.
-              </p>
+              <p className="text-sm text-emerald-600 dark:text-emerald-500">Reset email sent.</p>
             )}
             <div>
               <Button type="submit" variant="outline" disabled={resetPending}>

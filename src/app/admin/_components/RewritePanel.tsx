@@ -91,12 +91,7 @@ export function RewritePanel(): React.ReactElement {
               </Alert>
             )}
 
-            <Button
-              type="submit"
-              size="sm"
-              disabled={pending}
-              className="justify-self-start"
-            >
+            <Button type="submit" size="sm" disabled={pending} className="justify-self-start">
               {pending ? "Rewriting…" : "Rewrite"}
             </Button>
 

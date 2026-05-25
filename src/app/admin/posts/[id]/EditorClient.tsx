@@ -9,13 +9,7 @@ import { AutoSeoButton } from "@/app/admin/_components/AutoSeoButton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogClose,
@@ -109,27 +103,15 @@ export function EditorClient(props: Props): React.ReactElement {
         <CardContent className="grid gap-4">
           <div className="grid gap-2">
             <Label htmlFor="post-title">Title</Label>
-            <Input
-              id="post-title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-            />
+            <Input id="post-title" value={title} onChange={(e) => setTitle(e.target.value)} />
           </div>
           <div className="grid gap-2">
             <Label htmlFor="post-slug">Slug</Label>
-            <Input
-              id="post-slug"
-              value={slug}
-              onChange={(e) => setSlug(e.target.value)}
-            />
+            <Input id="post-slug" value={slug} onChange={(e) => setSlug(e.target.value)} />
           </div>
           <div className="grid gap-2">
             <Label htmlFor="post-excerpt">Excerpt</Label>
-            <Input
-              id="post-excerpt"
-              value={excerpt}
-              onChange={(e) => setExcerpt(e.target.value)}
-            />
+            <Input id="post-excerpt" value={excerpt} onChange={(e) => setExcerpt(e.target.value)} />
           </div>
         </CardContent>
       </Card>
@@ -142,8 +124,8 @@ export function EditorClient(props: Props): React.ReactElement {
         <CardHeader>
           <CardTitle>SEO</CardTitle>
           <CardDescription>
-            Optional search-engine title and description. AI suggestions populate the
-            fields but don&apos;t auto-save.
+            Optional search-engine title and description. AI suggestions populate the fields but
+            don&apos;t auto-save.
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4">

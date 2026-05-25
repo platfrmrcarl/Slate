@@ -29,9 +29,7 @@ export default function PricingTiers({ heading = true }: { heading?: boolean }) 
               key={tier.id}
               className={
                 "relative flex flex-col p-3 transition " +
-                (tier.highlighted
-                  ? "ring-2 ring-[#a8a3ff]"
-                  : "hover:ring-[#a8a3ff]/60")
+                (tier.highlighted ? "ring-2 ring-[#a8a3ff]" : "hover:ring-[#a8a3ff]/60")
               }
             >
               {tier.highlighted && (
