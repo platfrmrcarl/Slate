@@ -2,6 +2,11 @@
 
 import { useActionState } from "react";
 import { generatePageWizardAction, type GenerateWizardState } from "./actions";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 const PAGE_TYPES = [
   { value: "landing", label: "Landing page" },
@@ -18,58 +23,61 @@ export function GenerateWithAIForm({ themeSlug }: { themeSlug: string }): React.
   );
 
   return (
-    <form action={action} className="mt-3 grid gap-3">
+    <form action={action} className="grid gap-4">
       <input type="hidden" name="themeSlug" value={themeSlug} />
 
-      <label className="grid gap-1 text-sm">
-        <span className="text-gray-600">
-          Title <span className="text-xs text-gray-400">(optional)</span>
-        </span>
-        <input
+      <div className="grid gap-2">
+        <Label htmlFor="generate-title">
+          Title <span className="text-muted-foreground text-xs">(optional)</span>
+        </Label>
+        <Input
+          id="generate-title"
           name="title"
           placeholder="Page title"
-          className="rounded border p-2"
           maxLength={200}
         />
-      </label>
+      </div>
 
-      <label className="grid gap-1 text-sm">
-        <span className="text-gray-600">Page type</span>
-        <select name="pageType" defaultValue="landing" className="rounded border p-2">
+      <div className="grid gap-2">
+        <Label htmlFor="generate-pageType">Page type</Label>
+        <select
+          id="generate-pageType"
+          name="pageType"
+          defaultValue="landing"
+          className="border-input bg-background focus-visible:border-ring focus-visible:ring-ring/50 h-9 rounded-md border px-3 py-1 text-sm shadow-sm outline-none transition-colors focus-visible:ring-3"
+        >
           {PAGE_TYPES.map((t) => (
             <option key={t.value} value={t.value}>
               {t.label}
             </option>
           ))}
         </select>
-      </label>
+      </div>
 
-      <label className="grid gap-1 text-sm">
-        <span className="text-gray-600">Prompt</span>
-        <textarea
+      <div className="grid gap-2">
+        <Label htmlFor="generate-prompt">Prompt</Label>
+        <Textarea
+          id="generate-prompt"
           name="prompt"
           rows={5}
           required
           minLength={3}
           maxLength={2000}
           placeholder="Describe what this page should say, who it's for, and the call to action."
-          className="rounded border p-2"
         />
-      </label>
+      </div>
 
       {state?.error && (
-        <p className="rounded border border-red-300 bg-red-50 p-2 text-sm text-red-700">
-          {state.error}
-        </p>
+        <Alert variant="destructive">
+          <AlertDescription>{state.error}</AlertDescription>
+        </Alert>
       )}
 
-      <button
-        type="submit"
-        disabled={pending}
-        className="justify-self-start rounded bg-black px-4 py-2 text-sm text-white disabled:opacity-50"
-      >
-        {pending ? "Generating…" : "Generate draft"}
-      </button>
+      <div>
+        <Button type="submit" disabled={pending}>
+          {pending ? "Generating…" : "Generate draft"}
+        </Button>
+      </div>
     </form>
   );
 }

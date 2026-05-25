@@ -1,6 +1,15 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
 
 interface Msg {
   role: "user" | "assistant";
@@ -43,32 +52,35 @@ export function SidebarChat({ postId }: { postId: string }) {
   }
 
   return (
-    <aside className="rounded border p-3 text-sm">
-      <h2 className="mb-2 text-base font-semibold">Assistant</h2>
-      <div className="mb-2 max-h-72 space-y-2 overflow-y-auto">
-        {msgs.map((m, i) => (
-          <p
-            key={i}
-            className={m.role === "user" ? "rounded bg-gray-100 p-2" : "p-2 text-gray-800"}
-          >
-            <span className="mr-1 font-mono text-xs uppercase text-gray-500">{m.role}:</span>
-            {m.content}
-          </p>
-        ))}
-      </div>
-      <textarea
-        ref={inputRef}
-        rows={2}
-        placeholder="Ask about this post..."
-        className="w-full rounded border px-2 py-1"
-      />
-      <button
-        onClick={send}
-        disabled={pending}
-        className="mt-2 rounded bg-black px-3 py-1.5 text-xs text-white disabled:opacity-50"
-      >
-        {pending ? "Thinking..." : "Send"}
-      </button>
+    <aside>
+      <Card>
+        <CardHeader>
+          <CardTitle>Assistant</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="max-h-72 space-y-2 overflow-y-auto">
+            {msgs.map((m, i) => (
+              <div
+                key={i}
+                className={
+                  m.role === "user"
+                    ? "rounded bg-muted p-2 text-sm"
+                    : "rounded p-2 text-sm text-foreground"
+                }
+              >
+                <Badge variant="outline" className="mr-2 font-mono text-[10px] uppercase">
+                  {m.role}
+                </Badge>
+                <span>{m.content}</span>
+              </div>
+            ))}
+          </div>
+          <Textarea ref={inputRef} rows={2} placeholder="Ask about this post..." />
+          <Button onClick={send} disabled={pending} size="sm">
+            {pending ? "Thinking..." : "Send"}
+          </Button>
+        </CardContent>
+      </Card>
     </aside>
   );
 }

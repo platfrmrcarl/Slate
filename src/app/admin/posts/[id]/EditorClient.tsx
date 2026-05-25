@@ -6,6 +6,29 @@ import type { Block } from "@/blocks/types";
 import { savePostAction, publishPostAction, deletePostAction } from "@/app/actions/posts";
 import { RewritePanel } from "@/app/admin/_components/RewritePanel";
 import { AutoSeoButton } from "@/app/admin/_components/AutoSeoButton";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 interface Props {
   postId: string;
@@ -28,6 +51,7 @@ export function EditorClient(props: Props): React.ReactElement {
   const [pending, start] = useTransition();
   const [status, setStatus] = useState(props.status);
   const [error, setError] = useState<string | null>(null);
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   function buildFormData(): FormData {
     const fd = new FormData();
@@ -65,8 +89,8 @@ export function EditorClient(props: Props): React.ReactElement {
     });
   }
 
-  function destroy(): void {
-    if (!confirm("Delete this post?")) return;
+  function confirmDestroy(): void {
+    setDeleteOpen(false);
     start(async () => {
       const fd = new FormData();
       fd.append("id", props.postId);
@@ -77,59 +101,71 @@ export function EditorClient(props: Props): React.ReactElement {
 
   return (
     <div className="grid gap-4">
-      <div className="grid gap-2 rounded border bg-white p-4">
-        <label className="grid gap-1 text-sm">
-          <span className="text-gray-600">Title</span>
-          <input
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="rounded border p-2"
-          />
-        </label>
-        <label className="grid gap-1 text-sm">
-          <span className="text-gray-600">Slug</span>
-          <input
-            value={slug}
-            onChange={(e) => setSlug(e.target.value)}
-            className="rounded border p-2"
-          />
-        </label>
-        <label className="grid gap-1 text-sm">
-          <span className="text-gray-600">Excerpt</span>
-          <input
-            value={excerpt}
-            onChange={(e) => setExcerpt(e.target.value)}
-            className="rounded border p-2"
-          />
-        </label>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Details</CardTitle>
+          <CardDescription>Title, slug, and excerpt for this post.</CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-4">
+          <div className="grid gap-2">
+            <Label htmlFor="post-title">Title</Label>
+            <Input
+              id="post-title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="post-slug">Slug</Label>
+            <Input
+              id="post-slug"
+              value={slug}
+              onChange={(e) => setSlug(e.target.value)}
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="post-excerpt">Excerpt</Label>
+            <Input
+              id="post-excerpt"
+              value={excerpt}
+              onChange={(e) => setExcerpt(e.target.value)}
+            />
+          </div>
+        </CardContent>
+      </Card>
 
       <RewritePanel />
 
       <Editor initialBlocks={blocks} onChange={setBlocks} />
 
-      <details className="rounded border bg-white p-4 text-sm">
-        <summary className="cursor-pointer font-medium">SEO</summary>
-        <div className="mt-3 grid gap-3">
-          <label className="grid gap-1">
-            <span className="text-gray-600">SEO title</span>
-            <input
+      <Card>
+        <CardHeader>
+          <CardTitle>SEO</CardTitle>
+          <CardDescription>
+            Optional search-engine title and description. AI suggestions populate the
+            fields but don&apos;t auto-save.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-4">
+          <div className="grid gap-2">
+            <Label htmlFor="post-seo-title">SEO title</Label>
+            <Input
+              id="post-seo-title"
               value={seoTitle}
               onChange={(e) => setSeoTitle(e.target.value)}
               maxLength={120}
-              className="rounded border p-2"
             />
-          </label>
-          <label className="grid gap-1">
-            <span className="text-gray-600">SEO description</span>
-            <textarea
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="post-seo-description">SEO description</Label>
+            <Textarea
+              id="post-seo-description"
               value={seoDescription}
               onChange={(e) => setSeoDescription(e.target.value)}
               rows={3}
               maxLength={300}
-              className="rounded border p-2"
             />
-          </label>
+          </div>
           <AutoSeoButton
             title={title}
             blocks={blocks}
@@ -139,34 +175,46 @@ export function EditorClient(props: Props): React.ReactElement {
               setSeoDescription(d);
             }}
           />
-          <p className="text-xs text-gray-500">
-            AI suggestions populate the fields but don&apos;t auto-save. Click <em>Save draft</em>
-            when ready.
-          </p>
-        </div>
-      </details>
+        </CardContent>
+      </Card>
 
-      {error && <p className="text-sm text-red-700">{error}</p>}
+      {error && (
+        <Alert variant="destructive">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
 
-      <div className="flex items-center gap-2">
-        <button onClick={save} disabled={pending} className="rounded border px-4 py-2">
+      <div className="flex flex-wrap items-center gap-2">
+        <Button variant="outline" onClick={save} disabled={pending}>
           Save draft
-        </button>
-        <button
-          onClick={publish}
-          disabled={pending}
-          className="rounded bg-black px-4 py-2 text-white"
-        >
+        </Button>
+        <Button onClick={publish} disabled={pending}>
           Publish
-        </button>
-        <span className="text-xs text-gray-500">status: {status}</span>
-        <button
-          onClick={destroy}
-          disabled={pending}
-          className="ml-auto rounded border border-red-300 px-4 py-2 text-red-700"
-        >
-          Delete
-        </button>
+        </Button>
+        <Badge variant="outline" className="ml-1">
+          {status}
+        </Badge>
+        <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+          <DialogTrigger
+            render={<Button variant="destructive" className="ml-auto" disabled={pending} />}
+          >
+            Delete
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Delete this post?</DialogTitle>
+              <DialogDescription>
+                This action cannot be undone. The post and its content will be removed.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <DialogClose render={<Button variant="outline" />}>Cancel</DialogClose>
+              <Button variant="destructive" onClick={confirmDestroy} disabled={pending}>
+                Delete post
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
