@@ -3,6 +3,24 @@ import type { Route } from "next";
 import { requireRole } from "@/auth/context";
 import { listUsers } from "@/auth/users";
 import type { Role } from "@/db/schema";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 export const dynamic = "force-dynamic";
 
@@ -10,6 +28,27 @@ const ROLES: Role[] = ["owner", "admin", "editor", "author", "contributor", "sub
 
 function isRole(s: string | undefined): s is Role {
   return !!s && (ROLES as readonly string[]).includes(s);
+}
+
+function roleVariant(role: Role): "default" | "secondary" | "outline" | "destructive" {
+  switch (role) {
+    case "owner":
+      return "destructive";
+    case "admin":
+      return "default";
+    case "editor":
+    case "author":
+      return "secondary";
+    default:
+      return "outline";
+  }
+}
+
+function initials(name: string): string {
+  const parts = name.trim().split(/\s+/);
+  const first = parts[0]?.[0] ?? "";
+  const second = parts.length > 1 ? (parts[parts.length - 1]?.[0] ?? "") : "";
+  return (first + second).toUpperCase() || "?";
 }
 
 export default async function UsersPage({
@@ -23,68 +62,105 @@ export default async function UsersPage({
   const items = await listUsers(filter ? { role: filter } : {});
 
   return (
-    <section>
-      <header className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Users</h1>
-        <Link
-          href={"/admin/users/new" as Route}
-          className="rounded bg-black px-3 py-1.5 text-sm text-white"
-        >
+    <div className="space-y-6">
+      <header className="flex items-center justify-between gap-4">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-semibold tracking-tight">Users</h1>
+          <p className="text-muted-foreground text-sm">
+            Manage user accounts, roles, and access.
+          </p>
+        </div>
+        <Button nativeButton={false} render={<Link href={"/admin/users/new" as Route} />}>
           New user
-        </Link>
+        </Button>
       </header>
-      <nav className="mb-4 flex gap-3 text-sm">
-        <Link
-          href={"/admin/users" as Route}
-          className={!filter ? "font-semibold underline" : "underline-offset-2 hover:underline"}
+
+      <nav className="flex flex-wrap gap-1">
+        <Button
+          variant={!filter ? "secondary" : "ghost"}
+          size="sm"
+          nativeButton={false}
+          render={<Link href={"/admin/users" as Route} />}
         >
           all
-        </Link>
+        </Button>
         {ROLES.map((r) => (
-          <Link
+          <Button
             key={r}
-            href={`/admin/users?role=${r}` as Route}
-            className={
-              filter === r ? "font-semibold underline" : "underline-offset-2 hover:underline"
-            }
+            variant={filter === r ? "secondary" : "ghost"}
+            size="sm"
+            nativeButton={false}
+            render={<Link href={`/admin/users?role=${r}` as Route} />}
           >
             {r}
-          </Link>
+          </Button>
         ))}
       </nav>
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="border-b text-left text-gray-500">
-            <th className="py-2">Email</th>
-            <th>Display name</th>
-            <th>Role</th>
-            <th>Created</th>
-            <th>Verified</th>
-          </tr>
-        </thead>
-        <tbody>
-          {items.map((u) => (
-            <tr key={u.id} className="border-b">
-              <td className="py-2">
-                <Link className="underline" href={`/admin/users/${u.id}` as Route}>
-                  {u.email}
-                </Link>
-              </td>
-              <td>{u.displayName}</td>
-              <td>{u.role}</td>
-              <td>{u.createdAt.toISOString().slice(0, 10)}</td>
-              <td>{u.emailVerifiedAt ? "yes" : "no"}</td>
-            </tr>
-          ))}
-          {items.length === 0 && (
-            <tr>
-              <td colSpan={5} className="py-4 text-center text-gray-500">
-                No users found.
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
-    </section>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>All users</CardTitle>
+          <CardDescription>
+            {items.length === 0 ? "No users found." : `${items.length} user(s) shown.`}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>User</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Role</TableHead>
+                <TableHead>Created</TableHead>
+                <TableHead>Verified</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {items.map((u) => (
+                <TableRow key={u.id}>
+                  <TableCell className="font-medium">
+                    <div className="flex items-center gap-2">
+                      <Avatar size="sm">
+                        <AvatarFallback>{initials(u.displayName)}</AvatarFallback>
+                      </Avatar>
+                      <Button
+                        variant="link"
+                        size="sm"
+                        className="h-auto px-0"
+                        nativeButton={false}
+                        render={<Link href={`/admin/users/${u.id}` as Route} />}
+                      >
+                        {u.displayName}
+                      </Button>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">{u.email}</TableCell>
+                  <TableCell>
+                    <Badge variant={roleVariant(u.role)}>{u.role}</Badge>
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {u.createdAt.toISOString().slice(0, 10)}
+                  </TableCell>
+                  <TableCell>
+                    {u.emailVerifiedAt ? (
+                      <Badge variant="outline">yes</Badge>
+                    ) : (
+                      <Badge variant="secondary">no</Badge>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
+              {items.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-muted-foreground py-4 text-center">
+                    No users found.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+    </div>
   );
 }

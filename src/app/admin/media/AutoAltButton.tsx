@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { requestMediaAltTextAction } from "@/app/actions/ai";
+import { Button } from "@/components/ui/button";
 
 interface Props {
   mediaId: string;
@@ -36,30 +37,36 @@ export function AutoAltButton({ mediaId }: Props): React.ReactElement {
 
   if (status === "queued") {
     return (
-      <p className="text-[10px] text-gray-600">
+      <p className="text-muted-foreground text-[10px]">
         Generation in progress…{" "}
-        <button
+        <Button
           type="button"
+          variant="link"
+          size="xs"
+          className="h-auto px-0 text-[10px]"
           onClick={() => router.refresh()}
-          className="underline underline-offset-2"
         >
           Reload
-        </button>
+        </Button>
       </p>
     );
   }
 
   return (
     <div className="grid gap-1">
-      <button
+      <Button
         type="button"
+        variant="outline"
+        size="xs"
         onClick={run}
         disabled={pending}
-        className="rounded border px-2 py-1 text-[10px] disabled:opacity-50"
+        className="text-[10px]"
       >
         {pending ? "Queuing…" : "Generate alt text"}
-      </button>
-      {status === "error" && error && <p className="text-[10px] text-red-700">{error}</p>}
+      </Button>
+      {status === "error" && error && (
+        <p className="text-destructive text-[10px]">{error}</p>
+      )}
     </div>
   );
 }

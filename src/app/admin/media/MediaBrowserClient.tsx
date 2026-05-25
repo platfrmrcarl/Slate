@@ -2,6 +2,8 @@
 
 import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 
 export function MediaBrowserClient(): React.ReactElement {
   const router = useRouter();
@@ -59,17 +61,31 @@ export function MediaBrowserClient(): React.ReactElement {
     if (fileRef.current) fileRef.current.value = "";
   }
 
+  function openPicker(): void {
+    fileRef.current?.click();
+  }
+
   return (
-    <div className="flex items-center gap-2">
-      {error && <span className="text-sm text-red-600">{error}</span>}
-      <input
-        ref={fileRef}
-        type="file"
-        multiple
-        onChange={onChange}
-        disabled={pending}
-        className="text-sm"
-      />
+    <div className="flex flex-col items-end gap-2">
+      <div className="flex items-center gap-2">
+        <input
+          ref={fileRef}
+          type="file"
+          multiple
+          onChange={onChange}
+          disabled={pending}
+          className="sr-only"
+          aria-label="Upload media files"
+        />
+        <Button type="button" onClick={openPicker} disabled={pending}>
+          {pending ? "Uploading…" : "Upload"}
+        </Button>
+      </div>
+      {error && (
+        <Alert variant="destructive" className="w-full max-w-sm">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
     </div>
   );
 }
