@@ -38,7 +38,7 @@ export async function GET(
       const tokens = await client.validateAuthorizationCode(code, codeVerifier);
       const profile = await fetchGoogleProfile(tokens.accessToken());
       if (!profile.email_verified) return new Response("email not verified", { status: 400 });
-      const user = await upsertOAuthUser({
+      const { user } = await upsertOAuthUser({
         provider: "google",
         providerAccountId: profile.sub,
         email: profile.email,
@@ -53,7 +53,7 @@ export async function GET(
       const profile = await fetchGitHubProfile(tokens.accessToken());
       const email = await fetchPrimaryGitHubEmail(tokens.accessToken());
       if (!email) return new Response("no verified email on github account", { status: 400 });
-      const user = await upsertOAuthUser({
+      const { user } = await upsertOAuthUser({
         provider: "github",
         providerAccountId: String(profile.id),
         email,

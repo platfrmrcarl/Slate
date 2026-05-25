@@ -25,8 +25,8 @@ describe.runIf(HAS_DB)("upsertOAuthUser", () => {
       email,
       displayName: "G",
     });
-    userIds.push(u.id);
-    expect(u.email).toBe(email);
+    userIds.push(u.user.id);
+    expect(u.user.email).toBe(email);
   });
 
   it("returns the linked user on second sign-in", async () => {
@@ -38,14 +38,14 @@ describe.runIf(HAS_DB)("upsertOAuthUser", () => {
       email,
       displayName: "G",
     });
-    userIds.push(first.id);
+    userIds.push(first.user.id);
     const second = await upsertOAuthUser({
       provider: "google",
       providerAccountId,
       email,
       displayName: "G",
     });
-    expect(second.id).toBe(first.id);
+    expect(second.user.id).toBe(first.user.id);
   });
 
   it("links to an existing email-matching user", async () => {
@@ -62,12 +62,63 @@ describe.runIf(HAS_DB)("upsertOAuthUser", () => {
       email,
       displayName: "GH",
     });
-    expect(linked.id).toBe(existing!.id);
+    expect(linked.user.id).toBe(existing!.id);
     const links = await db()
       .select()
       .from(oauthAccounts)
       .where(sql`${oauthAccounts.userId} = ${existing!.id}`);
     expect(links).toHaveLength(1);
     expect(links[0]!.provider).toBe("github");
+  });
+});
+
+describe.runIf(HAS_DB)("upsertOAuthUser isNew flag", () => {
+  it("returns isNew=true for a brand-new user", async () => {
+    const email = `oauth-isnew-${Date.now()}@example.com`;
+    const result = await upsertOAuthUser({
+      provider: "google",
+      providerAccountId: `g-isnew-${Date.now()}`,
+      email,
+      displayName: "N",
+    });
+    userIds.push(result.user.id);
+    expect(result.isNew).toBe(true);
+  });
+
+  it("returns isNew=false when the oauth link already exists", async () => {
+    const email = `oauth-link-${Date.now()}@example.com`;
+    const providerAccountId = `g-link-${Date.now()}`;
+    const first = await upsertOAuthUser({
+      provider: "google",
+      providerAccountId,
+      email,
+      displayName: "L",
+    });
+    userIds.push(first.user.id);
+    const second = await upsertOAuthUser({
+      provider: "google",
+      providerAccountId,
+      email,
+      displayName: "L",
+    });
+    expect(second.isNew).toBe(false);
+    expect(second.user.id).toBe(first.user.id);
+  });
+
+  it("returns isNew=false when linking to an existing-by-email user", async () => {
+    const email = `oauth-byemail-${Date.now()}@example.com`;
+    const [pre] = await db()
+      .insert(users)
+      .values({ email, displayName: "P", role: "subscriber" })
+      .returning();
+    userIds.push(pre!.id);
+    const result = await upsertOAuthUser({
+      provider: "google",
+      providerAccountId: `g-byemail-${Date.now()}`,
+      email,
+      displayName: "P",
+    });
+    expect(result.isNew).toBe(false);
+    expect(result.user.id).toBe(pre!.id);
   });
 });

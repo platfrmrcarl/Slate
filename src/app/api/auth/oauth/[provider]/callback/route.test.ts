@@ -89,7 +89,7 @@ describe("GET /api/auth/oauth/[provider]/callback", () => {
       email_verified: true,
       name: "Alice",
     });
-    upsertOAuthUser.mockResolvedValue({ id: "u-1" });
+    upsertOAuthUser.mockResolvedValue({ user: { id: "u-1" }, isNew: true });
     createSession.mockResolvedValue({ token: "sess", expiresAt: new Date() });
     const res = await call("google", "?code=c&state=s1");
     expect(res.status).toBe(302);
