@@ -3,6 +3,12 @@
 import { useActionState, useMemo, useState } from "react";
 import type { ThemeManifest } from "@/themes/manifest";
 import { customizeThemeAction } from "@/app/actions/themes";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export function CustomizerForm({
   themeId,
@@ -26,86 +32,95 @@ export function CustomizerForm({
   );
 
   return (
-    <form action={action} className="space-y-4">
-      <input type="hidden" name="themeId" value={themeId} />
-      <input
-        type="hidden"
-        name="customizationJson"
-        value={JSON.stringify(
-          Object.fromEntries(
-            Object.entries(local).map(([k, v]) => [
-              k,
-              v === "true" ? true : v === "false" ? false : v,
-            ]),
-          ),
-        )}
-      />
-      {manifest.customizations.map((c) => (
-        <label key={c.key} className="block text-sm">
-          <span className="mb-1 block font-medium">{c.label}</span>
-          {c.type === "color" && (
-            <input
-              type="color"
-              value={String(local[c.key] ?? "#000000")}
-              onChange={(e) => setLocal((s) => ({ ...s, [c.key]: e.target.value }))}
-              className="h-9 w-16 rounded border"
-            />
+    <Card>
+      <CardContent>
+        <form action={action} className="space-y-4">
+          <input type="hidden" name="themeId" value={themeId} />
+          <input
+            type="hidden"
+            name="customizationJson"
+            value={JSON.stringify(
+              Object.fromEntries(
+                Object.entries(local).map(([k, v]) => [
+                  k,
+                  v === "true" ? true : v === "false" ? false : v,
+                ]),
+              ),
+            )}
+          />
+          {manifest.customizations.map((c) => (
+            <div key={c.key} className="grid gap-1.5">
+              <Label htmlFor={`cz-${c.key}`}>{c.label}</Label>
+              {c.type === "color" && (
+                <input
+                  id={`cz-${c.key}`}
+                  type="color"
+                  value={String(local[c.key] ?? "#000000")}
+                  onChange={(e) => setLocal((s) => ({ ...s, [c.key]: e.target.value }))}
+                  className="border-input h-9 w-16 rounded-lg border"
+                />
+              )}
+              {c.type === "text" && (
+                <Input
+                  id={`cz-${c.key}`}
+                  type="text"
+                  value={String(local[c.key] ?? "")}
+                  onChange={(e) => setLocal((s) => ({ ...s, [c.key]: e.target.value }))}
+                />
+              )}
+              {c.type === "font" && (
+                <Input
+                  id={`cz-${c.key}`}
+                  type="text"
+                  value={String(local[c.key] ?? "")}
+                  onChange={(e) => setLocal((s) => ({ ...s, [c.key]: e.target.value }))}
+                  placeholder='e.g. "Inter, system-ui, sans-serif"'
+                />
+              )}
+              {c.type === "boolean" && (
+                <Checkbox
+                  id={`cz-${c.key}`}
+                  checked={local[c.key] === true || local[c.key] === "true"}
+                  onCheckedChange={(checked) =>
+                    setLocal((s) => ({ ...s, [c.key]: String(checked === true) }))
+                  }
+                />
+              )}
+              {c.type === "select" && (
+                <select
+                  id={`cz-${c.key}`}
+                  value={String(local[c.key] ?? c.default)}
+                  onChange={(e) => setLocal((s) => ({ ...s, [c.key]: e.target.value }))}
+                  className="border-input bg-background h-8 w-fit rounded-lg border px-2.5 text-sm"
+                >
+                  {c.options.map((o) => (
+                    <option key={o.value} value={o.value}>
+                      {o.label}
+                    </option>
+                  ))}
+                </select>
+              )}
+              {c.type === "image" && (
+                <Input
+                  id={`cz-${c.key}`}
+                  type="text"
+                  placeholder="media UUID"
+                  value={String(local[c.key] ?? "")}
+                  onChange={(e) => setLocal((s) => ({ ...s, [c.key]: e.target.value }))}
+                />
+              )}
+            </div>
+          ))}
+          {state?.error && (
+            <Alert variant="destructive">
+              <AlertDescription>{state.error}</AlertDescription>
+            </Alert>
           )}
-          {c.type === "text" && (
-            <input
-              type="text"
-              value={String(local[c.key] ?? "")}
-              onChange={(e) => setLocal((s) => ({ ...s, [c.key]: e.target.value }))}
-              className="w-full rounded border px-2 py-1"
-            />
-          )}
-          {c.type === "font" && (
-            <input
-              type="text"
-              value={String(local[c.key] ?? "")}
-              onChange={(e) => setLocal((s) => ({ ...s, [c.key]: e.target.value }))}
-              className="w-full rounded border px-2 py-1"
-              placeholder='e.g. "Inter, system-ui, sans-serif"'
-            />
-          )}
-          {c.type === "boolean" && (
-            <input
-              type="checkbox"
-              checked={local[c.key] === true || local[c.key] === "true"}
-              onChange={(e) => setLocal((s) => ({ ...s, [c.key]: String(e.target.checked) }))}
-            />
-          )}
-          {c.type === "select" && (
-            <select
-              value={String(local[c.key] ?? c.default)}
-              onChange={(e) => setLocal((s) => ({ ...s, [c.key]: e.target.value }))}
-              className="rounded border px-2 py-1"
-            >
-              {c.options.map((o) => (
-                <option key={o.value} value={o.value}>
-                  {o.label}
-                </option>
-              ))}
-            </select>
-          )}
-          {c.type === "image" && (
-            <input
-              type="text"
-              placeholder="media UUID"
-              value={String(local[c.key] ?? "")}
-              onChange={(e) => setLocal((s) => ({ ...s, [c.key]: e.target.value }))}
-              className="w-full rounded border px-2 py-1"
-            />
-          )}
-        </label>
-      ))}
-      {state?.error && <p className="text-sm text-red-700">{state.error}</p>}
-      <button
-        disabled={pending}
-        className="rounded bg-black px-3 py-1.5 text-sm text-white disabled:opacity-50"
-      >
-        {pending ? "Saving…" : "Save customization"}
-      </button>
-    </form>
+          <Button type="submit" disabled={pending} size="sm">
+            {pending ? "Saving…" : "Save customization"}
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
   );
 }

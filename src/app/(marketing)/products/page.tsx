@@ -19,15 +19,15 @@ export default function ProductsPage() {
       <main>
         <section className="px-6 pt-20 pb-12 text-center md:pt-28">
           <div className="mx-auto max-w-[720px]">
-            <p className="mb-6 font-mono text-[11px] uppercase tracking-[0.18em] text-[var(--slate-fg-subtle)]">
+            <p className="text-muted-foreground mb-6 font-mono text-[11px] uppercase tracking-[0.18em]">
               Plans
             </p>
-            <h1 className="marketing-serif text-5xl leading-[1.04] tracking-tight text-[var(--slate-fg)] md:text-6xl">
+            <h1 className="marketing-serif text-foreground text-5xl leading-[1.04] tracking-tight md:text-6xl">
               Built to run sites,
               <br />
               not your servers.
             </h1>
-            <p className="mx-auto mt-6 max-w-[520px] text-[15px] leading-relaxed text-[var(--slate-fg-muted)]">
+            <p className="text-muted-foreground mx-auto mt-6 max-w-[520px] text-[15px] leading-relaxed">
               Every tier is fully managed. Pay for what you need — bandwidth, AI tokens, and editors
               scale with the plan, not with line items.
             </p>

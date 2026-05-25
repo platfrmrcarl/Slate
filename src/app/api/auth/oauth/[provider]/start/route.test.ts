@@ -75,4 +75,45 @@ describe("GET /api/auth/oauth/[provider]/start", () => {
     const res = await call("facebook");
     expect(res.status).toBe(404);
   });
+
+  it("sets the tier cookie when a valid tier is supplied for google", async () => {
+    googleClient.mockReturnValue({
+      createAuthorizationURL: () => new URL("https://accounts.google.com/x"),
+    });
+    await GET(new Request("http://x/api/auth/oauth/google/start?tier=premium"), {
+      params: Promise.resolve({ provider: "google" }),
+    });
+    const tierCall = cookieSet.mock.calls.find(
+      ([opts]) => opts?.name === "oauth_signup_tier",
+    );
+    expect(tierCall).toBeDefined();
+    expect(tierCall![0].value).toBe("premium");
+    expect(tierCall![0].httpOnly).toBe(true);
+    expect(tierCall![0].sameSite).toBe("lax");
+    expect(tierCall![0].maxAge).toBe(600);
+  });
+
+  it("does NOT set the tier cookie when tier is invalid", async () => {
+    googleClient.mockReturnValue({
+      createAuthorizationURL: () => new URL("https://accounts.google.com/x"),
+    });
+    await GET(new Request("http://x/api/auth/oauth/google/start?tier=bogus"), {
+      params: Promise.resolve({ provider: "google" }),
+    });
+    const tierCall = cookieSet.mock.calls.find(
+      ([opts]) => opts?.name === "oauth_signup_tier",
+    );
+    expect(tierCall).toBeUndefined();
+  });
+
+  it("does NOT set the tier cookie when tier is absent", async () => {
+    googleClient.mockReturnValue({
+      createAuthorizationURL: () => new URL("https://accounts.google.com/x"),
+    });
+    await call("google");
+    const tierCall = cookieSet.mock.calls.find(
+      ([opts]) => opts?.name === "oauth_signup_tier",
+    );
+    expect(tierCall).toBeUndefined();
+  });
 });

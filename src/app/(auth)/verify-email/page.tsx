@@ -5,6 +5,7 @@ import type { Route } from "next";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { verifyEmailAction } from "@/app/actions/auth";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface State {
   ok?: boolean;
@@ -26,31 +27,42 @@ function VerifyEmailInner() {
 
   if (state?.ok) {
     return (
-      <main className="mx-auto mt-20 max-w-md p-6">
-        <h1 className="mb-4 text-2xl font-bold">Email verified</h1>
-        <p>You&apos;re all set.</p>
-        <Link className="mt-3 inline-block underline" href={"/" as Route}>
+      <section className="space-y-3">
+        <header className="space-y-1">
+          <h2 className="text-2xl font-semibold tracking-tight">Email verified</h2>
+        </header>
+        <p className="text-muted-foreground text-sm">You&apos;re all set.</p>
+        <Link href={"/" as Route} className="text-sm underline-offset-4 hover:underline">
           Continue
         </Link>
-      </main>
+      </section>
     );
   }
   if (state?.error) {
     return (
-      <main className="mx-auto mt-20 max-w-md p-6">
-        <h1 className="mb-4 text-2xl font-bold">Verification failed</h1>
-        <p className="text-sm text-red-700">{state.error}</p>
-        <Link className="mt-3 inline-block underline" href={"/admin/profile" as Route}>
+      <section className="space-y-3">
+        <header className="space-y-1">
+          <h2 className="text-2xl font-semibold tracking-tight">Verification failed</h2>
+        </header>
+        <Alert variant="destructive">
+          <AlertDescription>{state.error}</AlertDescription>
+        </Alert>
+        <Link
+          href={"/admin/profile" as Route}
+          className="text-sm underline-offset-4 hover:underline"
+        >
           Resend verification email
         </Link>
-      </main>
+      </section>
     );
   }
   return (
-    <main className="mx-auto mt-20 max-w-md p-6">
-      <h1 className="mb-4 text-2xl font-bold">Verifying…</h1>
-      <p>Hold tight.</p>
-    </main>
+    <section className="space-y-3">
+      <header className="space-y-1">
+        <h2 className="text-2xl font-semibold tracking-tight">Verifying…</h2>
+      </header>
+      <p className="text-muted-foreground text-sm">Hold tight.</p>
+    </section>
   );
 }
 
@@ -58,9 +70,9 @@ export default function VerifyEmailPage() {
   return (
     <Suspense
       fallback={
-        <main className="mx-auto mt-20 max-w-md p-6">
-          <p>Loading…</p>
-        </main>
+        <section className="space-y-1">
+          <p className="text-muted-foreground text-sm">Loading…</p>
+        </section>
       }
     >
       <VerifyEmailInner />

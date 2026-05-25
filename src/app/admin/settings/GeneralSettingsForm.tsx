@@ -2,6 +2,18 @@
 
 import { useActionState } from "react";
 import { saveGeneralSettingsAction } from "@/app/actions/settings";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 interface FormState {
   error?: string;
@@ -31,76 +43,112 @@ export function GeneralSettingsForm({
   const fe = state?.fieldErrors ?? {};
 
   return (
-    <form action={action} className="max-w-xl space-y-4">
-      <label className="block text-sm">
-        <span className="mb-1 block font-semibold">Site title</span>
-        <input
-          name="siteTitle"
-          defaultValue={initial.siteTitle}
-          required
-          className="w-full rounded border px-2 py-1"
-        />
-        {fe.siteTitle && <p className="mt-1 text-xs text-red-700">{fe.siteTitle}</p>}
-      </label>
+    <form action={action} className="grid max-w-2xl gap-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Site identity</CardTitle>
+          <CardDescription>How your site presents itself to visitors.</CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-4">
+          <div className="grid gap-2">
+            <Label htmlFor="siteTitle">Site title</Label>
+            <Input
+              id="siteTitle"
+              name="siteTitle"
+              defaultValue={initial.siteTitle}
+              required
+              aria-invalid={fe.siteTitle ? true : undefined}
+            />
+            {fe.siteTitle && <p className="text-destructive text-sm">{fe.siteTitle}</p>}
+          </div>
 
-      <label className="block text-sm">
-        <span className="mb-1 block font-semibold">Tagline</span>
-        <input
-          name="siteTagline"
-          defaultValue={initial.siteTagline}
-          className="w-full rounded border px-2 py-1"
-        />
-        {fe.siteTagline && <p className="mt-1 text-xs text-red-700">{fe.siteTagline}</p>}
-      </label>
+          <div className="grid gap-2">
+            <Label htmlFor="siteTagline">Tagline</Label>
+            <Input
+              id="siteTagline"
+              name="siteTagline"
+              defaultValue={initial.siteTagline}
+              aria-invalid={fe.siteTagline ? true : undefined}
+            />
+            {fe.siteTagline && <p className="text-destructive text-sm">{fe.siteTagline}</p>}
+          </div>
 
-      <label className="block text-sm">
-        <span className="mb-1 block font-semibold">Default locale</span>
-        <select
-          name="defaultLocale"
-          defaultValue={initial.defaultLocale}
-          className="rounded border px-2 py-1"
-        >
-          {enabledLocales.map((code) => (
-            <option key={code} value={code}>
-              {code}
-            </option>
-          ))}
-        </select>
-        {fe.defaultLocale && <p className="mt-1 text-xs text-red-700">{fe.defaultLocale}</p>}
-      </label>
+          <div className="grid gap-2">
+            <Label htmlFor="seoDescription">Site description (SEO)</Label>
+            <Textarea
+              id="seoDescription"
+              name="seoDescription"
+              defaultValue={initial.seoDescription}
+              rows={3}
+              aria-invalid={fe.seoDescription ? true : undefined}
+            />
+            {fe.seoDescription && (
+              <p className="text-destructive text-sm">{fe.seoDescription}</p>
+            )}
+          </div>
+        </CardContent>
+      </Card>
 
-      <label className="block text-sm">
-        <span className="mb-1 block font-semibold">Posts per page</span>
-        <input
-          name="postsPerPage"
-          type="number"
-          min={1}
-          max={100}
-          defaultValue={initial.postsPerPage}
-          className="w-32 rounded border px-2 py-1"
-        />
-        {fe.postsPerPage && <p className="mt-1 text-xs text-red-700">{fe.postsPerPage}</p>}
-      </label>
+      <Card>
+        <CardHeader>
+          <CardTitle>Reading</CardTitle>
+          <CardDescription>Defaults for content delivery and listings.</CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-4">
+          <div className="grid gap-2">
+            <Label htmlFor="defaultLocale">Default locale</Label>
+            <select
+              id="defaultLocale"
+              name="defaultLocale"
+              defaultValue={initial.defaultLocale}
+              className="border-input bg-background focus-visible:border-ring focus-visible:ring-ring/50 h-9 w-fit rounded-md border px-3 py-1 text-sm shadow-sm outline-none transition-colors focus-visible:ring-3"
+            >
+              {enabledLocales.map((code) => (
+                <option key={code} value={code}>
+                  {code}
+                </option>
+              ))}
+            </select>
+            {fe.defaultLocale && (
+              <p className="text-destructive text-sm">{fe.defaultLocale}</p>
+            )}
+          </div>
 
-      <label className="block text-sm">
-        <span className="mb-1 block font-semibold">Site description (SEO)</span>
-        <textarea
-          name="seoDescription"
-          defaultValue={initial.seoDescription}
-          rows={3}
-          className="w-full rounded border px-2 py-1"
-        />
-        {fe.seoDescription && <p className="mt-1 text-xs text-red-700">{fe.seoDescription}</p>}
-      </label>
+          <div className="grid gap-2">
+            <Label htmlFor="postsPerPage">Posts per page</Label>
+            <Input
+              id="postsPerPage"
+              name="postsPerPage"
+              type="number"
+              min={1}
+              max={100}
+              defaultValue={initial.postsPerPage}
+              className="w-32"
+              aria-invalid={fe.postsPerPage ? true : undefined}
+            />
+            {fe.postsPerPage && (
+              <p className="text-destructive text-sm">{fe.postsPerPage}</p>
+            )}
+          </div>
+        </CardContent>
+      </Card>
 
-      {state?.error && <p className="text-sm text-red-700">{state.error}</p>}
-      {state?.ok && <p className="text-sm text-green-700">Saved.</p>}
-      <button
-        disabled={pending}
-        className="rounded bg-black px-3 py-1.5 text-sm text-white disabled:opacity-50"
-      >
-        {pending ? "Saving…" : "Save"}
-      </button>
+      {state?.error && (
+        <Alert variant="destructive">
+          <AlertDescription>{state.error}</AlertDescription>
+        </Alert>
+      )}
+      {state?.ok && (
+        <Alert>
+          <AlertDescription>Saved.</AlertDescription>
+        </Alert>
+      )}
+
+      <div>
+        <Button type="submit" disabled={pending}>
+          {pending ? "Saving…" : "Save"}
+        </Button>
+      </div>
     </form>
   );
 }

@@ -6,6 +6,28 @@ import type { Block } from "@/blocks/types";
 import { publishAction, saveDraftAction, unpublishAction, deletePageAction } from "./actions";
 import { RewritePanel } from "@/app/admin/_components/RewritePanel";
 import { AutoSeoButton } from "@/app/admin/_components/AutoSeoButton";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 interface Props {
   pageId: string;
@@ -27,6 +49,7 @@ export function EditorClient(props: Props): React.ReactElement {
   const [seoDescription, setSeoDescription] = useState(props.seoDescription);
   const [pending, start] = useTransition();
   const [status, setStatus] = useState(props.status);
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   function buildFormData(): FormData {
     const fd = new FormData();
@@ -60,8 +83,8 @@ export function EditorClient(props: Props): React.ReactElement {
     });
   }
 
-  function destroy(): void {
-    if (!confirm("Move this page to trash?")) return;
+  function confirmDestroy(): void {
+    setDeleteOpen(false);
     start(async () => {
       await deletePageAction(props.pageId);
     });
@@ -76,59 +99,71 @@ export function EditorClient(props: Props): React.ReactElement {
 
   return (
     <div className="grid gap-4">
-      <div className="grid gap-2 rounded border bg-white p-4">
-        <label className="grid gap-1 text-sm">
-          <span className="text-gray-600">Title</span>
-          <input
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="rounded border p-2"
-          />
-        </label>
-        <label className="grid gap-1 text-sm">
-          <span className="text-gray-600">Slug</span>
-          <input
-            value={slug}
-            onChange={(e) => setSlug(e.target.value)}
-            className="rounded border p-2"
-          />
-        </label>
-        <label className="grid gap-1 text-sm">
-          <span className="text-gray-600">Excerpt</span>
-          <input
-            value={excerpt}
-            onChange={(e) => setExcerpt(e.target.value)}
-            className="rounded border p-2"
-          />
-        </label>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Details</CardTitle>
+          <CardDescription>Title, slug, and excerpt for this page.</CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-4">
+          <div className="grid gap-2">
+            <Label htmlFor="page-title">Title</Label>
+            <Input
+              id="page-title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="page-slug">Slug</Label>
+            <Input
+              id="page-slug"
+              value={slug}
+              onChange={(e) => setSlug(e.target.value)}
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="page-excerpt">Excerpt</Label>
+            <Input
+              id="page-excerpt"
+              value={excerpt}
+              onChange={(e) => setExcerpt(e.target.value)}
+            />
+          </div>
+        </CardContent>
+      </Card>
 
       <RewritePanel />
 
       <Editor initialBlocks={blocks} onChange={setBlocks} />
 
-      <details className="rounded border bg-white p-4 text-sm">
-        <summary className="cursor-pointer font-medium">SEO</summary>
-        <div className="mt-3 grid gap-3">
-          <label className="grid gap-1">
-            <span className="text-gray-600">SEO title</span>
-            <input
+      <Card>
+        <CardHeader>
+          <CardTitle>SEO</CardTitle>
+          <CardDescription>
+            Optional search-engine title and description. AI suggestions populate the
+            fields but don&apos;t auto-save.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-4">
+          <div className="grid gap-2">
+            <Label htmlFor="page-seo-title">SEO title</Label>
+            <Input
+              id="page-seo-title"
               value={seoTitle}
               onChange={(e) => setSeoTitle(e.target.value)}
               maxLength={120}
-              className="rounded border p-2"
             />
-          </label>
-          <label className="grid gap-1">
-            <span className="text-gray-600">SEO description</span>
-            <textarea
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="page-seo-description">SEO description</Label>
+            <Textarea
+              id="page-seo-description"
               value={seoDescription}
               onChange={(e) => setSeoDescription(e.target.value)}
               rows={3}
               maxLength={300}
-              className="rounded border p-2"
             />
-          </label>
+          </div>
           <AutoSeoButton
             title={title}
             blocks={blocks}
@@ -138,40 +173,50 @@ export function EditorClient(props: Props): React.ReactElement {
               setSeoDescription(d);
             }}
           />
-          <p className="text-xs text-gray-500">
-            AI suggestions populate the fields but don&apos;t auto-save. Click <em>Save draft</em>
-            when ready.
-          </p>
-        </div>
-      </details>
+        </CardContent>
+      </Card>
 
-      <div className="flex items-center gap-2">
-        <button onClick={save} disabled={pending} className="rounded border px-4 py-2">
+      <div className="flex flex-wrap items-center gap-2">
+        <Button variant="outline" onClick={save} disabled={pending}>
           Save draft
-        </button>
-        <button onClick={openPreview} disabled={pending} className="rounded border px-4 py-2">
+        </Button>
+        <Button variant="outline" onClick={openPreview} disabled={pending}>
           Preview
-        </button>
+        </Button>
         {status !== "published" ? (
-          <button
-            onClick={publish}
-            disabled={pending}
-            className="rounded bg-black px-4 py-2 text-white"
-          >
+          <Button onClick={publish} disabled={pending}>
             Publish
-          </button>
+          </Button>
         ) : (
-          <button onClick={unpublish} disabled={pending} className="rounded border px-4 py-2">
+          <Button variant="outline" onClick={unpublish} disabled={pending}>
             Unpublish
-          </button>
+          </Button>
         )}
-        <button
-          onClick={destroy}
-          disabled={pending}
-          className="ml-auto rounded border border-red-300 px-4 py-2 text-red-700"
-        >
-          Move to trash
-        </button>
+        <Badge variant="outline" className="ml-1">
+          {status}
+        </Badge>
+        <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+          <DialogTrigger
+            render={<Button variant="destructive" className="ml-auto" disabled={pending} />}
+          >
+            Move to trash
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Move this page to trash?</DialogTitle>
+              <DialogDescription>
+                The page will be hidden from your site. You can restore it later from the
+                trash list.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <DialogClose render={<Button variant="outline" />}>Cancel</DialogClose>
+              <Button variant="destructive" onClick={confirmDestroy} disabled={pending}>
+                Move to trash
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

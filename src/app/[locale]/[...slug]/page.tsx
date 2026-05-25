@@ -68,8 +68,8 @@ export default async function LocalePage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <h1 className="text-4xl font-bold">{page.title}</h1>
-      {page.excerpt && <p className="mt-2 text-gray-600">{page.excerpt}</p>}
+      <h1 className="text-4xl font-bold tracking-tight">{page.title}</h1>
+      {page.excerpt && <p className="text-muted-foreground mt-2">{page.excerpt}</p>}
       <div className="mt-8">
         <BlockRenderer blocks={page.blocks} />
       </div>

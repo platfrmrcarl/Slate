@@ -12,7 +12,12 @@ export interface OAuthIdentity {
   avatarUrl?: string;
 }
 
-export async function upsertOAuthUser(identity: OAuthIdentity): Promise<User> {
+export interface UpsertResult {
+  user: User;
+  isNew: boolean;
+}
+
+export async function upsertOAuthUser(identity: OAuthIdentity): Promise<UpsertResult> {
   const email = identity.email.trim().toLowerCase();
   return await db().transaction(async (tx) => {
     const linkRows = await tx
@@ -25,7 +30,7 @@ export async function upsertOAuthUser(identity: OAuthIdentity): Promise<User> {
           eq(oauthAccounts.providerAccountId, identity.providerAccountId),
         ),
       );
-    if (linkRows[0]) return linkRows[0].user;
+    if (linkRows[0]) return { user: linkRows[0].user, isNew: false };
 
     const existing = await tx.select().from(users).where(eq(users.email, email));
     if (existing[0]) {
@@ -34,7 +39,7 @@ export async function upsertOAuthUser(identity: OAuthIdentity): Promise<User> {
         providerAccountId: identity.providerAccountId,
         userId: existing[0].id,
       });
-      return existing[0];
+      return { user: existing[0], isNew: false };
     }
 
     const [created] = await tx
@@ -51,6 +56,6 @@ export async function upsertOAuthUser(identity: OAuthIdentity): Promise<User> {
       providerAccountId: identity.providerAccountId,
       userId: created!.id,
     });
-    return created!;
+    return { user: created!, isNew: true };
   });
 }

@@ -9,19 +9,35 @@ export const runtime = "nodejs";
 const STATE_COOKIE_PREFIX = "slate_oauth_state_";
 const PKCE_COOKIE_PREFIX = "slate_oauth_pkce_";
 const STATE_TTL_SEC = 600;
+const TIER_COOKIE_NAME = "oauth_signup_tier";
+const VALID_TIERS = new Set(["essential", "premium", "enterprise"]);
 
 function redirectTo(location: string): Response {
   return new Response(null, { status: 302, headers: { location } });
 }
 
 export async function GET(
-  _req: Request,
+  req: Request,
   ctx: { params: Promise<{ provider: string }> },
 ): Promise<Response> {
   const { provider } = await ctx.params;
+  const reqUrl = new URL(req.url);
+  const tier = reqUrl.searchParams.get("tier");
   const state = generateState();
   const cookieStore = await cookies();
   const secure = process.env.NODE_ENV === "production";
+
+  if (tier && VALID_TIERS.has(tier)) {
+    cookieStore.set({
+      name: TIER_COOKIE_NAME,
+      value: tier,
+      httpOnly: true,
+      secure,
+      sameSite: "lax",
+      path: "/",
+      maxAge: STATE_TTL_SEC,
+    });
+  }
 
   if (provider === "google") {
     const client = googleClient();

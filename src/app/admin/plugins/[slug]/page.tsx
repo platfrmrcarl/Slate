@@ -4,12 +4,46 @@ import { db } from "@/db";
 import { plugins, webhooks, webhookDeliveries } from "@/db/schema";
 import { desc, eq } from "drizzle-orm";
 import { rotateSecretAction } from "@/app/actions/plugins";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 export const dynamic = "force-dynamic";
 
 async function rotateAction(fd: FormData): Promise<void> {
   "use server";
   await rotateSecretAction(undefined, fd);
+}
+
+function deliveryVariant(
+  status: string,
+): "default" | "secondary" | "outline" | "destructive" {
+  switch (status) {
+    case "success":
+    case "delivered":
+      return "default";
+    case "failed":
+    case "error":
+      return "destructive";
+    case "pending":
+      return "secondary";
+    default:
+      return "outline";
+  }
 }
 
 export default async function PluginDetail({
@@ -31,60 +65,90 @@ export default async function PluginDetail({
     .orderBy(desc(webhookDeliveries.createdAt))
     .limit(50);
   return (
-    <main className="p-6">
-      <h1 className="mb-2 text-2xl font-bold">{plugin.name}</h1>
-      <p className="mb-4 text-sm text-gray-500">v{plugin.version}</p>
-      <section className="mb-6">
-        <h2 className="mb-2 text-lg font-semibold">Webhooks</h2>
-        {hooks.length === 0 ? (
-          <p className="text-xs text-gray-500">No webhooks registered for this plugin yet.</p>
-        ) : (
-          <ul className="space-y-2 text-sm">
-            {hooks.map((h) => (
-              <li key={h.id} className="rounded border p-3">
-                <code className="text-xs">{h.url}</code>
-                <p className="mt-1 text-xs text-gray-500">events: {h.events.join(", ")}</p>
-                <p className="mt-1 break-all font-mono text-xs">secret: {h.secret}</p>
-                <form action={rotateAction} className="mt-2">
-                  <input type="hidden" name="id" value={h.id} />
-                  <button type="submit" className="text-xs underline">
-                    Rotate secret
-                  </button>
-                </form>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-      <section>
-        <h2 className="mb-2 text-lg font-semibold">Recent deliveries</h2>
-        {recentDeliveries.length === 0 ? (
-          <p className="text-xs text-gray-500">No deliveries yet.</p>
-        ) : (
-          <table className="w-full text-xs">
-            <thead>
-              <tr className="border-b text-left text-gray-500">
-                <th className="py-1">Event</th>
-                <th>Status</th>
-                <th>Attempts</th>
-                <th>When</th>
-              </tr>
-            </thead>
-            <tbody>
-              {recentDeliveries.map((d) => (
-                <tr key={d.id} className="border-b">
-                  <td className="py-1 font-mono">{d.event}</td>
-                  <td>
-                    {d.status} {d.statusCode ? `(${d.statusCode})` : ""}
-                  </td>
-                  <td>{d.attempts}</td>
-                  <td>{d.createdAt.toISOString()}</td>
-                </tr>
+    <div className="space-y-6">
+      <header className="space-y-1">
+        <h1 className="text-2xl font-semibold tracking-tight">{plugin.name}</h1>
+        <p className="text-muted-foreground text-sm">v{plugin.version}</p>
+      </header>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Webhooks</CardTitle>
+          <CardDescription>
+            Outgoing webhook subscriptions registered by this plugin.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {hooks.length === 0 ? (
+            <p className="text-muted-foreground text-sm">
+              No webhooks registered for this plugin yet.
+            </p>
+          ) : (
+            <ul className="space-y-3">
+              {hooks.map((h) => (
+                <li
+                  key={h.id}
+                  className="border-border rounded-lg border p-3 text-sm"
+                >
+                  <code className="text-xs">{h.url}</code>
+                  <p className="text-muted-foreground mt-1 text-xs">
+                    events: {h.events.join(", ")}
+                  </p>
+                  <p className="mt-1 font-mono text-xs break-all">secret: {h.secret}</p>
+                  <form action={rotateAction} className="mt-2">
+                    <input type="hidden" name="id" value={h.id} />
+                    <Button type="submit" size="sm" variant="outline">
+                      Rotate secret
+                    </Button>
+                  </form>
+                </li>
               ))}
-            </tbody>
-          </table>
-        )}
-      </section>
-    </main>
+            </ul>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Recent deliveries</CardTitle>
+          <CardDescription>
+            {recentDeliveries.length === 0
+              ? "No deliveries yet."
+              : `${recentDeliveries.length} most recent webhook deliveries.`}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {recentDeliveries.length > 0 && (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Event</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Attempts</TableHead>
+                  <TableHead>When</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {recentDeliveries.map((d) => (
+                  <TableRow key={d.id}>
+                    <TableCell className="font-mono text-xs">{d.event}</TableCell>
+                    <TableCell>
+                      <Badge variant={deliveryVariant(d.status)}>
+                        {d.status}
+                        {d.statusCode ? ` (${d.statusCode})` : ""}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{d.attempts}</TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {d.createdAt.toISOString()}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 }

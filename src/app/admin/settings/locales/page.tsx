@@ -10,10 +10,15 @@ export default async function LocalesSettingsPage(): Promise<React.ReactElement>
   await requireRole("admin");
   const current = await getI18nSettings();
   return (
-    <section>
-      <h1 className="mb-4 text-2xl font-bold">Settings</h1>
+    <div className="space-y-6">
+      <header className="space-y-1">
+        <h1 className="text-2xl font-semibold tracking-tight">Settings</h1>
+        <p className="text-muted-foreground text-sm">
+          Configure site-wide options and localization.
+        </p>
+      </header>
       <SettingsSubnav current="/admin/settings/locales" />
       <LocalesForm catalogue={[...ALL_LOCALES]} current={current} />
-    </section>
+    </div>
   );
 }

@@ -89,7 +89,7 @@ describe("GET /api/auth/oauth/[provider]/callback", () => {
       email_verified: true,
       name: "Alice",
     });
-    upsertOAuthUser.mockResolvedValue({ id: "u-1" });
+    upsertOAuthUser.mockResolvedValue({ user: { id: "u-1" }, isNew: true });
     createSession.mockResolvedValue({ token: "sess", expiresAt: new Date() });
     const res = await call("google", "?code=c&state=s1");
     expect(res.status).toBe(302);
@@ -99,5 +99,65 @@ describe("GET /api/auth/oauth/[provider]/callback", () => {
     expect(cookieSet).toHaveBeenCalled();
     expect(cookieDelete).toHaveBeenCalledWith("slate_oauth_state_google");
     expect(cookieDelete).toHaveBeenCalledWith("slate_oauth_pkce_google");
+  });
+
+  it("redirects to /sign-up/checkout?tier=X for a NEW user when tier cookie is set", async () => {
+    cookieStore.set("slate_oauth_state_google", "s1");
+    cookieStore.set("slate_oauth_pkce_google", "pk1");
+    cookieStore.set("oauth_signup_tier", "premium");
+    googleClient.mockReturnValue({
+      validateAuthorizationCode: vi.fn().mockResolvedValue({ accessToken: () => "t" }),
+    });
+    fetchGoogleProfile.mockResolvedValue({
+      sub: "g-2",
+      email: "new@b.com",
+      email_verified: true,
+      name: "New",
+    });
+    upsertOAuthUser.mockResolvedValue({ user: { id: "u-2" }, isNew: true });
+    createSession.mockResolvedValue({ token: "sess", expiresAt: new Date() });
+    const res = await call("google", "?code=c&state=s1");
+    expect(res.status).toBe(302);
+    expect(res.headers.get("location")).toBe("/sign-up/checkout?tier=premium");
+    expect(cookieDelete).toHaveBeenCalledWith("oauth_signup_tier");
+  });
+
+  it("IGNORES tier and redirects to / for an EXISTING user even if tier cookie is set", async () => {
+    cookieStore.set("slate_oauth_state_google", "s1");
+    cookieStore.set("slate_oauth_pkce_google", "pk1");
+    cookieStore.set("oauth_signup_tier", "premium");
+    googleClient.mockReturnValue({
+      validateAuthorizationCode: vi.fn().mockResolvedValue({ accessToken: () => "t" }),
+    });
+    fetchGoogleProfile.mockResolvedValue({
+      sub: "g-3",
+      email: "old@b.com",
+      email_verified: true,
+      name: "Old",
+    });
+    upsertOAuthUser.mockResolvedValue({ user: { id: "u-3" }, isNew: false });
+    createSession.mockResolvedValue({ token: "sess", expiresAt: new Date() });
+    const res = await call("google", "?code=c&state=s1");
+    expect(res.status).toBe(302);
+    expect(res.headers.get("location")).toBe("/");
+    expect(cookieDelete).toHaveBeenCalledWith("oauth_signup_tier");
+  });
+
+  it("clears the tier cookie even when no tier cookie was set", async () => {
+    cookieStore.set("slate_oauth_state_google", "s1");
+    cookieStore.set("slate_oauth_pkce_google", "pk1");
+    googleClient.mockReturnValue({
+      validateAuthorizationCode: vi.fn().mockResolvedValue({ accessToken: () => "t" }),
+    });
+    fetchGoogleProfile.mockResolvedValue({
+      sub: "g-4",
+      email: "x@b.com",
+      email_verified: true,
+      name: "X",
+    });
+    upsertOAuthUser.mockResolvedValue({ user: { id: "u-4" }, isNew: true });
+    createSession.mockResolvedValue({ token: "sess", expiresAt: new Date() });
+    await call("google", "?code=c&state=s1");
+    expect(cookieDelete).toHaveBeenCalledWith("oauth_signup_tier");
   });
 });

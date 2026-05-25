@@ -3,6 +3,16 @@ import type { Route } from "next";
 import { requireRole } from "@/auth/context";
 import { listPlugins } from "@/plugins/service";
 import { enablePluginAction, disablePluginAction } from "@/app/actions/plugins";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 export const dynamic = "force-dynamic";
 
@@ -20,40 +30,68 @@ export default async function PluginsPage(): Promise<React.ReactElement> {
   await requireRole("admin");
   const list = await listPlugins();
   return (
-    <main className="p-6">
-      <h1 className="mb-4 text-2xl font-bold">Plugins</h1>
-      {list.length === 0 ? (
-        <p className="text-sm text-gray-500">
-          No plugins discovered. Drop a directory under <code>plugins/</code> with a valid{" "}
-          <code>manifest.json</code> or install a <code>slate-plugin-*</code> npm package.
+    <div className="space-y-6">
+      <header className="space-y-1">
+        <h1 className="text-2xl font-semibold tracking-tight">Plugins</h1>
+        <p className="text-muted-foreground text-sm">
+          Discover, enable, and manage installed plugins.
         </p>
+      </header>
+
+      {list.length === 0 ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>No plugins discovered</CardTitle>
+            <CardDescription>
+              Drop a directory under <code>plugins/</code> with a valid{" "}
+              <code>manifest.json</code> or install a <code>slate-plugin-*</code> npm package.
+            </CardDescription>
+          </CardHeader>
+        </Card>
       ) : (
-        <ul className="space-y-3">
+        <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {list.map((p) => (
-            <li key={p.id} className="rounded border p-3 text-sm">
-              <div className="flex items-center justify-between">
-                <div>
-                  <Link
-                    className="font-semibold underline"
-                    href={`/admin/plugins/${p.slug}` as Route}
-                  >
-                    {p.name}
-                  </Link>
-                  <p className="text-xs text-gray-500">
-                    v{p.version} · {p.slug}
-                  </p>
-                </div>
-                <form action={p.enabled ? disableAction : enableAction}>
-                  <input type="hidden" name="id" value={p.id} />
-                  <button className="text-xs underline" type="submit">
-                    {p.enabled ? "Disable" : "Enable"}
-                  </button>
-                </form>
-              </div>
+            <li key={p.id}>
+              <Card className="h-full">
+                <CardHeader>
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="space-y-1">
+                      <CardTitle>
+                        <Button
+                          variant="link"
+                          size="sm"
+                          className="h-auto px-0"
+                          nativeButton={false}
+                          render={<Link href={`/admin/plugins/${p.slug}` as Route} />}
+                        >
+                          {p.name}
+                        </Button>
+                      </CardTitle>
+                      <CardDescription>
+                        v{p.version} · {p.slug}
+                      </CardDescription>
+                    </div>
+                    {p.enabled && <Badge variant="default">Enabled</Badge>}
+                  </div>
+                </CardHeader>
+                <CardContent />
+                <CardFooter>
+                  <form action={p.enabled ? disableAction : enableAction}>
+                    <input type="hidden" name="id" value={p.id} />
+                    <Button
+                      type="submit"
+                      size="sm"
+                      variant={p.enabled ? "outline" : "default"}
+                    >
+                      {p.enabled ? "Disable" : "Enable"}
+                    </Button>
+                  </form>
+                </CardFooter>
+              </Card>
             </li>
           ))}
         </ul>
       )}
-    </main>
+    </div>
   );
 }

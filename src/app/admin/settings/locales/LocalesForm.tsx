@@ -4,6 +4,17 @@ import { useActionState, useState } from "react";
 import type { Locale } from "@/i18n/locales";
 import type { I18nSettings } from "@/i18n/settings";
 import { saveLocalesAction } from "./actions";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 
 export function LocalesForm({
   catalogue,
@@ -21,7 +32,7 @@ export function LocalesForm({
   );
 
   return (
-    <form action={action} className="space-y-4">
+    <form action={action} className="grid max-w-3xl gap-6">
       <input
         type="hidden"
         name="payload"
@@ -31,58 +42,88 @@ export function LocalesForm({
           hideDefaultPrefix: hide,
         })}
       />
-      <fieldset>
-        <legend className="font-semibold">Enabled locales</legend>
-        <ul className="mt-2 grid grid-cols-2 gap-2 md:grid-cols-3">
-          {catalogue.map((l) => (
-            <li key={l.code}>
-              <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  checked={enabled.includes(l.code)}
-                  onChange={(e) =>
-                    setEnabled((cur) =>
-                      e.target.checked
-                        ? Array.from(new Set([...cur, l.code]))
-                        : cur.filter((c) => c !== l.code),
-                    )
-                  }
-                />
-                <span lang={l.code}>{l.nativeName}</span>
-                <span className="text-gray-500">({l.code})</span>
-              </label>
-            </li>
-          ))}
-        </ul>
-      </fieldset>
 
-      <label className="block text-sm">
-        <span className="mb-1 block font-semibold">Default locale</span>
-        <select
-          value={def}
-          onChange={(e) => setDef(e.target.value)}
-          className="rounded border px-2 py-1"
-        >
-          {enabled.map((code) => (
-            <option key={code} value={code}>
-              {code}
-            </option>
-          ))}
-        </select>
-      </label>
+      <Card>
+        <CardHeader>
+          <CardTitle>Enabled locales</CardTitle>
+          <CardDescription>Choose which languages your site supports.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3">
+            {catalogue.map((l) => {
+              const checkboxId = `locale-${l.code}`;
+              const isChecked = enabled.includes(l.code);
+              return (
+                <li key={l.code}>
+                  <Label
+                    htmlFor={checkboxId}
+                    className="flex items-center gap-2 text-sm font-normal"
+                  >
+                    <Checkbox
+                      id={checkboxId}
+                      checked={isChecked}
+                      onCheckedChange={(checked) =>
+                        setEnabled((cur) =>
+                          checked
+                            ? Array.from(new Set([...cur, l.code]))
+                            : cur.filter((c) => c !== l.code),
+                        )
+                      }
+                    />
+                    <span lang={l.code}>{l.nativeName}</span>
+                    <span className="text-muted-foreground">({l.code})</span>
+                  </Label>
+                </li>
+              );
+            })}
+          </ul>
+        </CardContent>
+      </Card>
 
-      <label className="flex items-center gap-2 text-sm">
-        <input type="checkbox" checked={hide} onChange={(e) => setHide(e.target.checked)} />
-        Hide default-locale prefix in URLs
-      </label>
+      <Card>
+        <CardHeader>
+          <CardTitle>Routing</CardTitle>
+          <CardDescription>Default locale and URL behavior.</CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-4">
+          <div className="grid gap-2">
+            <Label htmlFor="defaultLocale">Default locale</Label>
+            <select
+              id="defaultLocale"
+              value={def}
+              onChange={(e) => setDef(e.target.value)}
+              className="border-input bg-background focus-visible:border-ring focus-visible:ring-ring/50 h-9 w-fit rounded-md border px-3 py-1 text-sm shadow-sm outline-none transition-colors focus-visible:ring-3"
+            >
+              {enabled.map((code) => (
+                <option key={code} value={code}>
+                  {code}
+                </option>
+              ))}
+            </select>
+          </div>
 
-      {state?.error && <p className="text-sm text-red-700">{state.error}</p>}
-      <button
-        disabled={pending}
-        className="rounded bg-black px-3 py-1.5 text-sm text-white disabled:opacity-50"
-      >
-        {pending ? "Saving…" : "Save"}
-      </button>
+          <Label htmlFor="hideDefaultPrefix" className="flex items-center gap-2 text-sm font-normal">
+            <Checkbox
+              id="hideDefaultPrefix"
+              checked={hide}
+              onCheckedChange={(checked) => setHide(checked === true)}
+            />
+            Hide default-locale prefix in URLs
+          </Label>
+        </CardContent>
+      </Card>
+
+      {state?.error && (
+        <Alert variant="destructive">
+          <AlertDescription>{state.error}</AlertDescription>
+        </Alert>
+      )}
+
+      <div>
+        <Button type="submit" disabled={pending}>
+          {pending ? "Saving…" : "Save"}
+        </Button>
+      </div>
     </form>
   );
 }

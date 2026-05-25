@@ -3,6 +3,16 @@
 import { useActionState } from "react";
 import type { Role } from "@/db/schema";
 import { updateUserRoleAction, sendPasswordResetAction } from "@/app/actions/users";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
 
 interface FormState {
   error?: string;
@@ -31,50 +41,81 @@ export function EditUserForm({
   );
 
   return (
-    <div className="max-w-md space-y-8">
-      <form action={roleAction} className="space-y-4">
-        <input type="hidden" name="userId" value={userId} />
-        <label className="block text-sm">
-          <span className="mb-1 block font-semibold">Role</span>
-          <select
-            name="role"
-            defaultValue={currentRole}
-            disabled={!canEditRole}
-            className="rounded border px-2 py-1 disabled:opacity-50"
-          >
-            {assignableRoles.map((r) => (
-              <option key={r} value={r}>
-                {r}
-              </option>
-            ))}
-          </select>
-        </label>
-        {!canEditRole && <p className="text-xs text-gray-500">You cannot change your own role.</p>}
-        {roleState?.error && <p className="text-sm text-red-700">{roleState.error}</p>}
-        {roleState?.ok && <p className="text-sm text-green-700">Role updated.</p>}
-        <button
-          disabled={rolePending || !canEditRole}
-          className="rounded bg-black px-3 py-1.5 text-sm text-white disabled:opacity-50"
-        >
-          {rolePending ? "Saving…" : "Save role"}
-        </button>
-      </form>
+    <div className="grid max-w-2xl gap-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Role</CardTitle>
+          <CardDescription>Change the role assigned to this user.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form action={roleAction} className="grid gap-4">
+            <input type="hidden" name="userId" value={userId} />
+            <div className="grid gap-2">
+              <Label htmlFor="user-role">Role</Label>
+              <select
+                id="user-role"
+                name="role"
+                defaultValue={currentRole}
+                disabled={!canEditRole}
+                className="border-input bg-background focus-visible:border-ring focus-visible:ring-ring/50 h-9 rounded-md border px-3 py-1 text-sm shadow-sm outline-none transition-colors focus-visible:ring-3 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {assignableRoles.map((r) => (
+                  <option key={r} value={r}>
+                    {r}
+                  </option>
+                ))}
+              </select>
+              {!canEditRole && (
+                <p className="text-muted-foreground text-xs">
+                  You cannot change your own role.
+                </p>
+              )}
+            </div>
+            {roleState?.error && (
+              <Alert variant="destructive">
+                <AlertDescription>{roleState.error}</AlertDescription>
+              </Alert>
+            )}
+            {roleState?.ok && (
+              <p className="text-sm text-emerald-600 dark:text-emerald-500">Role updated.</p>
+            )}
+            <div>
+              <Button type="submit" disabled={rolePending || !canEditRole}>
+                {rolePending ? "Saving…" : "Save role"}
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
 
-      <form action={resetAction} className="space-y-3 border-t pt-4">
-        <input type="hidden" name="userId" value={userId} />
-        <h2 className="text-sm font-semibold">Password reset</h2>
-        <p className="text-xs text-gray-500">
-          Sends a password-reset email to this user. Valid for 1 hour.
-        </p>
-        {resetState?.error && <p className="text-sm text-red-700">{resetState.error}</p>}
-        {resetState?.ok && <p className="text-sm text-green-700">Reset email sent.</p>}
-        <button
-          disabled={resetPending}
-          className="rounded border px-3 py-1.5 text-sm disabled:opacity-50"
-        >
-          {resetPending ? "Sending…" : "Send password reset link"}
-        </button>
-      </form>
+      <Card>
+        <CardHeader>
+          <CardTitle>Password reset</CardTitle>
+          <CardDescription>
+            Sends a password-reset email to this user. Valid for 1 hour.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form action={resetAction} className="grid gap-4">
+            <input type="hidden" name="userId" value={userId} />
+            {resetState?.error && (
+              <Alert variant="destructive">
+                <AlertDescription>{resetState.error}</AlertDescription>
+              </Alert>
+            )}
+            {resetState?.ok && (
+              <p className="text-sm text-emerald-600 dark:text-emerald-500">
+                Reset email sent.
+              </p>
+            )}
+            <div>
+              <Button type="submit" variant="outline" disabled={resetPending}>
+                {resetPending ? "Sending…" : "Send password reset link"}
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 }

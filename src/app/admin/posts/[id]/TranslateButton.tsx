@@ -1,6 +1,13 @@
 import { enabledLocales } from "@/i18n/settings";
 import { findLocale } from "@/i18n/locales";
 import { translatePostAction } from "@/app/actions/translations";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 async function submitTranslate(fd: FormData): Promise<void> {
   "use server";
@@ -18,19 +25,23 @@ export async function TranslateButton({
   const targets = locales.filter((l) => l !== currentLocale);
   if (targets.length === 0) return null;
   return (
-    <details className="inline-block">
-      <summary className="cursor-pointer text-sm underline">Translate to…</summary>
-      <ul className="mt-2 space-y-1">
+    <DropdownMenu>
+      <DropdownMenuTrigger render={<Button variant="outline" size="sm" />}>
+        Translate to…
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start">
         {targets.map((code) => (
-          <li key={code}>
-            <form action={submitTranslate}>
+          <DropdownMenuItem key={code} className="p-0">
+            <form action={submitTranslate} className="w-full">
               <input type="hidden" name="postId" value={postId} />
               <input type="hidden" name="targetLocale" value={code} />
-              <button className="text-sm underline">{findLocale(code)?.nativeName ?? code}</button>
+              <button type="submit" className="w-full px-1.5 py-1 text-left text-sm">
+                {findLocale(code)?.nativeName ?? code}
+              </button>
             </form>
-          </li>
+          </DropdownMenuItem>
         ))}
-      </ul>
-    </details>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

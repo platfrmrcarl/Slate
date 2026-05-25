@@ -3,9 +3,25 @@ import { requireUser } from "@/auth/context";
 import { can } from "@/auth/permissions";
 import { getPage } from "@/services/pages/service";
 import { EditorClient } from "./EditorClient";
+import { Badge } from "@/components/ui/badge";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
+
+function statusVariant(
+  status: string,
+): "default" | "secondary" | "outline" | "destructive" {
+  switch (status) {
+    case "published":
+      return "default";
+    case "scheduled":
+      return "secondary";
+    case "trash":
+      return "destructive";
+    default:
+      return "outline";
+  }
+}
 
 export default async function EditPage({
   params,
@@ -21,12 +37,15 @@ export default async function EditPage({
   if (!canEdit) throw new Error("permission denied");
 
   return (
-    <section>
-      <header className="mb-4 flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-semibold">{page.title || "(untitled)"}</h1>
-          <p className="text-xs text-gray-500">
-            {page.status} · /{page.slug}
+    <div className="space-y-6">
+      <header className="flex items-center justify-between gap-4">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-semibold tracking-tight">
+            {page.title || "(untitled)"}
+          </h1>
+          <p className="text-muted-foreground flex items-center gap-2 text-sm">
+            <Badge variant={statusVariant(page.status)}>{page.status}</Badge>
+            <span>/{page.slug}</span>
           </p>
         </div>
       </header>
@@ -40,6 +59,6 @@ export default async function EditPage({
         seoTitle={page.seoTitle ?? ""}
         seoDescription={page.seoDescription ?? ""}
       />
-    </section>
+    </div>
   );
 }

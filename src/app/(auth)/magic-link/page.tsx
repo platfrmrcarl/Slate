@@ -2,29 +2,32 @@
 
 import { useActionState } from "react";
 import { requestMagicLinkAction } from "@/app/actions/auth";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export default function MagicLinkPage() {
   const [state, action, pending] = useActionState(requestMagicLinkAction, undefined);
   return (
-    <section>
-      <h2 className="text-2xl font-bold">Sign in via magic link</h2>
-      <p className="mt-2 text-sm text-gray-600">
-        We&apos;ll email you a link that signs you in. No password required.
-      </p>
-      <form action={action} className="mt-6 grid gap-3">
-        <input
-          name="email"
-          type="email"
-          placeholder="Email"
-          required
-          className="rounded border p-2"
-        />
-        {state?.fieldErrors?.email && (
-          <p className="text-sm text-red-600">{state.fieldErrors.email}</p>
-        )}
-        <button type="submit" disabled={pending} className="rounded bg-black px-4 py-2 text-white">
+    <section className="space-y-6">
+      <header className="space-y-1">
+        <h2 className="text-2xl font-semibold tracking-tight">Sign in via magic link</h2>
+        <p className="text-muted-foreground text-sm">
+          We&apos;ll email you a link that signs you in. No password required.
+        </p>
+      </header>
+
+      <form action={action} className="grid gap-4">
+        <div className="grid gap-2">
+          <Label htmlFor="email">Email</Label>
+          <Input id="email" name="email" type="email" required autoComplete="email" />
+          {state?.fieldErrors?.email && (
+            <p className="text-destructive text-sm">{state.fieldErrors.email}</p>
+          )}
+        </div>
+        <Button type="submit" disabled={pending} className="w-full">
           {pending ? "Sending…" : "Send magic link"}
-        </button>
+        </Button>
       </form>
     </section>
   );

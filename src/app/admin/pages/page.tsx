@@ -2,6 +2,23 @@ import type { Route } from "next";
 import Link from "next/link";
 import { requireUser } from "@/auth/context";
 import { listPages } from "@/services/pages/service";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -14,50 +31,87 @@ const STATUS_LABEL: Record<string, string> = {
   trash: "Trash",
 };
 
+function statusVariant(
+  status: string,
+): "default" | "secondary" | "outline" | "destructive" {
+  switch (status) {
+    case "published":
+      return "default";
+    case "scheduled":
+      return "secondary";
+    case "trash":
+      return "destructive";
+    default:
+      return "outline";
+  }
+}
+
 export default async function PagesIndex(): Promise<React.ReactElement> {
   await requireUser();
   const drafts = await listPages({ status: "draft", limit: 100 });
   const published = await listPages({ status: "published", limit: 100 });
+  const all = [...published, ...drafts];
+
   return (
-    <section>
-      <header className="mb-4 flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Pages</h1>
-        <Link
-          href={"/admin/pages/new" as Route}
-          className="rounded bg-black px-4 py-2 text-sm text-white"
-        >
+    <div className="space-y-6">
+      <header className="flex items-center justify-between gap-4">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-semibold tracking-tight">Pages</h1>
+          <p className="text-muted-foreground text-sm">
+            Standalone pages for your site, separate from blog posts.
+          </p>
+        </div>
+        <Button nativeButton={false} render={<Link href={"/admin/pages/new" as Route} />}>
           New page
-        </Link>
+        </Button>
       </header>
-      <table className="w-full border-separate border-spacing-0 rounded border bg-white text-sm">
-        <thead className="text-left text-xs uppercase text-gray-500">
-          <tr>
-            <th className="border-b p-3">Title</th>
-            <th className="border-b p-3">Slug</th>
-            <th className="border-b p-3">Status</th>
-            <th className="border-b p-3">Updated</th>
-          </tr>
-        </thead>
-        <tbody>
-          {[...published, ...drafts].map((p) => (
-            <tr key={p.id} className="hover:bg-gray-50">
-              <td className="border-b p-3">
-                <Link
-                  href={`/admin/pages/${p.id}` as Route}
-                  className="text-blue-700 hover:underline"
-                >
-                  {p.title || "(untitled)"}
-                </Link>
-              </td>
-              <td className="border-b p-3 text-gray-600">/{p.slug}</td>
-              <td className="border-b p-3 text-gray-600">{STATUS_LABEL[p.status]}</td>
-              <td className="border-b p-3 text-gray-500">
-                {new Date(p.updatedAt).toLocaleString()}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </section>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>All pages</CardTitle>
+          <CardDescription>
+            {all.length === 0 ? "No pages yet." : `${all.length} page(s) shown.`}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Title</TableHead>
+                <TableHead>Slug</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Updated</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {all.map((p) => (
+                <TableRow key={p.id}>
+                  <TableCell className="font-medium">
+                    <Button
+                      variant="link"
+                      size="sm"
+                      className="h-auto px-0"
+                      nativeButton={false}
+                      render={<Link href={`/admin/pages/${p.id}` as Route} />}
+                    >
+                      {p.title || "(untitled)"}
+                    </Button>
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">/{p.slug}</TableCell>
+                  <TableCell>
+                    <Badge variant={statusVariant(p.status)}>
+                      {STATUS_LABEL[p.status] ?? p.status}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {new Date(p.updatedAt).toLocaleString()}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+    </div>
   );
 }

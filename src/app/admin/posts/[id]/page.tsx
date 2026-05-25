@@ -4,9 +4,25 @@ import { can } from "@/auth/permissions";
 import { getPostById } from "@/posts/service";
 import { EditorClient } from "./EditorClient";
 import { CommentsList } from "./CommentsList";
+import { Badge } from "@/components/ui/badge";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
+
+function statusVariant(
+  status: string,
+): "default" | "secondary" | "outline" | "destructive" {
+  switch (status) {
+    case "published":
+      return "default";
+    case "scheduled":
+      return "secondary";
+    case "trash":
+      return "destructive";
+    default:
+      return "outline";
+  }
+}
 
 export default async function EditPostPage({
   params,
@@ -22,15 +38,19 @@ export default async function EditPostPage({
   if (!canEdit) throw new Error("permission denied");
 
   return (
-    <section>
-      <header className="mb-4 flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-semibold">{post.title || "(untitled)"}</h1>
-          <p className="text-xs text-gray-500">
-            {post.status} · /{post.slug}
+    <div className="space-y-6">
+      <header className="flex items-center justify-between gap-4">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-semibold tracking-tight">
+            {post.title || "(untitled)"}
+          </h1>
+          <p className="text-muted-foreground flex items-center gap-2 text-sm">
+            <Badge variant={statusVariant(post.status)}>{post.status}</Badge>
+            <span>/{post.slug}</span>
           </p>
         </div>
       </header>
+
       <EditorClient
         postId={post.id}
         title={post.title}
@@ -41,10 +61,11 @@ export default async function EditPostPage({
         seoTitle={post.seoTitle ?? ""}
         seoDescription={post.seoDescription ?? ""}
       />
-      <section className="mt-12">
-        <h2 className="text-lg font-semibold">Comments</h2>
+
+      <section className="space-y-3">
+        <h2 className="text-lg font-semibold tracking-tight">Comments</h2>
         <CommentsList postId={post.id} />
       </section>
-    </section>
+    </div>
   );
 }

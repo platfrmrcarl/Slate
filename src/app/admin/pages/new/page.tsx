@@ -1,9 +1,19 @@
 import type { Route } from "next";
+import Link from "next/link";
 import { requireRole } from "@/auth/context";
 import { getActiveTheme } from "@/themes/active";
 import { aiEnabled } from "@/ai/disabled";
 import { GenerateWithAIForm } from "./GenerateWithAIForm";
 import { createBlankPageAction } from "./actions";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -15,44 +25,57 @@ export default async function NewPageRoute(): Promise<React.ReactElement> {
   const enabled = aiEnabled();
 
   return (
-    <section className="grid gap-6">
-      <header>
-        <h1 className="text-xl font-semibold">New page</h1>
-        <p className="text-sm text-gray-600">
+    <div className="space-y-6">
+      <header className="space-y-1">
+        <h1 className="text-2xl font-semibold tracking-tight">New page</h1>
+        <p className="text-muted-foreground text-sm">
           Start with an empty editor or have AI draft a first pass for you.
         </p>
       </header>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <div className="rounded border bg-white p-4">
-          <h2 className="text-base font-semibold">Start blank</h2>
-          <p className="mt-1 text-sm text-gray-600">Create an empty draft and open the editor.</p>
-          <form action={createBlankPageAction} className="mt-3">
-            <button type="submit" className="rounded border px-4 py-2 text-sm">
-              Create blank page
-            </button>
-          </form>
-        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Start blank</CardTitle>
+            <CardDescription>Create an empty draft and open the editor.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form action={createBlankPageAction}>
+              <Button type="submit" variant="outline">
+                Create blank page
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
 
-        <div className="rounded border bg-white p-4">
-          <h2 className="text-base font-semibold">Generate with AI</h2>
-          <p className="mt-1 text-sm text-gray-600">
-            Describe the page; Claude will draft blocks you can edit.
-          </p>
-          {enabled ? (
-            <GenerateWithAIForm themeSlug={themeSlug} />
-          ) : (
-            <p className="mt-3 rounded border border-yellow-300 bg-yellow-50 p-3 text-sm text-yellow-900">
-              AI is disabled. Set <code className="font-mono">ANTHROPIC_API_KEY</code> in your
-              environment to enable page generation. See{" "}
-              <a href={"/admin/settings" as Route} className="underline underline-offset-2">
-                settings
-              </a>
-              .
-            </p>
-          )}
-        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Generate with AI</CardTitle>
+            <CardDescription>
+              Describe the page; Claude will draft blocks you can edit.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {enabled ? (
+              <GenerateWithAIForm themeSlug={themeSlug} />
+            ) : (
+              <Alert>
+                <AlertDescription>
+                  AI is disabled. Set <code className="font-mono">ANTHROPIC_API_KEY</code> in
+                  your environment to enable page generation. See{" "}
+                  <Link
+                    href={"/admin/settings" as Route}
+                    className="underline underline-offset-2"
+                  >
+                    settings
+                  </Link>
+                  .
+                </AlertDescription>
+              </Alert>
+            )}
+          </CardContent>
+        </Card>
       </div>
-    </section>
+    </div>
   );
 }

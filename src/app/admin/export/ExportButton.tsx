@@ -2,6 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 
 export function ExportButton() {
   const router = useRouter();
@@ -28,23 +32,23 @@ export function ExportButton() {
   }
 
   return (
-    <div className="space-y-2">
-      <label className="flex items-center gap-2 text-sm">
-        <input
-          type="checkbox"
+    <div className="space-y-4">
+      <Label htmlFor="includeDb" className="flex items-center gap-2 text-sm font-normal">
+        <Checkbox
+          id="includeDb"
           checked={includeDb}
-          onChange={(e) => setIncludeDb(e.target.checked)}
+          onCheckedChange={(checked) => setIncludeDb(checked === true)}
         />
         Include database dump
-      </label>
-      <button
-        onClick={onClick}
-        disabled={pending}
-        className="rounded bg-black px-3 py-1.5 text-sm text-white disabled:opacity-50"
-      >
+      </Label>
+      <Button onClick={onClick} disabled={pending} size="sm">
         {pending ? "Starting…" : "Start export"}
-      </button>
-      {error && <p className="text-sm text-red-700">{error}</p>}
+      </Button>
+      {error && (
+        <Alert variant="destructive">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
     </div>
   );
 }

@@ -2,6 +2,10 @@
 
 import { useActionState } from "react";
 import { forgotPasswordAction } from "@/app/actions/auth";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface State {
   ok?: boolean;
@@ -16,40 +20,46 @@ export default function ForgotPasswordPage() {
   );
   if (state?.ok) {
     return (
-      <main className="mx-auto mt-20 max-w-md p-6">
-        <h1 className="mb-4 text-2xl font-bold">Check your email</h1>
-        <p>
+      <section className="space-y-3">
+        <header className="space-y-1">
+          <h2 className="text-2xl font-semibold tracking-tight">Check your email</h2>
+        </header>
+        <p className="text-muted-foreground text-sm">
           If we have an account for that address, a password-reset link is on its way. The link
           expires in 24 hours.
         </p>
-      </main>
+      </section>
     );
   }
   return (
-    <main className="mx-auto mt-20 max-w-md p-6">
-      <h1 className="mb-4 text-2xl font-bold">Reset your password</h1>
-      <form action={action} className="space-y-3">
-        <label className="block text-sm">
-          <span className="mb-1 block font-semibold">Email</span>
-          <input
+    <section className="space-y-6">
+      <header className="space-y-1">
+        <h2 className="text-2xl font-semibold tracking-tight">Reset your password</h2>
+      </header>
+      <form action={action} className="grid gap-4">
+        <div className="grid gap-2">
+          <Label htmlFor="email">Email</Label>
+          <Input
+            id="email"
             type="email"
             name="email"
             required
-            className="w-full rounded border px-2 py-1"
+            autoComplete="email"
             aria-invalid={state?.fieldErrors?.email ? true : undefined}
           />
           {state?.fieldErrors?.email && (
-            <p className="mt-1 text-xs text-red-700">{state.fieldErrors.email}</p>
+            <p className="text-destructive text-sm">{state.fieldErrors.email}</p>
           )}
-        </label>
-        {state?.error && <p className="text-sm text-red-700">{state.error}</p>}
-        <button
-          disabled={pending}
-          className="rounded bg-black px-3 py-1.5 text-sm text-white disabled:opacity-50"
-        >
+        </div>
+        {state?.error && (
+          <Alert variant="destructive">
+            <AlertDescription>{state.error}</AlertDescription>
+          </Alert>
+        )}
+        <Button type="submit" disabled={pending} className="w-full">
           {pending ? "Sending…" : "Send reset link"}
-        </button>
+        </Button>
       </form>
-    </main>
+    </section>
   );
 }
