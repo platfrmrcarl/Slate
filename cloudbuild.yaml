@@ -8,7 +8,9 @@ steps:
         corepack enable
         pnpm install --frozen-lockfile
 
-  - id: lint
+  # Split out so the slow step (typecheck) doesn't block the fast ones.
+  # All four run in parallel after install.
+  - id: eslint
     name: node:22
     entrypoint: bash
     args:
@@ -16,7 +18,25 @@ steps:
       - |
         corepack enable
         pnpm lint
+    waitFor: ["install"]
+
+  - id: format-check
+    name: node:22
+    entrypoint: bash
+    args:
+      - -lc
+      - |
+        corepack enable
         pnpm format:check
+    waitFor: ["install"]
+
+  - id: typecheck
+    name: node:22
+    entrypoint: bash
+    args:
+      - -lc
+      - |
+        corepack enable
         pnpm typecheck
     waitFor: ["install"]
 
@@ -52,7 +72,7 @@ steps:
           --tag=${_AR_HOST}/${PROJECT_ID}/${_AR_REPO}/slate:latest \
           --push \
           .
-    waitFor: ["lint", "test"]
+    waitFor: ["eslint", "format-check", "typecheck", "test"]
 
   # Migration image reuses the same buildcache because the Dockerfile's
   # `migration` stage shares the `build` stage via COPY --from=build.
@@ -69,7 +89,7 @@ steps:
           --tag=${_AR_HOST}/${PROJECT_ID}/${_AR_REPO}/slate-migration:${SHORT_SHA} \
           --push \
           .
-    waitFor: ["lint", "test"]
+    waitFor: ["eslint", "format-check", "typecheck", "test"]
 
   - id: run-migration
     name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
