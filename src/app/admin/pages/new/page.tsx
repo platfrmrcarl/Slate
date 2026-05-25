@@ -26,9 +26,7 @@ export default async function NewPageRoute(): Promise<React.ReactElement> {
       <div className="grid gap-4 md:grid-cols-2">
         <div className="rounded border bg-white p-4">
           <h2 className="text-base font-semibold">Start blank</h2>
-          <p className="mt-1 text-sm text-gray-600">
-            Create an empty draft and open the editor.
-          </p>
+          <p className="mt-1 text-sm text-gray-600">Create an empty draft and open the editor.</p>
           <form action={createBlankPageAction} className="mt-3">
             <button type="submit" className="rounded border px-4 py-2 text-sm">
               Create blank page
@@ -47,10 +45,7 @@ export default async function NewPageRoute(): Promise<React.ReactElement> {
             <p className="mt-3 rounded border border-yellow-300 bg-yellow-50 p-3 text-sm text-yellow-900">
               AI is disabled. Set <code className="font-mono">ANTHROPIC_API_KEY</code> in your
               environment to enable page generation. See{" "}
-              <a
-                href={"/admin/settings" as Route}
-                className="underline underline-offset-2"
-              >
+              <a href={"/admin/settings" as Route} className="underline underline-offset-2">
                 settings
               </a>
               .

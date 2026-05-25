@@ -15,11 +15,7 @@ async function renderNode(node: CommentNode): Promise<React.ReactNode> {
   );
 }
 
-export async function CommentsThread({
-  postId,
-}: {
-  postId: string;
-}): Promise<React.ReactElement> {
+export async function CommentsThread({ postId }: { postId: string }): Promise<React.ReactElement> {
   const tree = await listCommentsForPost(postId);
   if (tree.length === 0) return <p className="text-sm text-gray-500">No comments yet.</p>;
   const nodes = await Promise.all(tree.map(renderNode));

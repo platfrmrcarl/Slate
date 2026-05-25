@@ -51,9 +51,7 @@ describe("parseCsv", () => {
     const csv = `title,tags,categories\nT," a , b ,, ","x,y"\n`;
     const records = await collect(csv);
     expect(records[0]?.kind).toBe("post");
-    expect(
-      (records[0] as Extract<ImportRecord, { kind: "post" }>).taxonomyRefs,
-    ).toEqual(
+    expect((records[0] as Extract<ImportRecord, { kind: "post" }>).taxonomyRefs).toEqual(
       expect.arrayContaining([
         { type: "tag", slug: "a" },
         { type: "tag", slug: "b" },

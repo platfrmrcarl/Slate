@@ -85,7 +85,9 @@ describe("deliverOnce", () => {
     getWebhook.mockResolvedValue({ id: "w-1", url: "https://e.test/hook", secret: "a".repeat(64) });
     safeFetchMock.mockResolvedValue({ status: 502, headers: {}, text: async () => "" });
     await deliverOnce({ deliveryId: "d-1", webhookId: "w-1" });
-    expect(recordDeliveryResult).toHaveBeenCalledWith(expect.objectContaining({ status: "failed" }));
+    expect(recordDeliveryResult).toHaveBeenCalledWith(
+      expect.objectContaining({ status: "failed" }),
+    );
     expect(enqueueJob).not.toHaveBeenCalled();
   });
 

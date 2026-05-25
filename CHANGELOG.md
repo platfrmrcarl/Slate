@@ -73,7 +73,7 @@ Even after `state mv`, these resources will be **destroyed and recreated** by th
 
 Operator checklist before / after the apply:
 
-- Re-push your Docker images to the new Artifact Registry repo (`slate` instead of `wpk`). The image *name* inside the repo is also now `slate` (was `wpk`) and the migration image is `slate-migration` (was `wpk-migration`); `cloudbuild.yaml` already uses the new names via `_AR_REPO: slate`.
+- Re-push your Docker images to the new Artifact Registry repo (`slate` instead of `wpk`). The image _name_ inside the repo is also now `slate` (was `wpk`) and the migration image is `slate-migration` (was `wpk-migration`); `cloudbuild.yaml` already uses the new names via `_AR_REPO: slate`.
 - Re-grant any out-of-Terraform IAM bindings on the old SAs to the new SAs (`slate-runtime`, `slate-tasks-invoker`).
 - Drain or re-enqueue any in-flight Cloud Tasks (the old queues will be deleted; new ones start empty).
 - **Cloud SQL data migration.** Renaming the instance, database, and user destroys the original. Before the apply: `gcloud sql export sql wpk-pg gs://…/dump.sql --database=wpk`. After the apply: `gcloud sql import sql slate-pg gs://…/dump.sql --database=slate`. The `DATABASE_URL` secret is regenerated automatically by Terraform once the new instance is up.

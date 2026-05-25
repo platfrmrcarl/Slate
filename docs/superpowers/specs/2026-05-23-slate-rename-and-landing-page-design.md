@@ -19,14 +19,14 @@ The rename ships first so the landing page can reference the final brand consist
 
 All variants of the old brand are replaced. Inventory of occurrences (114 files):
 
-| Variant       | Count | Replacement      | Notes                                                          |
-| ------------- | ----- | ---------------- | -------------------------------------------------------------- |
-| `wpk-`        | 254   | `slate-`         | Theme dir prefix (`slate-default` → `slate-default`), CSS classes, etc. |
-| `wpkiller`    | 118   | `slate`          | Package names, identifiers                                     |
-| `wpk_`        | 59    | `slate_`         | Env var prefixes (`WPK_*` → `SLATE_*`), cookie names (`wpk_session` → `slate_session`), DB rows if any |
-| `WordPressKiller` | 58 | `Slate`         | Brand strings, docs, comments                                  |
-| `@wpkiller`   | 10    | `@slate`         | pnpm workspace package scope (`@wpkiller/cli` → `@slate/cli`)  |
-| `wordpresskiller` | 9 | `slate`          | `package.json` name, kebab-case identifiers                    |
+| Variant           | Count | Replacement | Notes                                                                                                  |
+| ----------------- | ----- | ----------- | ------------------------------------------------------------------------------------------------------ |
+| `wpk-`            | 254   | `slate-`    | Theme dir prefix (`slate-default` → `slate-default`), CSS classes, etc.                                |
+| `wpkiller`        | 118   | `slate`     | Package names, identifiers                                                                             |
+| `wpk_`            | 59    | `slate_`    | Env var prefixes (`WPK_*` → `SLATE_*`), cookie names (`wpk_session` → `slate_session`), DB rows if any |
+| `WordPressKiller` | 58    | `Slate`     | Brand strings, docs, comments                                                                          |
+| `@wpkiller`       | 10    | `@slate`    | pnpm workspace package scope (`@wpkiller/cli` → `@slate/cli`)                                          |
+| `wordpresskiller` | 9     | `slate`     | `package.json` name, kebab-case identifiers                                                            |
 
 ### 1.2 Non-string surfaces that need attention
 
@@ -62,7 +62,7 @@ After the rename: `pnpm typecheck`, `pnpm lint`, `pnpm test`, and a fresh `pnpm 
 ### 2.2 Visual direction — Editorial Dark
 
 - **Ground**: deep slate-black (`#0a0a0c`), section variations to `#0c0c10` / `#14141a`. Restrained aurora tint via two radial gradients (lavender `#a8a3ff` + warm amber, both ~6-10% opacity).
-- **Display type**: serif (Georgia / system serif stack initially; can upgrade to a hosted serif later). Italic on key accent words (e.g., the word *WordPress* in the hero).
+- **Display type**: serif (Georgia / system serif stack initially; can upgrade to a hosted serif later). Italic on key accent words (e.g., the word _WordPress_ in the hero).
 - **Body type**: system sans (`ui-sans-serif`) for prose.
 - **Labels and code**: monospace (`ui-monospace`) for section eyebrows, badges, CLI snippets.
 - **Single accent color**: lavender `#a8a3ff` for italicized words, icons, terminal prompts.
@@ -76,7 +76,7 @@ Seven content sections, plus a top nav and footer (nine pieces total). Vertical 
 1. **Top nav** — Logomark (`◐ Slate`) on the left; on the right: `Features` · `Pricing` · `Sign in` · **Sign up** (button). A small `Self-host →` link sits as a low-emphasis text link, pointing to the Wiki.
 2. **Hero**
    - Eyebrow: `Hosted CMS · 2026`
-   - Headline: "The CMS *WordPress* should have been."
+   - Headline: "The CMS _WordPress_ should have been."
    - Sub: "Block-based authoring with AI drafts, on a modern stack — fully managed. We run the servers. You run the site."
    - Primary CTA: **Start free →** → `/sign-up` (hosted-product onboarding).
    - Secondary CTA: a small text link, "Prefer to self-host? See the Wiki →" → GitHub Wiki URL.
@@ -86,7 +86,7 @@ Seven content sections, plus a top nav and footer (nine pieces total). Vertical 
    - ☁ **Fully managed** — we run Postgres, scaling, backups, upgrades. You write content.
    - ↔ **Yours to leave** — import WXR, Ghost, markdown; export everything as a portable ZIP. Lock-in is a choice we won't make for you.
 4. **Product peek** — "Blocks, not shortcodes." Real screenshot of the BlockNote editor in the Slate admin UI. (Until we have a polished screenshot, ship with a hand-crafted SVG/HTML mockup that approximates the editor surface; the placeholder is identified as such in code so we don't ship it long-term.)
-5. **AI authoring demo** — "Describe it. *Get blocks.*" Two-column visual: a natural-language prompt on the left, a structured `blocks[]` result rendered as visual blocks on the right, with an arrow between them.
+5. **AI authoring demo** — "Describe it. _Get blocks._" Two-column visual: a natural-language prompt on the left, a structured `blocks[]` result rendered as visual blocks on the right, with an arrow between them.
 6. **Stack strip** — "Boring, in the good way." Single horizontal line of the core technologies (`Next.js · TypeScript · Drizzle · Postgres · Claude · Cloud Run`), mono font, separator dots between. This reassures the dev/agency audience the underlying tech is sound — it's the same payoff Vercel and Linear get from showing their stack.
 7. **How it works** — Replaces the open-source "Quickstart" section. "Three steps." A short numbered visual:
    1. **Sign up.** Email + password or GitHub OAuth.
@@ -120,8 +120,9 @@ Seven content sections, plus a top nav and footer (nine pieces total). Vertical 
   - `HowItWorks.tsx`
   - `SignUpCTA.tsx`
   - `LandingFooter.tsx`
-  
+
   Small, focused, server components by default. None of these need client interactivity in v1.
+
 - **Styling**: Tailwind utility classes, plus a small `marketing.css` import inside the layout for the gradient backgrounds and aurora tint (anything that's easier as CSS than as a stack of utilities). No new theme system.
 
 ### 2.5 Assets
@@ -164,7 +165,7 @@ Two PRs, not one — they're independently reviewable and the rename PR is large
    1. **Single-tenant slate.dev for now**: slate.dev runs one Slate instance; "sign up" creates a user on that instance who can author content there. Crisp and shippable, but conflates "the marketing site" with "a CMS instance."
    2. **Sign-up = waitlist for now**: `/sign-up` on the marketing page goes to a waitlist form; full provisioning ships with the v2 multi-tenant work.
    3. **Pull v2 multi-tenant forward**: build the SaaS provisioning before this landing page goes live. Largest scope.
-   Default in this spec: **(i) single-tenant slate.dev** because it's the smallest gap to ship.
+      Default in this spec: **(i) single-tenant slate.dev** because it's the smallest gap to ship.
 
 2. **GitHub Wiki status.** The Wiki feature is currently disabled on `platfrmrcarl/Slate`. To make the "See the Wiki" links work, enable the Wiki on the repo and seed it with a single "Self-hosting Slate" page that points at the existing `README.md` quickstart. Implementation PR will not ship until the Wiki page exists.
 

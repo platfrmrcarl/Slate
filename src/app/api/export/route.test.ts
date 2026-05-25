@@ -10,9 +10,7 @@ vi.mock("@/auth/context", async () => {
   };
 });
 
-const returning = vi
-  .fn()
-  .mockResolvedValue([{ id: "22222222-2222-2222-2222-222222222222" }]);
+const returning = vi.fn().mockResolvedValue([{ id: "22222222-2222-2222-2222-222222222222" }]);
 vi.mock("@/db", () => ({
   db: () => ({
     insert: () => ({ values: () => ({ returning }) }),
@@ -53,9 +51,7 @@ describe("POST /api/export", () => {
   });
 
   it("defaults includeDb to false when body is empty", async () => {
-    const res = await POST(
-      new Request("https://e.test/api/export", { method: "POST" }),
-    );
+    const res = await POST(new Request("https://e.test/api/export", { method: "POST" }));
     expect(res.status).toBe(202);
     expect(enqueueJob).toHaveBeenCalledWith(
       "export-run",

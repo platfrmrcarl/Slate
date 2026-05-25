@@ -21,7 +21,10 @@ export default function SignUpCTA() {
         </Link>
         <p className="mt-8 text-[12px] text-[var(--slate-fg-subtle)]">
           Source available on GitHub. Want to self-host?{" "}
-          <a href={WIKI_URL} className="underline decoration-[var(--slate-border-strong)] hover:text-[var(--slate-fg-muted)]">
+          <a
+            href={WIKI_URL}
+            className="underline decoration-[var(--slate-border-strong)] hover:text-[var(--slate-fg-muted)]"
+          >
             See the Wiki →
           </a>
         </p>

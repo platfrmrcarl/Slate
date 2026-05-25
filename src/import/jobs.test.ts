@@ -2,12 +2,7 @@ import { afterAll, describe, expect, it } from "vitest";
 import { sql } from "drizzle-orm";
 import { closeDb, db } from "@/db";
 import { dataJobs, users } from "@/db/schema";
-import {
-  markImportCompleted,
-  markImportFailed,
-  updateImportProgress,
-  ZERO_PROGRESS,
-} from "./jobs";
+import { markImportCompleted, markImportFailed, updateImportProgress, ZERO_PROGRESS } from "./jobs";
 
 const HAS_DB = !!process.env.DATABASE_URL;
 

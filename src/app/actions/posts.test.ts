@@ -75,7 +75,10 @@ describe("savePostAction", () => {
   it("forbids non-owner edits when actor isn't editor+", async () => {
     requireUser.mockResolvedValue({ id: "u-1", role: "contributor" });
     can.mockReturnValueOnce(false).mockReturnValueOnce(false);
-    getPostById.mockResolvedValue({ id: "11111111-1111-1111-1111-111111111111", authorId: "u-other" });
+    getPostById.mockResolvedValue({
+      id: "11111111-1111-1111-1111-111111111111",
+      authorId: "u-other",
+    });
     const r = await savePostAction(
       undefined,
       fd({
@@ -126,10 +129,7 @@ describe("deletePostAction", () => {
       id: "11111111-1111-1111-1111-111111111111",
       authorId: "u-other",
     });
-    const r = await deletePostAction(
-      undefined,
-      fd({ id: "11111111-1111-1111-1111-111111111111" }),
-    );
+    const r = await deletePostAction(undefined, fd({ id: "11111111-1111-1111-1111-111111111111" }));
     expect(r?.error).toMatch(/forbidden/i);
     expect(deletePost).not.toHaveBeenCalled();
   });

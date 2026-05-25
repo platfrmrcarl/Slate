@@ -63,9 +63,7 @@ describe("parseGhostJson", () => {
                 { id: 11, name: "Tech", slug: "tech" },
                 { id: 12, name: "Orphan", slug: "orphan" },
               ],
-              posts: [
-                { id: 1, uuid: "u1", title: "T", slug: "t", status: "published" },
-              ],
+              posts: [{ id: 1, uuid: "u1", title: "T", slug: "t", status: "published" }],
               posts_tags: [
                 { post_id: 1, tag_id: 10 },
                 { post_id: 1, tag_id: 11 },

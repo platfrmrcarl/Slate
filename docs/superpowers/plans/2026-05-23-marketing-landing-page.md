@@ -14,26 +14,26 @@
 
 ## File Map
 
-| Path                                                          | Purpose                                                                |
-| ------------------------------------------------------------- | ---------------------------------------------------------------------- |
-| `src/app/(marketing)/layout.tsx`                              | Minimal layout: HTML scaffold, font setup, marketing.css import        |
-| `src/app/(marketing)/page.tsx`                                | Composes the nine section components in order                          |
-| `src/app/(marketing)/marketing.css`                           | Aurora-gradient CSS, accent color variable                             |
-| `src/app/(marketing)/_components/LandingNav.tsx`              | Top nav: logomark + Features/Pricing/Sign in/Sign up + Self-host link  |
-| `src/app/(marketing)/_components/LandingHero.tsx`             | Eyebrow, headline (`Slate.italic{WordPress}`), sub, primary/secondary  |
-| `src/app/(marketing)/_components/FeaturePillars.tsx`          | 2×2 grid of four feature tiles                                         |
-| `src/app/(marketing)/_components/ProductPeek.tsx`             | Editor screenshot section — wraps `EditorMockup.tsx` placeholder       |
-| `src/app/(marketing)/_components/EditorMockup.tsx`            | Hand-built BlockNote-look placeholder (marked clearly as placeholder)  |
-| `src/app/(marketing)/_components/AIDemo.tsx`                  | Two-column prompt → blocks visualization                               |
-| `src/app/(marketing)/_components/StackStrip.tsx`              | Single-line tech-stack list                                            |
-| `src/app/(marketing)/_components/HowItWorks.tsx`              | Three-step "sign up → pick theme → connect domain"                     |
-| `src/app/(marketing)/_components/SignUpCTA.tsx`               | Final CTA section + Wiki footnote                                      |
-| `src/app/(marketing)/_components/LandingFooter.tsx`           | Site footer with policy links                                          |
-| `src/app/(marketing)/page.test.tsx`                           | Smoke test: page renders, expected text appears                        |
-| `src/middleware.ts`                                           | **MODIFY** — add `/` to bypass when `SLATE_MARKETING_HOME=1`            |
-| `src/app/sitemap.ts` *(or `sitemap.xml`-equivalent route)*    | **MODIFY** — include `/` when the env flag is on                       |
-| `.env.example`                                                | **MODIFY** — add `SLATE_MARKETING_HOME=` with a comment                |
-| `public/og/slate-landing-1200x630.png`                        | Static OG image stub                                                   |
+| Path                                                       | Purpose                                                               |
+| ---------------------------------------------------------- | --------------------------------------------------------------------- |
+| `src/app/(marketing)/layout.tsx`                           | Minimal layout: HTML scaffold, font setup, marketing.css import       |
+| `src/app/(marketing)/page.tsx`                             | Composes the nine section components in order                         |
+| `src/app/(marketing)/marketing.css`                        | Aurora-gradient CSS, accent color variable                            |
+| `src/app/(marketing)/_components/LandingNav.tsx`           | Top nav: logomark + Features/Pricing/Sign in/Sign up + Self-host link |
+| `src/app/(marketing)/_components/LandingHero.tsx`          | Eyebrow, headline (`Slate.italic{WordPress}`), sub, primary/secondary |
+| `src/app/(marketing)/_components/FeaturePillars.tsx`       | 2×2 grid of four feature tiles                                        |
+| `src/app/(marketing)/_components/ProductPeek.tsx`          | Editor screenshot section — wraps `EditorMockup.tsx` placeholder      |
+| `src/app/(marketing)/_components/EditorMockup.tsx`         | Hand-built BlockNote-look placeholder (marked clearly as placeholder) |
+| `src/app/(marketing)/_components/AIDemo.tsx`               | Two-column prompt → blocks visualization                              |
+| `src/app/(marketing)/_components/StackStrip.tsx`           | Single-line tech-stack list                                           |
+| `src/app/(marketing)/_components/HowItWorks.tsx`           | Three-step "sign up → pick theme → connect domain"                    |
+| `src/app/(marketing)/_components/SignUpCTA.tsx`            | Final CTA section + Wiki footnote                                     |
+| `src/app/(marketing)/_components/LandingFooter.tsx`        | Site footer with policy links                                         |
+| `src/app/(marketing)/page.test.tsx`                        | Smoke test: page renders, expected text appears                       |
+| `src/middleware.ts`                                        | **MODIFY** — add `/` to bypass when `SLATE_MARKETING_HOME=1`          |
+| `src/app/sitemap.ts` _(or `sitemap.xml`-equivalent route)_ | **MODIFY** — include `/` when the env flag is on                      |
+| `.env.example`                                             | **MODIFY** — add `SLATE_MARKETING_HOME=` with a comment               |
+| `public/og/slate-landing-1200x630.png`                     | Static OG image stub                                                  |
 
 ---
 
@@ -52,6 +52,7 @@
 **Goal:** Create the `(marketing)` route group with a layout and a minimal page that renders a single heading. Gate the marketing page behind `SLATE_MARKETING_HOME=1` — without the flag, fall through to the existing locale rewriter.
 
 **Files:**
+
 - Create: `src/app/(marketing)/layout.tsx`
 - Create: `src/app/(marketing)/page.tsx`
 - Create: `src/app/(marketing)/marketing.css`
@@ -89,7 +90,7 @@ Create `src/app/(marketing)/marketing.css`:
 .marketing-aurora {
   background-color: var(--slate-bg);
   background-image:
-    radial-gradient(ellipse 70% 50% at 25% 15%, rgba(168, 163, 255, 0.10), transparent 60%),
+    radial-gradient(ellipse 70% 50% at 25% 15%, rgba(168, 163, 255, 0.1), transparent 60%),
     radial-gradient(ellipse 60% 40% at 75% 85%, rgba(255, 180, 140, 0.06), transparent 60%);
 }
 
@@ -113,8 +114,7 @@ export const metadata: Metadata = {
     "Block-based authoring with AI drafts. Modern stack, fully managed. Slate runs the servers — you run the site.",
   openGraph: {
     title: "Slate — The CMS WordPress should have been",
-    description:
-      "Block-based authoring with AI drafts. Modern stack, fully managed.",
+    description: "Block-based authoring with AI drafts. Modern stack, fully managed.",
     images: [{ url: "/og/slate-landing-1200x630.png", width: 1200, height: 630 }],
   },
 };
@@ -214,6 +214,7 @@ git commit -m "feat(marketing): scaffold (marketing) route group + env flag"
 **Goal:** Update `src/middleware.ts` so when `SLATE_MARKETING_HOME=1`, the locale rewriter skips `/` (leaving it to render the marketing page); without the flag, behavior is unchanged.
 
 **Files:**
+
 - Modify: `src/middleware.ts`
 - Modify: `src/middleware.test.ts`
 
@@ -298,6 +299,7 @@ git commit -m "feat(middleware): bypass locale rewriter at / when SLATE_MARKETIN
 **Goal:** Top navigation bar with logomark on the left, primary nav + sign-in/sign-up on the right, and a small self-host link.
 
 **Files:**
+
 - Create: `src/app/(marketing)/_components/LandingNav.tsx`
 - Modify: `src/app/(marketing)/page.tsx` (mount the nav)
 
@@ -315,19 +317,27 @@ export default function LandingNav() {
     <nav className="border-b border-[var(--slate-border)]">
       <div className="mx-auto flex max-w-[1100px] items-center justify-between px-6 py-4">
         <Link href="/" className="marketing-serif text-lg tracking-tight text-[var(--slate-fg)]">
-          <span className="text-[#a8a3ff]" aria-hidden>◐</span>{" "}
+          <span className="text-[#a8a3ff]" aria-hidden>
+            ◐
+          </span>{" "}
           <span>Slate</span>
         </Link>
         <div className="flex items-center gap-6 text-[13px] text-[var(--slate-fg-muted)]">
-          <Link href="#features" className="hover:text-[var(--slate-fg)]">Features</Link>
-          <Link href="#pricing" className="hover:text-[var(--slate-fg)]">Pricing</Link>
+          <Link href="#features" className="hover:text-[var(--slate-fg)]">
+            Features
+          </Link>
+          <Link href="#pricing" className="hover:text-[var(--slate-fg)]">
+            Pricing
+          </Link>
           <a
             href={WIKI_URL}
             className="text-[var(--slate-fg-subtle)] hover:text-[var(--slate-fg-muted)]"
           >
             Self-host →
           </a>
-          <Link href="/sign-in" className="hover:text-[var(--slate-fg)]">Sign in</Link>
+          <Link href="/sign-in" className="hover:text-[var(--slate-fg)]">
+            Sign in
+          </Link>
           <Link
             href="/sign-up"
             className="rounded-md bg-[var(--slate-fg)] px-3 py-1.5 text-[12px] font-semibold text-[var(--slate-bg)] hover:bg-white"
@@ -377,9 +387,10 @@ git commit -m "feat(marketing): landing nav"
 
 ## Task 4: LandingHero
 
-**Goal:** The hero — editorial serif headline with italic *WordPress* accent, monospace eyebrow, two CTAs.
+**Goal:** The hero — editorial serif headline with italic _WordPress_ accent, monospace eyebrow, two CTAs.
 
 **Files:**
+
 - Create: `src/app/(marketing)/_components/LandingHero.tsx`
 - Modify: `src/app/(marketing)/page.tsx`
 
@@ -408,8 +419,8 @@ export default function LandingHero() {
           should have been.
         </h1>
         <p className="mx-auto mt-6 max-w-[520px] text-[15px] leading-relaxed text-[var(--slate-fg-muted)]">
-          Block-based authoring with AI drafts, on a modern stack — fully managed.
-          We run the servers. You run the site.
+          Block-based authoring with AI drafts, on a modern stack — fully managed. We run the
+          servers. You run the site.
         </p>
         <div className="mt-8 flex items-center justify-center gap-3">
           <Link
@@ -485,6 +496,7 @@ git commit -m "feat(marketing): hero section"
 **Goal:** 2×2 grid of four feature tiles.
 
 **Files:**
+
 - Create: `src/app/(marketing)/_components/FeaturePillars.tsx`
 - Modify: `src/app/(marketing)/page.tsx`
 
@@ -528,7 +540,9 @@ export default function FeaturePillars() {
         <div className="grid grid-cols-1 gap-px overflow-hidden rounded-lg bg-[var(--slate-border)] md:grid-cols-2">
           {PILLARS.map((p) => (
             <div key={p.title} className="bg-[var(--slate-bg)] p-8">
-              <div className="mb-3 text-2xl text-[#a8a3ff]" aria-hidden>{p.glyph}</div>
+              <div className="mb-3 text-2xl text-[#a8a3ff]" aria-hidden>
+                {p.glyph}
+              </div>
               <h3 className="marketing-serif mb-2 text-xl text-[var(--slate-fg)]">{p.title}</h3>
               <p className="text-[14px] leading-relaxed text-[var(--slate-fg-muted)]">{p.body}</p>
             </div>
@@ -566,6 +580,7 @@ git commit -m "feat(marketing): feature pillars"
 **Goal:** The "Blocks, not shortcodes" section. Ship with a hand-built `EditorMockup` placeholder; mark it clearly so it's easy to find and replace with a real screenshot later.
 
 **Files:**
+
 - Create: `src/app/(marketing)/_components/ProductPeek.tsx`
 - Create: `src/app/(marketing)/_components/EditorMockup.tsx`
 - Modify: `src/app/(marketing)/page.tsx`
@@ -664,6 +679,7 @@ git commit -m "feat(marketing): product peek + editor placeholder mockup"
 **Goal:** Two-column "Describe it. Get blocks." visual.
 
 **Files:**
+
 - Create: `src/app/(marketing)/_components/AIDemo.tsx`
 - Modify: `src/app/(marketing)/page.tsx`
 
@@ -735,6 +751,7 @@ git commit -m "feat(marketing): AI authoring demo"
 **Goal:** A single horizontal line of the core tech stack.
 
 **Files:**
+
 - Create: `src/app/(marketing)/_components/StackStrip.tsx`
 - Modify: `src/app/(marketing)/page.tsx`
 
@@ -759,7 +776,9 @@ export default function StackStrip() {
           {STACK.map((tech, i) => (
             <span key={tech} className="flex items-center gap-4">
               <span>{tech}</span>
-              {i < STACK.length - 1 ? <span className="text-[var(--slate-border-strong)]">·</span> : null}
+              {i < STACK.length - 1 ? (
+                <span className="text-[var(--slate-border-strong)]">·</span>
+              ) : null}
             </span>
           ))}
         </div>
@@ -786,6 +805,7 @@ git commit -m "feat(marketing): tech-stack strip"
 **Goal:** Three-step "Sign up → Pick a theme → Connect your domain" section.
 
 **Files:**
+
 - Create: `src/app/(marketing)/_components/HowItWorks.tsx`
 - Modify: `src/app/(marketing)/page.tsx`
 
@@ -797,9 +817,21 @@ Create `src/app/(marketing)/_components/HowItWorks.tsx`:
 type Step = { n: string; title: string; body: string };
 
 const STEPS: Step[] = [
-  { n: "01", title: "Sign up.", body: "Email + password or GitHub OAuth. Free tier starts immediately." },
-  { n: "02", title: "Pick a theme — or describe one.", body: "AI scaffolds an initial site from a one-line description." },
-  { n: "03", title: "Connect your domain.", body: "We handle DNS, certificates, and CDN. You bring the domain name." },
+  {
+    n: "01",
+    title: "Sign up.",
+    body: "Email + password or GitHub OAuth. Free tier starts immediately.",
+  },
+  {
+    n: "02",
+    title: "Pick a theme — or describe one.",
+    body: "AI scaffolds an initial site from a one-line description.",
+  },
+  {
+    n: "03",
+    title: "Connect your domain.",
+    body: "We handle DNS, certificates, and CDN. You bring the domain name.",
+  },
 ];
 
 export default function HowItWorks() {
@@ -816,8 +848,13 @@ export default function HowItWorks() {
         </div>
         <div className="mx-auto grid max-w-[920px] grid-cols-1 gap-6 md:grid-cols-3">
           {STEPS.map((s) => (
-            <div key={s.n} className="rounded-lg border border-[var(--slate-border-strong)] bg-[var(--slate-bg-card)] p-6">
-              <div className="mb-4 font-mono text-[11px] tracking-[0.12em] text-[#a8a3ff]">{s.n}</div>
+            <div
+              key={s.n}
+              className="rounded-lg border border-[var(--slate-border-strong)] bg-[var(--slate-bg-card)] p-6"
+            >
+              <div className="mb-4 font-mono text-[11px] tracking-[0.12em] text-[#a8a3ff]">
+                {s.n}
+              </div>
               <h3 className="marketing-serif mb-2 text-lg text-[var(--slate-fg)]">{s.title}</h3>
               <p className="text-[13px] leading-relaxed text-[var(--slate-fg-muted)]">{s.body}</p>
             </div>
@@ -846,6 +883,7 @@ git commit -m "feat(marketing): how-it-works steps"
 **Goal:** Final CTA section with the Wiki footnote.
 
 **Files:**
+
 - Create: `src/app/(marketing)/_components/SignUpCTA.tsx`
 - Modify: `src/app/(marketing)/page.tsx`
 
@@ -876,7 +914,10 @@ export default function SignUpCTA() {
         </Link>
         <p className="mt-8 text-[12px] text-[var(--slate-fg-subtle)]">
           Source available on GitHub. Want to self-host?{" "}
-          <a href={WIKI_URL} className="underline decoration-[var(--slate-border-strong)] hover:text-[var(--slate-fg-muted)]">
+          <a
+            href={WIKI_URL}
+            className="underline decoration-[var(--slate-border-strong)] hover:text-[var(--slate-fg-muted)]"
+          >
             See the Wiki →
           </a>
         </p>
@@ -903,6 +944,7 @@ git commit -m "feat(marketing): final sign-up CTA"
 **Goal:** Minimal footer with policy links and brand strip.
 
 **Files:**
+
 - Create: `src/app/(marketing)/_components/LandingFooter.tsx`
 - Modify: `src/app/(marketing)/page.tsx`
 
@@ -918,15 +960,33 @@ export default function LandingFooter() {
     <footer className="border-t border-[var(--slate-border)] px-6 py-6 font-mono text-[11px] text-[var(--slate-fg-subtle)]">
       <div className="mx-auto flex max-w-[1100px] flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <span className="text-[#a8a3ff]" aria-hidden>◐</span>
+          <span className="text-[#a8a3ff]" aria-hidden>
+            ◐
+          </span>
           <span>Slate</span>
         </div>
         <nav className="flex items-center gap-4">
-          <Link href="/privacy" className="hover:text-[var(--slate-fg-muted)]">Privacy</Link>
-          <Link href="/terms" className="hover:text-[var(--slate-fg-muted)]">Terms</Link>
-          <Link href="/status" className="hover:text-[var(--slate-fg-muted)]">Status</Link>
-          <a href="https://github.com/platfrmrcarl/Slate" className="hover:text-[var(--slate-fg-muted)]">GitHub ↗</a>
-          <a href="https://github.com/platfrmrcarl/Slate/wiki" className="hover:text-[var(--slate-fg-muted)]">Wiki ↗</a>
+          <Link href="/privacy" className="hover:text-[var(--slate-fg-muted)]">
+            Privacy
+          </Link>
+          <Link href="/terms" className="hover:text-[var(--slate-fg-muted)]">
+            Terms
+          </Link>
+          <Link href="/status" className="hover:text-[var(--slate-fg-muted)]">
+            Status
+          </Link>
+          <a
+            href="https://github.com/platfrmrcarl/Slate"
+            className="hover:text-[var(--slate-fg-muted)]"
+          >
+            GitHub ↗
+          </a>
+          <a
+            href="https://github.com/platfrmrcarl/Slate/wiki"
+            className="hover:text-[var(--slate-fg-muted)]"
+          >
+            Wiki ↗
+          </a>
         </nav>
         <span>© 2026 Slate</span>
       </div>
@@ -952,6 +1012,7 @@ git commit -m "feat(marketing): footer"
 **Goal:** Add `/` to the sitemap when the flag is on; ship a 1200×630 placeholder OG image so the OG tags don't 404.
 
 **Files:**
+
 - Modify: `src/app/sitemap.xml/route.ts` (or `src/app/sitemap.ts` if Next's MetadataRoute is used — adapt to the existing structure)
 - Create: `public/og/slate-landing-1200x630.png`
 
@@ -1035,7 +1096,7 @@ SLATE_MARKETING_HOME=1 pnpm dev
 In a browser, open `http://localhost:3000/`. Visually confirm:
 
 - Top nav renders with logomark, links, and Sign-up button.
-- Hero headline shows "The CMS *WordPress* should have been" with lavender italic accent.
+- Hero headline shows "The CMS _WordPress_ should have been" with lavender italic accent.
 - Four feature pillar tiles render in a 2×2 grid.
 - Product peek section renders the editor mockup.
 - AI demo shows the two-column prompt → blocks visual.

@@ -25,10 +25,7 @@ export async function POST(req: Request): Promise<Response> {
     return NextResponse.json({ error: "invalid input" }, { status: 400 });
   }
 
-  const rows = await db()
-    .select()
-    .from(dataJobs)
-    .where(eq(dataJobs.id, parsed.data.importJobId));
+  const rows = await db().select().from(dataJobs).where(eq(dataJobs.id, parsed.data.importJobId));
   const job = rows[0];
   if (!job) return NextResponse.json({ ok: true, skipped: "missing" });
 

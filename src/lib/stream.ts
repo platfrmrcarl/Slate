@@ -13,9 +13,7 @@ function asIterable(stream: Readable | AsyncIterableLike): AsyncIterableLike {
   return stream as unknown as AsyncIterableLike;
 }
 
-export async function streamToBuffer(
-  stream: Readable | AsyncIterableLike,
-): Promise<Buffer> {
+export async function streamToBuffer(stream: Readable | AsyncIterableLike): Promise<Buffer> {
   const chunks: Buffer[] = [];
   for await (const chunk of asIterable(stream)) {
     chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));

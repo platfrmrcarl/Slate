@@ -20,6 +20,7 @@ See [`docs/security/threat-model.md`](./docs/security/threat-model.md) for
 the full document. Brief summary:
 
 **In scope:**
+
 - Single-tenant deployment on Cloud Run + Cloud SQL + Cloud Storage +
   Cloud Tasks.
 - Self-hosted operators and their authenticated users (owner, admin,
@@ -30,6 +31,7 @@ the full document. Brief summary:
   shared secret.
 
 **Out of scope (deferred to v2 or excluded):**
+
 - Multi-tenant isolation (v2).
 - Runtime plugin / theme code execution sandboxing (v2; v1 uses
   compose-time install only).
@@ -60,7 +62,7 @@ the full document. Brief summary:
   feature (including the chat endpoint).
 - **Media privacy:** `/api/img/[id]` gates anonymous access on
   reachability from published content; backstage access is `private,
-  no-store`.
+no-store`.
 - **Headers:** HSTS, X-Content-Type-Options, X-Frame-Options DENY,
   Referrer-Policy, Permissions-Policy on every response; strict CSP on
   `/admin/*`, `/setup`, and `(auth)/*`.

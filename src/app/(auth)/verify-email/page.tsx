@@ -14,10 +14,7 @@ interface State {
 function VerifyEmailInner() {
   const params = useSearchParams();
   const token = params.get("token") ?? "";
-  const [state, action] = useActionState<State | undefined, FormData>(
-    verifyEmailAction,
-    undefined,
-  );
+  const [state, action] = useActionState<State | undefined, FormData>(verifyEmailAction, undefined);
 
   useEffect(() => {
     if (token && !state) {

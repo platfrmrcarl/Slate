@@ -33,7 +33,9 @@ export default function FeaturePillars() {
         <div className="grid grid-cols-1 gap-px overflow-hidden rounded-lg bg-[var(--slate-border)] md:grid-cols-2">
           {PILLARS.map((p) => (
             <div key={p.title} className="bg-[var(--slate-bg)] p-8">
-              <div className="mb-3 text-2xl text-[#a8a3ff]" aria-hidden>{p.glyph}</div>
+              <div className="mb-3 text-2xl text-[#a8a3ff]" aria-hidden>
+                {p.glyph}
+              </div>
               <h3 className="marketing-serif mb-2 text-xl text-[var(--slate-fg)]">{p.title}</h3>
               <p className="text-[14px] leading-relaxed text-[var(--slate-fg-muted)]">{p.body}</p>
             </div>

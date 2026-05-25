@@ -1,11 +1,7 @@
 import type { Route } from "next";
 import { requireRole } from "@/auth/context";
 import { listCommentsForModeration, type CommentStatus } from "@/comments/service";
-import {
-  approveCommentAction,
-  markSpamAction,
-  deleteCommentAction,
-} from "@/app/actions/comments";
+import { approveCommentAction, markSpamAction, deleteCommentAction } from "@/app/actions/comments";
 
 async function approveAction(fd: FormData): Promise<void> {
   "use server";

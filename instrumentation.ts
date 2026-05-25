@@ -5,13 +5,10 @@ export async function register(): Promise<void> {
   if (process.env.NEXT_RUNTIME !== "nodejs") return;
 
   const { NodeSDK } = await import("@opentelemetry/sdk-node");
-  const { getNodeAutoInstrumentations } = await import(
-    "@opentelemetry/auto-instrumentations-node"
-  );
+  const { getNodeAutoInstrumentations } = await import("@opentelemetry/auto-instrumentations-node");
   const { Resource } = await import("@opentelemetry/resources");
-  const { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } = await import(
-    "@opentelemetry/semantic-conventions"
-  );
+  const { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } =
+    await import("@opentelemetry/semantic-conventions");
   const { TraceExporter } = await import("@google-cloud/opentelemetry-cloud-trace-exporter");
   const { MetricExporter } = await import("@google-cloud/opentelemetry-cloud-monitoring-exporter");
   const { PeriodicExportingMetricReader } = await import("@opentelemetry/sdk-metrics");

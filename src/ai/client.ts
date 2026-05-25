@@ -139,7 +139,10 @@ export async function callText(input: CallTextInput): Promise<CallTextResult> {
       system: input.system,
       messages: [{ role: "user", content: input.user }],
     });
-    const text = res.content.filter(isTextBlock).map((b) => b.text).join("\n");
+    const text = res.content
+      .filter(isTextBlock)
+      .map((b) => b.text)
+      .join("\n");
     await recordUsage({
       userId: input.userId,
       feature: input.feature,

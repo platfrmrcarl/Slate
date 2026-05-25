@@ -24,12 +24,7 @@ export function CreateUserForm({
     <form action={action} className="max-w-md space-y-4">
       <label className="block text-sm">
         <span className="mb-1 block font-semibold">Email</span>
-        <input
-          name="email"
-          type="email"
-          required
-          className="w-full rounded border px-2 py-1"
-        />
+        <input name="email" type="email" required className="w-full rounded border px-2 py-1" />
         {fe.email && <p className="mt-1 text-xs text-red-700">{fe.email}</p>}
       </label>
       <label className="block text-sm">

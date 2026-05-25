@@ -6,9 +6,8 @@ import os from "node:os";
 const dir = path.join(os.tmpdir(), `slate-cred-${process.pid}-${Date.now()}`);
 vi.stubEnv("XDG_CONFIG_HOME", dir);
 
-const { saveCredentials, loadCredentials, clearCredentials, credentialsPath } = await import(
-  "./credentials"
-);
+const { saveCredentials, loadCredentials, clearCredentials, credentialsPath } =
+  await import("./credentials");
 
 afterEach(async () => {
   await fs.rm(dir, { recursive: true, force: true });

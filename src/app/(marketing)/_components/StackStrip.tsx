@@ -14,7 +14,9 @@ export default function StackStrip() {
           {STACK.map((tech, i) => (
             <span key={tech} className="flex items-center gap-4">
               <span>{tech}</span>
-              {i < STACK.length - 1 ? <span className="text-[var(--slate-border-strong)]">·</span> : null}
+              {i < STACK.length - 1 ? (
+                <span className="text-[var(--slate-border-strong)]">·</span>
+              ) : null}
             </span>
           ))}
         </div>

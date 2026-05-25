@@ -77,11 +77,7 @@ function bypassLocale(pathname: string): boolean {
   // no [locale] segment, so the locale rewriter would 404 them by sending
   // requests to /<defaultLocale>/<path>.
   if (process.env.SLATE_MARKETING_HOME === "1") {
-    if (
-      pathname === "/" ||
-      pathname === "/products" ||
-      pathname === "/opengraph-image"
-    ) {
+    if (pathname === "/" || pathname === "/products" || pathname === "/opengraph-image") {
       return true;
     }
   }

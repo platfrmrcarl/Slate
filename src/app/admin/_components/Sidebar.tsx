@@ -84,11 +84,7 @@ export async function Sidebar({ role }: { role: Role }): Promise<React.ReactElem
               </p>
               <div className="mt-1 grid gap-1">
                 {visible.map((n) => (
-                  <Link
-                    key={n.href}
-                    href={n.href}
-                    className="rounded px-2 py-1 hover:bg-gray-100"
-                  >
+                  <Link key={n.href} href={n.href} className="rounded px-2 py-1 hover:bg-gray-100">
                     {n.label}
                   </Link>
                 ))}

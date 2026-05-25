@@ -43,10 +43,9 @@ export function exportCommand(opts: TransportOpts, includeDb: boolean): Command 
       const baseUrl = opts.url ?? process.env.SLATE_URL;
       if (!baseUrl) throw new Error("SLATE_URL or --url required");
       const token = opts.token ?? process.env.SLATE_TOKEN;
-      const dl = await fetch(
-        baseUrl.replace(/\/$/, "") + `/api/export/${id}/download`,
-        { headers: { authorization: `Bearer ${token}` } },
-      );
+      const dl = await fetch(baseUrl.replace(/\/$/, "") + `/api/export/${id}/download`, {
+        headers: { authorization: `Bearer ${token}` },
+      });
       if (!dl.ok || !dl.body) throw new Error(`download failed: ${dl.status}`);
       await pipeline(dl.body as unknown as NodeJS.ReadableStream, fs.createWriteStream(outputPath));
       console.log(pc.green(`Saved ${outputPath}`));

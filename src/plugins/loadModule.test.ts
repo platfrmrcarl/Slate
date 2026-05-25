@@ -26,9 +26,7 @@ describe("loadModule", () => {
 
   it("rejects an absolute path that points outside root", async () => {
     const root = await tempRoot();
-    await expect(loadModule(root, "/etc/passwd")).rejects.toBeInstanceOf(
-      PluginPathTraversalError,
-    );
+    await expect(loadModule(root, "/etc/passwd")).rejects.toBeInstanceOf(PluginPathTraversalError);
   });
 
   it("rejects a sibling whose path-prefix matches root", async () => {

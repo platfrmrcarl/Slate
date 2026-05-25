@@ -115,10 +115,7 @@ describe("translateAction", () => {
 
   it("rejects invalid JSON", async () => {
     requireRole.mockResolvedValue({ id: "u-1" });
-    const r = await translateAction(
-      undefined,
-      fd({ blocksJson: "not-json", targetLocale: "fr" }),
-    );
+    const r = await translateAction(undefined, fd({ blocksJson: "not-json", targetLocale: "fr" }));
     expect(r.error).toMatch(/JSON/i);
   });
 });

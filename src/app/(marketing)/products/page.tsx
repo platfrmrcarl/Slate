@@ -28,8 +28,8 @@ export default function ProductsPage() {
               not your servers.
             </h1>
             <p className="mx-auto mt-6 max-w-[520px] text-[15px] leading-relaxed text-[var(--slate-fg-muted)]">
-              Every tier is fully managed. Pay for what you need — bandwidth, AI tokens,
-              and editors scale with the plan, not with line items.
+              Every tier is fully managed. Pay for what you need — bandwidth, AI tokens, and editors
+              scale with the plan, not with line items.
             </p>
           </div>
         </section>

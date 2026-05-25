@@ -2,7 +2,7 @@
 
 A high-level map of the codebase. The design rationale lives in
 [`Slate.md`](./Slate.md) (the spec). This document
-describes *what's actually in the tree* after the v1 implementation plans
+describes _what's actually in the tree_ after the v1 implementation plans
 landed. When the two diverge, this file is wrong — file a PR.
 
 ## Runtime topology
@@ -73,32 +73,32 @@ the new revision serves traffic. See `cloudbuild.yaml`.
 
 ## Module map
 
-| Path | Responsibility |
-|---|---|
-| `src/app/` | App Router (admin, public, API). Route groups: `(auth)` for sign-in/up/reset; `[locale]` for localized public routes. |
-| `src/middleware.ts` | Setup-mode guard, locale resolution, rate-limit application, `/api/*` pass-through. |
-| `src/auth/` | Sessions (cookie + DB), OAuth (Google PKCE, GitHub), passwords (argon2id), magic links, password reset, email verification, admin tokens (CLI bearer). |
-| `src/blocks/` | Canonical `Block` discriminated union, editor adapter (BlockNote ↔ canonical), server renderer, runtime block registry (for plugins). |
-| `src/services/pages/` | Pages CRUD + revisions + preview tokens. |
-| `src/posts/` | Posts CRUD + revisions + tsvector search. |
-| `src/taxonomies/` | Categories + tags. |
-| `src/comments/` | Threaded comments + moderation + spam classifier hook. |
-| `src/media/` | GCS storage adapter, Sharp transform pipeline, MIME allowlist, probe + visibility checks. |
-| `src/themes/` | Theme registry, active-theme resolver, customization tokens. |
-| `src/i18n/` | Locale catalogue, URL helpers, translation-graph helpers, persisted i18n settings. |
-| `src/plugins/` | Manifest parser, plugin registry, emit + delivery (HMAC, SSRF guard, backoff), block-registry merge. |
-| `src/import/` | WordPress XML / Ghost JSON / Markdown / CSV importers + shared runner. |
-| `src/export/` | Streaming ZIP exporter (yazl), block-to-markdown writer, pg_dump shell. |
-| `src/ai/` | Anthropic SDK adapter (cache-control + structured-output helpers), per-feature modules (generate-page, rewrite, alt-text, SEO, translate, spam, chat), usage accounting + budget. |
-| `src/jobs/` | Cloud Tasks enqueue adapter + bearer-secret auth helper for job routes. |
-| `src/lib/` | Small utilities: logger (pino), slug, rate-limit (Postgres token bucket), OTel meter helpers, settings kv, SEO JSON-LD builders. |
-| `src/db/` | Drizzle schema (one file), migrations (tracked SQL + snapshot chain), client. |
-| `src/emails/` | React Email templates. |
-| `themes/slate-default/` | Baseline theme (Layout, templates, primitives, CSS tokens). |
-| `plugins/example-webhook/` | Sample plugin (manifest + entry). |
-| `packages/cli/` | `slate` CLI workspace package (`@slate/cli`). |
-| `infra/terraform/` | GCP Terraform module (Cloud Run, SQL, Storage, Tasks, LB, monitoring). |
-| `instrumentation.ts` | OpenTelemetry SDK boot — traces to Cloud Trace, metrics to Cloud Monitoring (gated on `OTEL_ENABLED=true`). |
+| Path                       | Responsibility                                                                                                                                                                    |
+| -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/app/`                 | App Router (admin, public, API). Route groups: `(auth)` for sign-in/up/reset; `[locale]` for localized public routes.                                                             |
+| `src/middleware.ts`        | Setup-mode guard, locale resolution, rate-limit application, `/api/*` pass-through.                                                                                               |
+| `src/auth/`                | Sessions (cookie + DB), OAuth (Google PKCE, GitHub), passwords (argon2id), magic links, password reset, email verification, admin tokens (CLI bearer).                            |
+| `src/blocks/`              | Canonical `Block` discriminated union, editor adapter (BlockNote ↔ canonical), server renderer, runtime block registry (for plugins).                                             |
+| `src/services/pages/`      | Pages CRUD + revisions + preview tokens.                                                                                                                                          |
+| `src/posts/`               | Posts CRUD + revisions + tsvector search.                                                                                                                                         |
+| `src/taxonomies/`          | Categories + tags.                                                                                                                                                                |
+| `src/comments/`            | Threaded comments + moderation + spam classifier hook.                                                                                                                            |
+| `src/media/`               | GCS storage adapter, Sharp transform pipeline, MIME allowlist, probe + visibility checks.                                                                                         |
+| `src/themes/`              | Theme registry, active-theme resolver, customization tokens.                                                                                                                      |
+| `src/i18n/`                | Locale catalogue, URL helpers, translation-graph helpers, persisted i18n settings.                                                                                                |
+| `src/plugins/`             | Manifest parser, plugin registry, emit + delivery (HMAC, SSRF guard, backoff), block-registry merge.                                                                              |
+| `src/import/`              | WordPress XML / Ghost JSON / Markdown / CSV importers + shared runner.                                                                                                            |
+| `src/export/`              | Streaming ZIP exporter (yazl), block-to-markdown writer, pg_dump shell.                                                                                                           |
+| `src/ai/`                  | Anthropic SDK adapter (cache-control + structured-output helpers), per-feature modules (generate-page, rewrite, alt-text, SEO, translate, spam, chat), usage accounting + budget. |
+| `src/jobs/`                | Cloud Tasks enqueue adapter + bearer-secret auth helper for job routes.                                                                                                           |
+| `src/lib/`                 | Small utilities: logger (pino), slug, rate-limit (Postgres token bucket), OTel meter helpers, settings kv, SEO JSON-LD builders.                                                  |
+| `src/db/`                  | Drizzle schema (one file), migrations (tracked SQL + snapshot chain), client.                                                                                                     |
+| `src/emails/`              | React Email templates.                                                                                                                                                            |
+| `themes/slate-default/`    | Baseline theme (Layout, templates, primitives, CSS tokens).                                                                                                                       |
+| `plugins/example-webhook/` | Sample plugin (manifest + entry).                                                                                                                                                 |
+| `packages/cli/`            | `slate` CLI workspace package (`@slate/cli`).                                                                                                                                     |
+| `infra/terraform/`         | GCP Terraform module (Cloud Run, SQL, Storage, Tasks, LB, monitoring).                                                                                                            |
+| `instrumentation.ts`       | OpenTelemetry SDK boot — traces to Cloud Trace, metrics to Cloud Monitoring (gated on `OTEL_ENABLED=true`).                                                                       |
 
 ## Data model overview
 
@@ -187,7 +187,7 @@ ingress to public on every push).
 
 ## Where to start reading
 
-- `Slate.md` for the *why*.
+- `Slate.md` for the _why_.
 - `src/db/schema.ts` for the data model.
 - `src/app/[locale]/[[...slug]]/page.tsx` and
   `src/services/pages/service.ts` for the public read path.

@@ -5,13 +5,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireUser } from "@/auth/context";
 import { can } from "@/auth/permissions";
-import {
-  countOwners,
-  createUser,
-  EmailInUseError,
-  findUserById,
-  updateRole,
-} from "@/auth/users";
+import { countOwners, createUser, EmailInUseError, findUserById, updateRole } from "@/auth/users";
 import { issuePasswordReset } from "@/auth/password-reset";
 import type { Role } from "@/db/schema";
 
@@ -21,14 +15,7 @@ interface ActionResult {
   ok?: true;
 }
 
-const roleSchema = z.enum([
-  "owner",
-  "admin",
-  "editor",
-  "author",
-  "contributor",
-  "subscriber",
-]);
+const roleSchema = z.enum(["owner", "admin", "editor", "author", "contributor", "subscriber"]);
 
 const createSchema = z.object({
   email: z.string().email("Enter a valid email"),

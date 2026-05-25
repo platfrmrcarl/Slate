@@ -41,10 +41,7 @@ export async function emit<T extends WebhookEvent>(
  * Fire-and-forget convenience wrapper for callers that should never let a
  * webhook failure surface to the user-facing action.
  */
-export function emitSafe<T extends WebhookEvent>(
-  event: T,
-  payload: Record<string, unknown>,
-): void {
+export function emitSafe<T extends WebhookEvent>(event: T, payload: Record<string, unknown>): void {
   emit(event, payload).catch((err) => {
     logger().warn({ err, event }, "emit:failed");
   });

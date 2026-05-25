@@ -5,10 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import type { Route } from "next";
 import { loadStripe, type Stripe } from "@stripe/stripe-js";
-import {
-  EmbeddedCheckoutProvider,
-  EmbeddedCheckout,
-} from "@stripe/react-stripe-js";
+import { EmbeddedCheckoutProvider, EmbeddedCheckout } from "@stripe/react-stripe-js";
 
 // Lazily resolve the Stripe instance; load once, share across remounts.
 let stripePromise: Promise<Stripe | null> | null = null;
@@ -31,7 +28,13 @@ function isTier(v: string | null): v is TierId {
 // build-phase prerender doesn't bail out.
 export default function CheckoutPage() {
   return (
-    <Suspense fallback={<section className="mx-auto max-w-xl p-6"><p className="text-sm text-gray-500">Loading secure checkout…</p></section>}>
+    <Suspense
+      fallback={
+        <section className="mx-auto max-w-xl p-6">
+          <p className="text-sm text-gray-500">Loading secure checkout…</p>
+        </section>
+      }
+    >
       <CheckoutInner />
     </Suspense>
   );

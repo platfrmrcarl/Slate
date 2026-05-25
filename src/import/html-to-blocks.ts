@@ -81,9 +81,7 @@ function inlineMarkdown(el: Element): string {
 function isStandaloneImgParagraph(el: Element): boolean {
   if (el.tagName !== "p") return false;
   const significant = el.childNodes.filter((c) => !(isText(c) && c.value.trim() === ""));
-  return (
-    significant.length === 1 && isElement(significant[0]!) && significant[0].tagName === "img"
-  );
+  return significant.length === 1 && isElement(significant[0]!) && significant[0].tagName === "img";
 }
 
 function listItems(list: Element): string[] {

@@ -8,12 +8,7 @@ export default defineConfig({
     // Vitest's default exclude covers node_modules + dist; also exclude
     // .claude/worktrees so in-flight branches kept as on-disk worktrees
     // don't get harvested by `pnpm test` runs against main.
-    exclude: [
-      "**/node_modules/**",
-      "**/dist/**",
-      "**/.next/**",
-      ".claude/**",
-    ],
+    exclude: ["**/node_modules/**", "**/dist/**", "**/.next/**", ".claude/**"],
     coverage: {
       provider: "v8",
       reporter: ["text", "html", "json-summary"],

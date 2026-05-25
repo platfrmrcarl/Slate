@@ -130,10 +130,7 @@ describe.runIf(HAS_DB)("posts service", () => {
 
   it("getPostById returns the post by id", async () => {
     const u = await anAuthor();
-    const p = await createPost(
-      { title: "ById", blocks: [], categoryIds: [], tagIds: [] },
-      u.id,
-    );
+    const p = await createPost({ title: "ById", blocks: [], categoryIds: [], tagIds: [] }, u.id);
     cleanupPosts.push(p.id);
     const got = await getPostById(p.id);
     expect(got?.id).toBe(p.id);

@@ -54,8 +54,7 @@ export function RewritePanel(): React.ReactElement {
 
         <label className="grid gap-1">
           <span className="text-gray-600">
-            Text to rewrite{" "}
-            <span className="text-xs text-gray-400">(paste from the editor)</span>
+            Text to rewrite <span className="text-xs text-gray-400">(paste from the editor)</span>
           </span>
           <textarea
             name="text"
@@ -69,9 +68,7 @@ export function RewritePanel(): React.ReactElement {
         </label>
 
         {state?.error && (
-          <p className="rounded border border-red-300 bg-red-50 p-2 text-red-700">
-            {state.error}
-          </p>
+          <p className="rounded border border-red-300 bg-red-50 p-2 text-red-700">{state.error}</p>
         )}
 
         <button

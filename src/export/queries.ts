@@ -29,9 +29,11 @@ export async function listAllMedia() {
   return db().select().from(media);
 }
 
-export async function getActiveThemeMeta(): Promise<
-  { slug: string; version: string; customization: unknown } | null
-> {
+export async function getActiveThemeMeta(): Promise<{
+  slug: string;
+  version: string;
+  customization: unknown;
+} | null> {
   const a = (await db().select().from(activeTheme))[0];
   if (!a) return null;
   const t = (await db().select().from(themes).where(eq(themes.id, a.themeId)))[0];

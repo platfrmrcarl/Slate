@@ -41,7 +41,10 @@ export async function createPost(input: SavePostInput, authorId: string): Promis
   if (input.seoTitle !== undefined) values.seoTitle = input.seoTitle;
   if (input.seoDescription !== undefined) values.seoDescription = input.seoDescription;
 
-  const [row] = await db().insert(posts).values(values as never).returning();
+  const [row] = await db()
+    .insert(posts)
+    .values(values as never)
+    .returning();
   if (input.categoryIds.length || input.tagIds.length) {
     await setTaxonomies(row!.id, [...input.categoryIds, ...input.tagIds]);
   }
@@ -75,7 +78,11 @@ export async function updatePost(id: string, input: SavePostInput): Promise<Post
   if (input.seoDescription !== undefined) next.seoDescription = input.seoDescription;
   if (input.commentsEnabled !== undefined) next.commentsEnabled = input.commentsEnabled;
 
-  const [row] = await db().update(posts).set(next as never).where(eq(posts.id, id)).returning();
+  const [row] = await db()
+    .update(posts)
+    .set(next as never)
+    .where(eq(posts.id, id))
+    .returning();
   await setTaxonomies(row!.id, [...input.categoryIds, ...input.tagIds]);
   emitSafe("post.updated", {
     postId: row!.id,

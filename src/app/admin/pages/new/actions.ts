@@ -44,9 +44,7 @@ export async function generatePageWizardAction(
   // `title` is optional; fall back to the prompt's first words.
   const promptValue = (fd.get("prompt") as string | null)?.trim() ?? "";
   const title =
-    (titleParsed.success && titleParsed.data.title) ||
-    promptValue.slice(0, 80) ||
-    "Untitled";
+    (titleParsed.success && titleParsed.data.title) || promptValue.slice(0, 80) || "Untitled";
 
   const result = await generatePageAction(undefined, fd);
   if (result.error) return { error: result.error };
