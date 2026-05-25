@@ -5,6 +5,10 @@ import type { Route } from "next";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { resetPasswordAction } from "@/app/actions/auth";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface State {
   ok?: boolean;
@@ -20,39 +24,47 @@ function ResetPasswordForm() {
   );
   if (state?.ok) {
     return (
-      <main className="mx-auto mt-20 max-w-md p-6">
-        <h1 className="mb-4 text-2xl font-bold">Password updated</h1>
-        <p>You can now sign in with your new password.</p>
-        <Link className="mt-3 inline-block underline" href={"/sign-in" as Route}>
+      <section className="space-y-3">
+        <header className="space-y-1">
+          <h2 className="text-2xl font-semibold tracking-tight">Password updated</h2>
+        </header>
+        <p className="text-muted-foreground text-sm">
+          You can now sign in with your new password.
+        </p>
+        <Link href={"/sign-in" as Route} className="text-sm underline-offset-4 hover:underline">
           Sign in
         </Link>
-      </main>
+      </section>
     );
   }
   return (
-    <main className="mx-auto mt-20 max-w-md p-6">
-      <h1 className="mb-4 text-2xl font-bold">Choose a new password</h1>
-      <form action={action} className="space-y-3">
+    <section className="space-y-6">
+      <header className="space-y-1">
+        <h2 className="text-2xl font-semibold tracking-tight">Choose a new password</h2>
+      </header>
+      <form action={action} className="grid gap-4">
         <input type="hidden" name="token" value={token} />
-        <label className="block text-sm">
-          <span className="mb-1 block font-semibold">New password</span>
-          <input
+        <div className="grid gap-2">
+          <Label htmlFor="password">New password</Label>
+          <Input
+            id="password"
             type="password"
             name="password"
             minLength={12}
             required
-            className="w-full rounded border px-2 py-1"
+            autoComplete="new-password"
           />
-        </label>
-        {state?.error && <p className="text-sm text-red-700">{state.error}</p>}
-        <button
-          disabled={pending}
-          className="rounded bg-black px-3 py-1.5 text-sm text-white disabled:opacity-50"
-        >
+        </div>
+        {state?.error && (
+          <Alert variant="destructive">
+            <AlertDescription>{state.error}</AlertDescription>
+          </Alert>
+        )}
+        <Button type="submit" disabled={pending} className="w-full">
           {pending ? "Saving…" : "Set password"}
-        </button>
+        </Button>
       </form>
-    </main>
+    </section>
   );
 }
 
@@ -60,9 +72,9 @@ export default function ResetPasswordPage() {
   return (
     <Suspense
       fallback={
-        <main className="mx-auto mt-20 max-w-md p-6">
-          <p>Loading…</p>
-        </main>
+        <section className="space-y-1">
+          <p className="text-muted-foreground text-sm">Loading…</p>
+        </section>
       }
     >
       <ResetPasswordForm />
