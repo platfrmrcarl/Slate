@@ -6,6 +6,7 @@ import { getI18nSettings } from "@/i18n/settings";
 import { env } from "@/env";
 import { getSetting } from "@/lib/settings";
 import { blogJsonLd } from "@/lib/seo";
+import { Button } from "@/components/ui/button";
 
 export const revalidate = 60;
 
@@ -59,11 +60,11 @@ export default async function LocaleBlogIndex({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <h1 className="mb-6 text-3xl font-bold">Blog</h1>
+      <h1 className="mb-6 text-3xl font-bold tracking-tight">Blog</h1>
       <ul className="space-y-6">
         {items.map((p) => (
           <li key={p.id}>
-            <h2 className="text-xl">
+            <h2 className="text-xl font-semibold">
               <Link
                 href={buildLocalizedPath(locale, `/blog/${p.slug}`, settings) as Route}
                 className="hover:underline"
@@ -71,22 +72,29 @@ export default async function LocaleBlogIndex({
                 {p.title}
               </Link>
             </h2>
-            <p className="text-sm text-gray-500">{p.publishedAt?.toISOString().slice(0, 10)}</p>
-            {p.excerpt && <p className="mt-1 text-gray-700">{p.excerpt}</p>}
+            <p className="text-muted-foreground text-sm">
+              {p.publishedAt?.toISOString().slice(0, 10)}
+            </p>
+            {p.excerpt && <p className="text-foreground/80 mt-1">{p.excerpt}</p>}
           </li>
         ))}
       </ul>
       {nextCursor && (
-        <p className="mt-8">
-          <Link
-            href={
-              `${buildLocalizedPath(locale, "/blog", settings)}?cursor=${encodeURIComponent(nextCursor)}` as Route
+        <div className="mt-8">
+          <Button
+            variant="ghost"
+            nativeButton={false}
+            render={
+              <Link
+                href={
+                  `${buildLocalizedPath(locale, "/blog", settings)}?cursor=${encodeURIComponent(nextCursor)}` as Route
+                }
+              />
             }
-            className="underline"
           >
             Older posts →
-          </Link>
-        </p>
+          </Button>
+        </div>
       )}
     </main>
   );

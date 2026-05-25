@@ -55,8 +55,10 @@ export default async function LocalePostPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <article>
-        <h1 className="mb-2 text-3xl font-bold">{post.title}</h1>
-        <p className="mb-6 text-sm text-gray-500">{post.publishedAt?.toISOString().slice(0, 10)}</p>
+        <h1 className="mb-2 text-3xl font-bold tracking-tight">{post.title}</h1>
+        <p className="text-muted-foreground mb-6 text-sm">
+          {post.publishedAt?.toISOString().slice(0, 10)}
+        </p>
         <BlockRenderer blocks={post.blocks} />
       </article>
       {post.commentsEnabled !== "off" && (
