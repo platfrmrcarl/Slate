@@ -2,6 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 type Source = "wordpress" | "ghost" | "markdown" | "csv";
 
@@ -33,28 +37,36 @@ export function UploadForm(): React.ReactElement {
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-3 text-sm">
-      <label className="block">
-        <span className="mb-1 block font-semibold">Source</span>
+    <form onSubmit={onSubmit} className="space-y-4 text-sm">
+      <div className="grid gap-1.5">
+        <Label htmlFor="import-source">Source</Label>
         <select
+          id="import-source"
           value={source}
           onChange={(e) => setSource(e.target.value as Source)}
-          className="rounded border px-2 py-1"
+          className="border-input bg-background h-8 w-fit rounded-lg border px-2.5 text-sm"
         >
           <option value="wordpress">WordPress XML (WXR)</option>
           <option value="ghost">Ghost JSON</option>
           <option value="markdown">Markdown folder (zip)</option>
           <option value="csv">CSV</option>
         </select>
-      </label>
-      <input type="file" name="file" required />
-      {error && <p className="text-red-700">{error}</p>}
-      <button
-        disabled={pending}
-        className="rounded bg-black px-3 py-1.5 text-white disabled:opacity-50"
-      >
+      </div>
+
+      <div className="grid gap-1.5">
+        <Label htmlFor="import-file">File</Label>
+        <Input id="import-file" type="file" name="file" required />
+      </div>
+
+      {error && (
+        <Alert variant="destructive">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
+      <Button type="submit" disabled={pending} size="sm">
         {pending ? "Uploading…" : "Start import"}
-      </button>
+      </Button>
     </form>
   );
 }

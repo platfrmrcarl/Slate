@@ -34,11 +34,13 @@ export default async function PluginSubRoute({
   try {
     mod = (await loadModule(rootPath, menu.component)) as { default?: React.ComponentType };
   } catch {
-    return <p className="p-6 text-sm text-red-700">Plugin component failed to load.</p>;
+    return <p className="text-destructive p-6 text-sm">Plugin component failed to load.</p>;
   }
   const Component = mod.default;
   if (!Component) {
-    return <p className="p-6 text-sm text-red-700">Plugin component missing default export.</p>;
+    return (
+      <p className="text-destructive p-6 text-sm">Plugin component missing default export.</p>
+    );
   }
   return <Component />;
 }

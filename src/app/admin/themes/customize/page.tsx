@@ -24,9 +24,14 @@ export default async function CustomizePage({
       : {};
   const values = mergeCustomization(manifest, overrides);
   return (
-    <main className="p-6">
-      <h1 className="mb-4 text-2xl font-bold">Customize: {theme.name}</h1>
+    <div className="space-y-6">
+      <header className="space-y-1">
+        <h1 className="text-2xl font-semibold tracking-tight">Customize: {theme.name}</h1>
+        <p className="text-muted-foreground text-sm">
+          Override theme tokens, fonts, copy, and layout choices.
+        </p>
+      </header>
       <CustomizerForm themeId={theme.id} manifest={manifest} values={values} />
-    </main>
+    </div>
   );
 }

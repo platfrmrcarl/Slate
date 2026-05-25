@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { autoSeoAction } from "@/app/actions/ai";
 import { extractPlainText } from "@/blocks/extract-text";
 import type { Block } from "@/blocks/types";
+import { Button } from "@/components/ui/button";
 
 interface Props {
   title: string;
@@ -47,15 +48,17 @@ export function AutoSeoButton({ title, blocks, excerpt, onSuggest }: Props): Rea
 
   return (
     <div className="grid gap-1">
-      <button
+      <Button
         type="button"
+        variant="outline"
+        size="sm"
         onClick={run}
         disabled={pending}
-        className="justify-self-start rounded border px-3 py-1.5 text-xs disabled:opacity-50"
+        className="justify-self-start"
       >
         {pending ? "Thinking…" : "Suggest with AI"}
-      </button>
-      {error && <p className="text-xs text-red-700">{error}</p>}
+      </Button>
+      {error && <p className="text-destructive text-xs">{error}</p>}
     </div>
   );
 }
