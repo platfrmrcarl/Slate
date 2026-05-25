@@ -2,6 +2,15 @@ import type { Route } from "next";
 import Link from "next/link";
 import { requireUser } from "@/auth/context";
 import { requestEmailVerificationAction } from "@/app/actions/auth";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 export const dynamic = "force-dynamic";
 
@@ -13,40 +22,70 @@ async function resendVerificationFormAction(formData: FormData): Promise<void> {
 export default async function ProfilePage() {
   const user = await requireUser();
   return (
-    <main className="p-6">
-      <h1 className="mb-4 text-2xl font-bold">Profile</h1>
-      <dl className="grid grid-cols-2 gap-2 text-sm">
-        <dt className="font-semibold">Email</dt>
-        <dd>
-          {user.email}{" "}
-          {user.emailVerifiedAt ? (
-            <span className="ml-2 inline-block rounded bg-green-100 px-2 py-0.5 text-xs text-green-800">
-              verified
-            </span>
-          ) : (
-            <span className="ml-2 inline-block rounded bg-yellow-100 px-2 py-0.5 text-xs text-yellow-800">
-              unverified
-            </span>
-          )}
-        </dd>
-        <dt className="font-semibold">Display name</dt>
-        <dd>{user.displayName}</dd>
-        <dt className="font-semibold">Role</dt>
-        <dd>{user.role}</dd>
-      </dl>
+    <div className="space-y-6">
+      <header className="space-y-1">
+        <h1 className="text-2xl font-semibold tracking-tight">Profile</h1>
+        <p className="text-muted-foreground text-sm">
+          Your account details and verification status.
+        </p>
+      </header>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Account</CardTitle>
+          <CardDescription>Information associated with your account.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <dl className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-[10rem_1fr]">
+            <dt className="text-muted-foreground">Email</dt>
+            <dd className="flex flex-wrap items-center gap-2">
+              <span>{user.email}</span>
+              {user.emailVerifiedAt ? (
+                <Badge variant="outline">verified</Badge>
+              ) : (
+                <Badge variant="outline">unverified</Badge>
+              )}
+            </dd>
+            <dt className="text-muted-foreground">Display name</dt>
+            <dd>{user.displayName}</dd>
+            <dt className="text-muted-foreground">Role</dt>
+            <dd>{user.role}</dd>
+          </dl>
+        </CardContent>
+      </Card>
+
       {!user.emailVerifiedAt && (
-        <form action={resendVerificationFormAction} className="mt-6">
-          <input type="hidden" name="email" value={user.email} />
-          <button className="rounded bg-black px-3 py-1.5 text-sm text-white">
-            Send verification email
-          </button>
-        </form>
+        <Card>
+          <CardHeader>
+            <CardTitle>Verify your email</CardTitle>
+            <CardDescription>
+              We can send another verification link to your inbox.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form action={resendVerificationFormAction}>
+              <input type="hidden" name="email" value={user.email} />
+              <Button type="submit">Send verification email</Button>
+            </form>
+          </CardContent>
+        </Card>
       )}
-      <p className="mt-8 text-sm">
-        <Link className="underline" href={"/forgot-password" as Route}>
-          Change password
-        </Link>
-      </p>
-    </main>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Security</CardTitle>
+          <CardDescription>Update your sign-in credentials.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button
+            variant="outline"
+            nativeButton={false}
+            render={<Link href={"/forgot-password" as Route} />}
+          >
+            Change password
+          </Button>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
