@@ -8,8 +8,9 @@ async function main() {
   const sql = postgres(url, { max: 1 });
   const dbInstance = drizzle(sql);
   console.log("Running migrations…");
+  const startedAt = Date.now();
   await migrate(dbInstance, { migrationsFolder: "./src/db/migrations" });
-  console.log("Migrations complete.");
+  console.log(`Migrations complete in ${Date.now() - startedAt}ms.`);
   await sql.end({ timeout: 5 });
 }
 
