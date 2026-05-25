@@ -59,7 +59,9 @@ Expected: `nothing to commit, working tree clean`.
 
 ---
 
-### Task 2: Run shadcn init
+### Task 2: Run shadcn init and swap in mist palette
+
+**Background:** shadcn v4 dropped `slate` from its base colors. The v4 CLI no longer accepts `--base-color` and defaults to `neutral`. We use `mist` (v4's cool blue-gray equivalent of slate, hues 213°–228°). Strategy: run init with defaults (gets `neutral`), then overwrite the token blocks in `globals.css` with `mist` values and patch `components.json`.
 
 **Files:**
 - Create: `components.json`
@@ -67,16 +69,16 @@ Expected: `nothing to commit, working tree clean`.
 - Create: `src/lib/utils.ts` (if not present)
 - Modify: `package.json` (CLI adds deps)
 
-- [ ] **Step 1: Run the init command non-interactively**
+- [ ] **Step 1: Run init with defaults**
 
 ```bash
 cd /home/carl/GitHub/Slate
-pnpm dlx shadcn@latest init -d --base-color slate
+pnpm dlx shadcn@latest init -d
 ```
 
-`-d` accepts defaults: TypeScript yes, style new-york, CSS variables yes, RSC yes. `--base-color slate` is the key flag.
+`-d` accepts defaults: TypeScript yes, style new-york (under nova preset), CSS variables yes, RSC yes. Base color will be `neutral` — we replace it in Step 3.
 
-- [ ] **Step 2: Verify the expected files were created/modified**
+- [ ] **Step 2: Verify files exist**
 
 ```bash
 test -f components.json && echo "components.json OK"
@@ -85,21 +87,100 @@ grep -q ":root" src/app/globals.css && echo "globals.css has tokens"
 grep -q "@theme inline" src/app/globals.css && echo "globals.css has @theme inline"
 ```
 
-Expected: all four "OK" lines print. If any fail, the init didn't complete; do not proceed.
+Expected: all four "OK" lines print.
 
-- [ ] **Step 3: Verify slate tokens in globals.css**
+- [ ] **Step 3: Replace token blocks in globals.css with mist palette**
 
-```bash
-grep -E "oklch\(0\.\d+ 0\.0\d+ 264" src/app/globals.css | head -3
+Open `src/app/globals.css`. Find the existing `:root { … }` block and the `.dark { … }` block (both written by `shadcn init`). Replace ONLY the token bodies (keep the selectors and any surrounding `@theme inline` / `@custom-variant` / `@import` lines untouched). Use these literal mist values:
+
+`:root` body:
+```css
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.148 0.004 228.8);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.148 0.004 228.8);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.148 0.004 228.8);
+  --primary: oklch(0.218 0.008 223.9);
+  --primary-foreground: oklch(0.987 0.002 197.1);
+  --secondary: oklch(0.963 0.002 197.1);
+  --secondary-foreground: oklch(0.218 0.008 223.9);
+  --muted: oklch(0.963 0.002 197.1);
+  --muted-foreground: oklch(0.56 0.021 213.5);
+  --accent: oklch(0.963 0.002 197.1);
+  --accent-foreground: oklch(0.218 0.008 223.9);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.925 0.005 214.3);
+  --input: oklch(0.925 0.005 214.3);
+  --ring: oklch(0.723 0.014 214.4);
+  --chart-1: oklch(0.872 0.007 219.6);
+  --chart-2: oklch(0.56 0.021 213.5);
+  --chart-3: oklch(0.45 0.017 213.2);
+  --chart-4: oklch(0.378 0.015 216);
+  --chart-5: oklch(0.275 0.011 216.9);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.987 0.002 197.1);
+  --sidebar-foreground: oklch(0.148 0.004 228.8);
+  --sidebar-primary: oklch(0.218 0.008 223.9);
+  --sidebar-primary-foreground: oklch(0.987 0.002 197.1);
+  --sidebar-accent: oklch(0.963 0.002 197.1);
+  --sidebar-accent-foreground: oklch(0.218 0.008 223.9);
+  --sidebar-border: oklch(0.925 0.005 214.3);
+  --sidebar-ring: oklch(0.723 0.014 214.4);
 ```
 
-Expected: at least one match — slate uses oklch values around hue 264 (the slate-blue tinted neutral). If you see hue 0 or other hues, init picked a different base color; re-run with `--base-color slate`.
+`.dark` body:
+```css
+  --background: oklch(0.148 0.004 228.8);
+  --foreground: oklch(0.987 0.002 197.1);
+  --card: oklch(0.218 0.008 223.9);
+  --card-foreground: oklch(0.987 0.002 197.1);
+  --popover: oklch(0.218 0.008 223.9);
+  --popover-foreground: oklch(0.987 0.002 197.1);
+  --primary: oklch(0.925 0.005 214.3);
+  --primary-foreground: oklch(0.218 0.008 223.9);
+  --secondary: oklch(0.275 0.011 216.9);
+  --secondary-foreground: oklch(0.987 0.002 197.1);
+  --muted: oklch(0.275 0.011 216.9);
+  --muted-foreground: oklch(0.723 0.014 214.4);
+  --accent: oklch(0.275 0.011 216.9);
+  --accent-foreground: oklch(0.987 0.002 197.1);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.56 0.021 213.5);
+  --chart-1: oklch(0.872 0.007 219.6);
+  --chart-2: oklch(0.56 0.021 213.5);
+  --chart-3: oklch(0.45 0.017 213.2);
+  --chart-4: oklch(0.378 0.015 216);
+  --chart-5: oklch(0.275 0.011 216.9);
+  --sidebar: oklch(0.218 0.008 223.9);
+  --sidebar-foreground: oklch(0.987 0.002 197.1);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.987 0.002 197.1);
+  --sidebar-accent: oklch(0.275 0.011 216.9);
+  --sidebar-accent-foreground: oklch(0.987 0.002 197.1);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.56 0.021 213.5);
+```
 
-- [ ] **Step 4: Commit**
+- [ ] **Step 4: Patch components.json baseColor**
+
+Edit `components.json` — find the field `"baseColor": "neutral"` (under `"tailwind"`) and change it to `"baseColor": "mist"`.
+
+- [ ] **Step 5: Verify mist tokens are in place**
+
+```bash
+grep -E "oklch\(0\.\d+ 0\.0\d+ 21[34]" src/app/globals.css | head -3
+```
+
+Expected: at least one match — mist uses oklch values around hues 213°–214° (the slate-blue tinted neutral).
+
+- [ ] **Step 6: Commit**
 
 ```bash
 git add components.json src/lib/utils.ts src/app/globals.css package.json pnpm-lock.yaml
-git commit -m "feat(ui): init shadcn with slate base palette"
+git commit -m "feat(ui): init shadcn with mist (v4 slate equivalent) palette"
 ```
 
 ---

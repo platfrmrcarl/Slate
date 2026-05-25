@@ -4,7 +4,7 @@
 
 Three coupled deliverables for the Slate app:
 
-1. Install shadcn UI with the **slate** base neutral palette as default, on Tailwind v4.
+1. Install shadcn UI with the **mist** base neutral palette as default, on Tailwind v4 (mist is the v4 cool blue-gray equivalent of the legacy `slate`, which v4 dropped — see §2.1).
 2. Add `next-themes` for system/light/dark mode with a UI toggle.
 3. Migrate every page and shared component under `src/app/*` and `src/components/*` to shadcn primitives in one focused push, and add a "Continue with Google" button to the sign-up page with tier preservation through the OAuth flow.
 
@@ -47,6 +47,8 @@ The generated blog theme system (`themes/slate-default/*`) is **out of scope** f
 The project is on `tailwindcss@4` and `@tailwindcss/postcss@4`. `globals.css` is currently just `@import "tailwindcss"` and `tailwind.config.ts` has no theme extensions.
 
 shadcn's Tailwind v4 mode does not extend `tailwind.config.ts`; it injects design tokens as CSS variables directly in `globals.css` with a `@theme inline` block that maps those variables to Tailwind utilities.
+
+**Base color note:** shadcn v4 dropped the legacy `slate` base color. The v4 base color set is `neutral`, `stone`, `zinc`, `mauve`, `olive`, `mist`, `taupe`. We use **`mist`** — a cool blue-gray neutral (hues 213°–228°) that is the v4 spiritual successor to the legacy `slate`. The v4 CLI has no `--base-color` flag, so init defaults to `neutral` and we manually swap the token block in `globals.css` to mist's values (sourced from the v4 base-colors registry) and update `components.json` to set `tailwind.baseColor: "mist"`.
 
 ### 2.2 Component organization
 
@@ -95,7 +97,8 @@ Not pre-designed. We will extract a shared auth shell organically if duplication
 
 ```bash
 npx shadcn@latest init
-# answers: TypeScript yes, style new-york, base color slate, CSS variables yes, RSC yes
+# answers: TypeScript yes, style new-york, base color defaults to neutral, CSS variables yes, RSC yes
+# (then patch components.json baseColor=mist and replace token blocks in globals.css per plan)
 
 # generate primitives needed for migration in one batch:
 npx shadcn@latest add button input label card separator alert form select \
