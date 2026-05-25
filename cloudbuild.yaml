@@ -40,7 +40,7 @@ steps:
       - |
         corepack enable
         pnpm build
-    waitFor: ["install"]
+    waitFor: ["lint", "test"]
     env:
       - "NODE_ENV=production"
       - "APP_URL=https://example.invalid"
