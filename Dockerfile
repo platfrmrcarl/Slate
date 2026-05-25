@@ -3,12 +3,17 @@
 # ---- Dependencies stage ----
 FROM node:22-slim AS deps
 WORKDIR /app
+ENV PNPM_STORE_DIR=/pnpm-store
 RUN corepack enable
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 # Copy workspace package manifests so pnpm install resolves their deps too;
 # without these, Next.js build's typecheck can't find CLI-only deps (commander).
 COPY packages/cli/package.json packages/cli/
-RUN pnpm install --frozen-lockfile
+# Cache mount lets pnpm reuse downloaded tarballs across builds when lockfile
+# changes. When the lockfile is unchanged the whole layer is hit instead, so
+# this only helps on dep churn.
+RUN --mount=type=cache,target=/pnpm-store,sharing=locked \
+    pnpm install --frozen-lockfile
 
 # ---- Build stage ----
 FROM node:22-slim AS build
@@ -26,7 +31,10 @@ ENV DATABASE_URL=postgres://build:build@localhost:5432/build \
     PREVIEW_TOKEN_SECRET=build-time-only-build-time-only-build-time-only-build \
     INTERNAL_JOB_SECRET=build-time-only-build-time-only-build-time-only-build \
     GCS_BUCKET_MEDIA=slate-build-placeholder
-RUN pnpm build
+# .next/cache holds webpack module + swc transform cache. Persisting it across
+# builds turns most `pnpm build` runs into incremental compiles.
+RUN --mount=type=cache,target=/app/.next/cache,sharing=locked \
+    pnpm build
 RUN pnpm prune --prod
 
 # ---- Runtime stage (Cloud Run service) ----
