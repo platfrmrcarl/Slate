@@ -11,6 +11,8 @@ export const runtime = "nodejs";
 
 const STATE_COOKIE_PREFIX = "slate_oauth_state_";
 const PKCE_COOKIE_PREFIX = "slate_oauth_pkce_";
+const TIER_COOKIE_NAME = "oauth_signup_tier";
+const VALID_TIERS = new Set(["essential", "premium", "enterprise"]);
 
 function redirectTo(location: string): Response {
   return new Response(null, { status: 302, headers: { location } });
@@ -30,6 +32,7 @@ export async function GET(
     return new Response("invalid oauth state", { status: 400 });
   }
 
+  let isNewUser = false;
   try {
     if (provider === "google") {
       const client = googleClient();
@@ -38,13 +41,14 @@ export async function GET(
       const tokens = await client.validateAuthorizationCode(code, codeVerifier);
       const profile = await fetchGoogleProfile(tokens.accessToken());
       if (!profile.email_verified) return new Response("email not verified", { status: 400 });
-      const { user } = await upsertOAuthUser({
+      const { user, isNew } = await upsertOAuthUser({
         provider: "google",
         providerAccountId: profile.sub,
         email: profile.email,
         displayName: profile.name ?? profile.email.split("@")[0]!,
         ...(profile.picture ? { avatarUrl: profile.picture } : {}),
       });
+      isNewUser = isNew;
       await setSessionCookie(user.id);
     } else if (provider === "github") {
       const client = githubClient();
@@ -70,8 +74,14 @@ export async function GET(
     throw err;
   }
 
+  const tierCookie = cookieStore.get(TIER_COOKIE_NAME)?.value;
   cookieStore.delete(`${STATE_COOKIE_PREFIX}${provider}`);
   cookieStore.delete(`${PKCE_COOKIE_PREFIX}${provider}`);
+  cookieStore.delete(TIER_COOKIE_NAME);
+
+  if (isNewUser && tierCookie && VALID_TIERS.has(tierCookie)) {
+    return redirectTo(`/sign-up/checkout?tier=${encodeURIComponent(tierCookie)}`);
+  }
   return redirectTo("/");
 }
 
