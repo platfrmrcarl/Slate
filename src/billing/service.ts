@@ -14,6 +14,21 @@ class BillingNotConfiguredError extends Error {
 export { BillingNotConfiguredError };
 
 /**
+ * Look up the Stripe Customer ID associated with this user via the
+ * subscriptions table. Returns null if the user has never started a
+ * Checkout — i.e. no `ensureStripeCustomer` call has ever been persisted
+ * for them through a subscription event.
+ */
+export async function findStripeCustomerIdForUser(userId: string): Promise<string | null> {
+  const rows = await db()
+    .select({ id: subscriptions.stripeCustomerId })
+    .from(subscriptions)
+    .where(eq(subscriptions.userId, userId))
+    .limit(1);
+  return rows[0]?.id ?? null;
+}
+
+/**
  * Ensure a Stripe Customer exists for the given userId + email. Returns the
  * Customer ID. Reuses an existing customer if a subscription row already
  * tracks one; otherwise creates a fresh Customer.
@@ -26,12 +41,8 @@ export async function ensureStripeCustomer(input: {
   const s = stripe();
   if (!s) throw new BillingNotConfiguredError();
 
-  const existing = await db()
-    .select({ id: subscriptions.stripeCustomerId })
-    .from(subscriptions)
-    .where(eq(subscriptions.userId, input.userId))
-    .limit(1);
-  if (existing[0]) return existing[0].id;
+  const existing = await findStripeCustomerIdForUser(input.userId);
+  if (existing) return existing;
 
   const customer = await s.customers.create({
     email: input.email,
